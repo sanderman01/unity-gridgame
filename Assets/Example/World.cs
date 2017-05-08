@@ -6,17 +6,19 @@ using AmarokGames.Grids.Data;
 namespace AmarokGames.Grids.Examples {
 
     public class World : MonoBehaviour {
-        public Int2 worldSize = new Int2(1024, 1024);
-        public Int2 worldChunkSize = new Int2(64, 64);
+        private Int2 worldSize;
+        private Int2 worldChunkSize;
 
-        public Grid2DBehaviour gridPrefab;
-        public GridChunkBehaviour chunkPrefab;
+        public Grid2D WorldGrid { get; private set; }
+        public Grid2DBehaviour WorldGridBehaviour { get; private set; }
 
-        private Grid2D worldGrid;
-
-        // Use this for initialization
-        void Start() {
-            worldGrid = CreateWorldGrid();
+        public static World CreateWorld(string name, Int2 worldSize, Int2 worldChunkSize) {
+            GameObject obj = new GameObject(name);
+            World world = obj.AddComponent<World>();
+            world.worldSize = worldSize;
+            world.worldChunkSize = worldChunkSize;
+            world.WorldGrid = world.CreateWorldGrid();
+            return world;
         }
 
         private Grid2D CreateWorldGrid() {
@@ -35,9 +37,17 @@ namespace AmarokGames.Grids.Examples {
 
             Grid2D grid = new Grid2D(chunkWidth, chunkHeight, layers);
 
-            Grid2DBehaviour worldGridBehaviour = Instantiate<Grid2DBehaviour>(gridPrefab);
-            worldGridBehaviour.Setup(grid, chunkPrefab);
+            GameObject obj = new GameObject("worldgrid");
+            obj.transform.SetParent(this.transform, false);
+            WorldGridBehaviour = obj.AddComponent<Grid2DBehaviour>();
+            WorldGridBehaviour.Setup(grid);
 
+            CreateChunks(chunkWidth, chunkHeight, solidLayerIndex, tileForegroundLayerIndex, grid);
+
+            return grid;
+        }
+
+        private void CreateChunks(int chunkWidth, int chunkHeight, int solidLayerIndex, int tileForegroundLayerIndex, Grid2D grid) {
             // create chunks
             for (int y = 0; y < worldSize.y / chunkHeight; ++y) {
                 for (int x = 0; x < worldSize.x / chunkWidth; ++x) {
@@ -52,7 +62,7 @@ namespace AmarokGames.Grids.Examples {
                         //Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
 
                         // Calculate value based on gridCoord
-                        // Blahblah
+                        // for now simply use a random value
                         bool solidValue = Random.value < 0.5f;
                         solidBuffer.SetValue(solidValue, i);
                         ushort foreground = solidValue ? (ushort)1 : (ushort)0;
@@ -60,12 +70,10 @@ namespace AmarokGames.Grids.Examples {
                     }
                 }
             }
-
-            return grid;
         }
 
         void LateUpdate() {
-            worldGrid.ClearRecent();
+            WorldGrid.ClearRecent();
         }
     }
 }

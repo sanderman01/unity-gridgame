@@ -3,6 +3,7 @@
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.Grids {
 
@@ -25,8 +26,18 @@ namespace AmarokGames.Grids {
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
+        public static GridSolidRenderer Create(string objName, Material material, Grid2DBehaviour gridBehaviour) {
+            GameObject obj = new GameObject(objName);
+            GridSolidRenderer result = obj.AddComponent<GridSolidRenderer>();
+            result.gridBehaviour = gridBehaviour;
+            result.grid = gridBehaviour.ParentGrid;
+            result.filter = obj.AddComponent<MeshFilter>();
+            MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            return result;
+        }
+
         void Start() {
-            gridBehaviour = GetComponent<Grid2DBehaviour>();
             filter = GetComponent<MeshFilter>();
             grid = gridBehaviour.ParentGrid;
             mesh = new Mesh();

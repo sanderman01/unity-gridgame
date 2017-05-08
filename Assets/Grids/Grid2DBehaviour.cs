@@ -6,15 +6,12 @@ using UnityEngine;
 namespace AmarokGames.Grids {
 
     public class Grid2DBehaviour : MonoBehaviour {
-
-        private GridChunkBehaviour chunkPrefab;
         private const bool drawChunkBoundsGizmo = true;
 
         public Grid2D ParentGrid { get; private set; }
 
-        public void Setup(Grid2D parentGrid, GridChunkBehaviour chunkPrefab) {
+        public void Setup(Grid2D parentGrid) {
             this.ParentGrid = parentGrid;
-            this.chunkPrefab = chunkPrefab;
         }
 
         void Update() {
@@ -26,13 +23,13 @@ namespace AmarokGames.Grids {
 
         public void CreateChunkBehaviour(Int2 chunkCoord) {
             // Create and position chunk GameObject
-            GridChunkBehaviour chunkBehaviour = Instantiate<GridChunkBehaviour>(chunkPrefab, this.transform, false);
+            string name = string.Format("chunk {0}", chunkCoord);
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(this.transform, false);
+
+            GridChunkBehaviour chunkBehaviour = obj.AddComponent<GridChunkBehaviour>();
             Vector2 pos = new Vector2(chunkCoord.x * ParentGrid.ChunkWidth, chunkCoord.y * ParentGrid.ChunkHeight);
             chunkBehaviour.transform.localPosition = pos;
-
-            string name = string.Format("chunk {0}", chunkCoord);
-            chunkBehaviour.gameObject.name = name;
-
             chunkBehaviour.Setup(chunkCoord, ParentGrid);
         }
 
@@ -73,6 +70,9 @@ namespace AmarokGames.Grids {
         void DrawChunkBoundsGizmo() {
             Gizmos.matrix = transform.localToWorldMatrix;
             Grid2D grid = ParentGrid;
+
+            if (grid == null) return;
+
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             IEnumerable<Int2> loadedChunks = grid.GetLoadedChunks();
