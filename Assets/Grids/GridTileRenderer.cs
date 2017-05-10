@@ -115,12 +115,9 @@ namespace AmarokGames.Grids {
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
                 Chunk chunk;
-                if (!grid.TryGetChunk(chunkCoord, out chunk)) {
-                    continue;
+                if (grid.TryGetChunk(chunkCoord, out chunk)) {
+                    BuildChunkGeometry(grid, chunk, chunkCoord, tileData, mesh, chunkWidth, chunkHeight, vertices, uvs, normals, triangles);
                 }
-
-                UShortBuffer buffer = (UShortBuffer)chunk.GetBuffer(1);
-                BuildChunkGeometry(tileData, chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, uvs, normals, triangles);
             }
 
             // finalize mesh
@@ -134,20 +131,51 @@ namespace AmarokGames.Grids {
             mesh.UploadMeshData(false);
         }
 
-        private static void BuildChunkGeometry(TileRenderData[] tileRenderData, Int2 chunkCoord, UShortBuffer buffer, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Grid2D grid, Chunk chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
             int vertexCount = vertices.Count;
+            const int layerId = 1;
+            
+            // Copy data to a local buffer for easier access.
+            // Because tiles encroach on their neighbours, we need both the data for the current chunk, and the borders of any neighbouring chunks.
+            // For this reason, we'll also shift all the cells in the current chunk by a (1,1) offset
+            ushort[,] b = new ushort[chunkHeight + 2, chunkWidth + 2];
 
-            for (int i = 0; i < buffer.Length; ++i) {
-                // generate vertices
-                ushort value = buffer.GetValue(i);
-                int variant = 0; // lets not bother with multiple variants just yets.
-                if (tileRenderData[value].draw) {
-                    Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
-                    Vector3 vertexPos = gridCoord;
-                    // add quad
-                    Vector2 uv00 = tileRenderData[value].variants[0].uvMiddle.uv00;
-                    Vector2 uv11 = tileRenderData[value].variants[0].uvMiddle.uv11;
-                    AddQuad(vertexPos, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+            // copy data from the main chunk buffer to the local buffer
+            UShortBuffer mainbuf = (UShortBuffer)chunk.GetBuffer(layerId);
+            for(int y = 0; y < chunkHeight; y++) {
+                for(int x = 0; x < chunkWidth; x++) {
+                    int cellindex = Grid2D.GetCellIndex(new Int2(x, y), chunkWidth);
+                    b[y + 1, x + 1] = mainbuf.GetValue(cellindex);
+                }
+            }
+
+            // TODO copy data from neighbouring chunk buffers to local buffer
+            // TODO Top
+            // TODO Bottom
+            // TODO Left
+            // TODO Right
+
+            // render tiles using previously filled local buffer
+            // for every tile
+            for (int y = 0; y < chunkHeight; y++) {
+                for (int x = 0; x < chunkWidth; x++) {
+
+                    // get tile values from buffer and determine if we should draw the tile
+                    ushort value = b[y+1, x+1];
+                    int variant = 0; // TODO Tile variants
+                    if (tileRenderData[value].draw) {
+
+                        // Draw the middle of the tile. The middle will always be drawn.
+                        Vector3 vertexPos = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkWidth + y);
+                        Vector2 uv00 = tileRenderData[value].variants[0].uvMiddle.uv00;
+                        Vector2 uv11 = tileRenderData[value].variants[0].uvMiddle.uv11;
+                        // TODO add quad size parameter because we'll need it later to draw the smaller tile segments.
+                        AddQuad(vertexPos, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        
+                        // TODO Draw borders...
+                        
+                        // TODO Draw corners... 
+                    }
                 }
             }
         }

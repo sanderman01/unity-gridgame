@@ -2,6 +2,7 @@
 
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
+using System;
 
 namespace AmarokGames.Grids {
 
@@ -123,6 +124,15 @@ namespace AmarokGames.Grids {
             return chunks.TryGetValue(chunkCoord, out result);
         }
 
+        public IDataBuffer TryGetBuffer(Int2 chunkCoord, int layerId) {
+            Chunk chunk;
+            if(TryGetChunk(chunkCoord, out chunk)) {
+                return chunk.GetBuffer(layerId);
+            } else {
+                return null;
+            }
+        }
+
         public IEnumerable<Int2> GetLoadedChunks() {
             return chunks.Keys;
         }
@@ -140,6 +150,19 @@ namespace AmarokGames.Grids {
                 }
             }
             return result;
+        }
+
+        // Temporarily use this until we figure out a better approach to accessing data across chunk boundaries
+        public ushort GetUShort(Int2 gridCoord, int layerId) {
+            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            Chunk chunk;
+            if (TryGetChunk(chunkCoord, out chunk)) {
+                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                UShortBuffer buffer = (UShortBuffer)chunk.GetBuffer(layerId);
+                return buffer.GetValue(index);
+            } else {
+                return 0;
+            }
         }
 
         //public bool GetBoolValue(Int2 gridCoord, int layer) {
