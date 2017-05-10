@@ -8,7 +8,7 @@ using UnityEngine;
 public class Camera2D : MonoBehaviour {
 
     [SerializeField]
-    private int pixelsPerMeter = 32; // Eg. setting this to 32 means that an area of 1 meter squared will occupy 32x32 of screen real estate.
+    private int pixelsPerMeter = 16; // Eg. setting this to 32 means that an area of 1 meter squared will occupy 32x32 of screen real estate.
 
     private Camera cam;
 
@@ -17,6 +17,6 @@ public class Camera2D : MonoBehaviour {
     }
 
 	void Update () {
-        cam.orthographicSize = Screen.height / pixelsPerMeter;
+        cam.orthographicSize = Screen.height / (pixelsPerMeter*2);
 	}
 }
