@@ -56,10 +56,10 @@ namespace AmarokGames.Grids {
 
 
             uvMiddle = new TilePartUV(x1, y1, x3, y3);
-            uvTop    = new TilePartUV(); // TODO uvTop
-            uvBottom = new TilePartUV(); // TODO uvBottom
+            uvTop    = new TilePartUV(x1, y3, x3, y4);
+            uvBottom = new TilePartUV(x1, y0, x3, y1);
             uvLeft   = new TilePartUV(x0, y1, x1, y3);
-            uvRight  = new TilePartUV(); // TODO uvRight
+            uvRight  = new TilePartUV(x3, y1, x4, y3);
 
             // TODO uv Inside corners
             uvInsideTopLeft = new TilePartUV();
@@ -182,7 +182,7 @@ namespace AmarokGames.Grids {
                 for (int x = 0; x < chunkWidth; x++) {
 
                     // get tile values from buffer and determine if we should draw the tile
-                    ushort value = b[y+1, x+1];
+                    ushort value = b[y + 1, x + 1];
                     int variant = 0; // TODO Tile variants
                     if (tileRenderData[value].draw) {
 
@@ -196,12 +196,27 @@ namespace AmarokGames.Grids {
                         }
 
                         // TODO Draw borders...
-
-                        ushort left =       b[y + 1, x + 0];
-                        ushort topleft =    b[y + 2, x + 0];
-                        ushort bottomleft = b[y + 0, x + 0];
+                        ushort bottomleft  = b[y + 0, x + 0];
+                        ushort bottom      = b[y + 0, x + 1];
+                        ushort bottomright = b[y + 0, x + 2];
+                        ushort left        = b[y + 1, x + 0];
+                        ushort right       = b[y + 1, x + 2];
+                        ushort topleft     = b[y + 2, x + 0];
+                        ushort top         = b[y + 2, x + 1];
+                        ushort topright    = b[y + 2, x + 2];
+                        
+                        
 
                         // Draw Left border
+                        if (right == 0 && topright == 0 && bottomright == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvRight.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvRight.uv11;
+                            Vector2 size = new Vector2(0.5f, 1);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
+                        // Draw right border
                         if (left == 0 && topleft == 0 && bottomleft == 0) {
                             Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvLeft.uv00;
@@ -209,7 +224,25 @@ namespace AmarokGames.Grids {
                             Vector2 size = new Vector2(0.5f, 1);
                             AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
-                        
+
+                        // Draw Top border
+                        if (top == 0 && topleft == 0 && topright == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 0, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvTop.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvTop.uv11;
+                            Vector2 size = new Vector2(1, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
+                        // Draw Bottom border
+                        if (bottom == 0 && bottomleft == 0 && bottomright == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 0, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvBottom.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvBottom.uv11;
+                            Vector2 size = new Vector2(1, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
                         // TODO Draw corners... 
                     }
                 }
