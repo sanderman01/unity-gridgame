@@ -23,6 +23,10 @@ namespace AmarokGames.Grids {
         public TilePartUV uvBottom;
         public TilePartUV uvLeft;
         public TilePartUV uvRight;
+        public TilePartUV uvOutsideTopLeft;
+        public TilePartUV uvOutsideTopRight;
+        public TilePartUV uvOutsideBottomLeft;
+        public TilePartUV uvOutsideBottomRight;
         public TilePartUV uvInsideTopLeft;
         public TilePartUV uvInsideTopRight;
         public TilePartUV uvInsideBottomLeft;
@@ -54,12 +58,17 @@ namespace AmarokGames.Grids {
             float y5 = uv00.y + 5 * a.y;
             float y6 = uv00.y + 6 * a.y;
 
-
             uvMiddle = new TilePartUV(x1, y1, x3, y3);
             uvTop    = new TilePartUV(x1, y3, x3, y4);
             uvBottom = new TilePartUV(x1, y0, x3, y1);
             uvLeft   = new TilePartUV(x0, y1, x1, y3);
             uvRight  = new TilePartUV(x3, y1, x4, y3);
+
+            uvOutsideTopLeft     = new TilePartUV(x0, y3, x1, y4);
+            uvOutsideTopRight    = new TilePartUV(x3, y3, x4, y4);
+            uvOutsideBottomLeft  = new TilePartUV(x0, y0, x1, y1);
+            uvOutsideBottomRight = new TilePartUV(x3, y0, x4, y1);
+
 
             // TODO uv Inside corners
             uvInsideTopLeft = new TilePartUV();
@@ -243,7 +252,43 @@ namespace AmarokGames.Grids {
                             AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
-                        // TODO Draw corners... 
+                        // TODO Draw outside corners
+
+                        // Draw top left corner
+                        if (left == 0 && top == 0 && topleft == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideTopLeft.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideTopLeft.uv11;
+                            Vector2 size = new Vector2(0.5f, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
+                        // Draw top right corner
+                        if (right == 0 && top == 0 && topright == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideTopRight.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideTopRight.uv11;
+                            Vector2 size = new Vector2(0.5f, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
+                        // Draw bottom left corner
+                        if (left == 0 && top == 0 && topleft == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv11;
+                            Vector2 size = new Vector2(0.5f, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
+
+                        // Draw bottom right corner
+                        if (right == 0 && top == 0 && topright == 0) {
+                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv00;
+                            Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv11;
+                            Vector2 size = new Vector2(0.5f, 0.5f);
+                            AddQuad(v, size, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
+                        }
                     }
                 }
             }
