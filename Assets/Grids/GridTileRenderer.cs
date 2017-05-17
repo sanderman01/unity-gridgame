@@ -179,6 +179,16 @@ namespace AmarokGames.Grids {
                 }
             }
 
+            // copy data from neighbouring chunks to the local buffer
+            for (int y = -1; y < chunkHeight + 1; y++) {
+                for (int x = -1; x < chunkWidth + 1; x++) {
+                    if (y == -1 || y == chunkWidth || x == -1 || x == chunkWidth) {
+                        Int2 coord = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkHeight + y);
+                        b[y + 1, x + 1] = grid.GetUShort(coord, layerId);
+                    }
+                }
+            }
+
             // TODO copy data from neighbouring chunk buffers to local buffer
             // TODO Top
             // TODO Bottom
