@@ -65,7 +65,7 @@ namespace AmarokGames.Grids.Examples {
                         // for now simply use a random value
                         bool solidValue = Random.value < 0.5f;
                         solidBuffer.SetValue(solidValue, i);
-                        ushort foreground = solidValue ? (ushort)1 : (ushort)0;
+                        ushort foreground = solidValue ? (ushort)Random.Range(1,3) : (ushort)0;
                         foregroundBuffer.SetValue(foreground, i);
                     }
                 }
