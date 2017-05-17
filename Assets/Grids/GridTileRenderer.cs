@@ -200,14 +200,16 @@ namespace AmarokGames.Grids {
             for (int y = 0; y < chunkHeight; y++) {
                 for (int x = 0; x < chunkWidth; x++) {
 
+                    Int2 gridCoord = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkHeight + y);
+
                     // get tile values from buffer and determine if we should draw the tile
                     ushort value = b[y + 1, x + 1];
                     int variant = 0; // TODO Tile variants
                     if (tileRenderData[value].draw) {
 
                         // Draw the middle of the tile. The middle will always be drawn.
-                        { 
-                            Vector3 v = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkWidth + y);
+                        {
+                            Vector3 v = gridCoord;
                             Vector2 uv00 = tileRenderData[value].variants[0].uvMiddle.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvMiddle.uv11;
                             AddQuad(v, Vector2.one, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -233,7 +235,7 @@ namespace AmarokGames.Grids {
                         // Draw right border
                         bool renderRight = right == 0 && topright == 0 && bottomright == 0;
                         if (renderRight) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y);
+                            Vector3 v = new Vector2(gridCoord.x + 1.0f, gridCoord.y);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvRight.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvRight.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -242,7 +244,7 @@ namespace AmarokGames.Grids {
                         // Draw left border
                         bool renderLeft = left == 0 && topleft == 0 && bottomleft == 0;
                         if (renderLeft) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y);
+                            Vector3 v = new Vector2(gridCoord.x - 0.5f, gridCoord.y);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvLeft.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvLeft.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -251,7 +253,7 @@ namespace AmarokGames.Grids {
                         // Draw top border
                         bool renderTop = top == 0 && topleft == 0 && topright == 0;
                         if (renderTop) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 0, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector3 v = new Vector2(gridCoord.x + 0, gridCoord.y + 1.0f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvTop.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvTop.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -260,7 +262,7 @@ namespace AmarokGames.Grids {
                         // Draw bottom border
                         bool renderBottom = bottom == 0 && bottomleft == 0 && bottomright == 0;
                         if (renderBottom) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 0, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector3 v = new Vector2(gridCoord.x + 0, gridCoord.y - 0.5f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvBottom.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvBottom.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -270,7 +272,7 @@ namespace AmarokGames.Grids {
                         // Draw top left outside corner
                         bool renderTopLeft = left == 0 && top == 0 && topleft == 0;
                         if (renderTopLeft) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector3 v = new Vector2(gridCoord.x - 0.5f, gridCoord.y + 1.0f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideTopLeft.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideTopLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -279,7 +281,7 @@ namespace AmarokGames.Grids {
                         // Draw top right outside corner
                         bool renderTopRight = right == 0 && top == 0 && topright == 0;
                         if (renderTopRight) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y + 1.0f);
+                            Vector3 v = new Vector2(gridCoord.x + 1.0f, gridCoord.y + 1.0f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideTopRight.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideTopRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -288,7 +290,7 @@ namespace AmarokGames.Grids {
                         // Draw bottom left outside corner
                         bool renderBottomLeft = left == 0 && bottom == 0 && bottomleft == 0;
                         if (renderBottomLeft) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector3 v = new Vector2(gridCoord.x - 0.5f, gridCoord.y - 0.5f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -297,7 +299,7 @@ namespace AmarokGames.Grids {
                         // Draw bottom right outside corner
                         bool renderBottomRight = right == 0 && bottom == 0 && bottomright == 0;
                         if (renderBottomRight) {
-                            Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y - 0.5f);
+                            Vector3 v = new Vector2(gridCoord.x + 1.0f, gridCoord.y - 0.5f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
