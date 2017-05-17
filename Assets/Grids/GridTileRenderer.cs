@@ -273,7 +273,7 @@ namespace AmarokGames.Grids {
                         }
 
                         // Draw bottom left corner
-                        if (left == 0 && top == 0 && topleft == 0) {
+                        if (left == 0 && bottom == 0 && bottomleft == 0) {
                             Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x - 0.5f, chunkCoord.y * chunkWidth + y - 0.5f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomLeft.uv11;
@@ -282,7 +282,7 @@ namespace AmarokGames.Grids {
                         }
 
                         // Draw bottom right corner
-                        if (right == 0 && top == 0 && topright == 0) {
+                        if (right == 0 && bottom == 0 && bottomright == 0) {
                             Vector3 v = new Vector2(chunkCoord.x * chunkWidth + x + 1.0f, chunkCoord.y * chunkWidth + y - 0.5f);
                             Vector2 uv00 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv00;
                             Vector2 uv11 = tileRenderData[value].variants[0].uvOutsideBottomRight.uv11;
