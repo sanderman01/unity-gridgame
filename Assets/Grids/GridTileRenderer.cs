@@ -19,27 +19,27 @@ namespace AmarokGames.Grids {
     /// In the tilesheet, each tile variant is basically a seperately and fully drawn tile sprite, so we need uv data for all the segments, per variant.
     /// </summary>
     public struct TileVariant {
-        public TilePartUV uvMiddle;
-        public TilePartUV uvTop;
-        public TilePartUV uvTop1;
-        public TilePartUV uvTop2;
-        public TilePartUV uvBottom;
-        public TilePartUV uvBottom1;
-        public TilePartUV uvBottom2;
-        public TilePartUV uvLeft;
-        public TilePartUV uvLeft1;
-        public TilePartUV uvLeft2;
-        public TilePartUV uvRight;
-        public TilePartUV uvRight1;
-        public TilePartUV uvRight2;
-        public TilePartUV uvOutsideTopLeft;
-        public TilePartUV uvOutsideTopRight;
-        public TilePartUV uvOutsideBottomLeft;
-        public TilePartUV uvOutsideBottomRight;
-        public TilePartUV uvInsideTopLeft;
-        public TilePartUV uvInsideTopRight;
-        public TilePartUV uvInsideBottomLeft;
-        public TilePartUV uvInsideBottomRight;
+        public SpriteSegment uvMiddle;
+        public SpriteSegment uvTop;
+        public SpriteSegment uvTop1;
+        public SpriteSegment uvTop2;
+        public SpriteSegment uvBottom;
+        public SpriteSegment uvBottom1;
+        public SpriteSegment uvBottom2;
+        public SpriteSegment uvLeft;
+        public SpriteSegment uvLeft1;
+        public SpriteSegment uvLeft2;
+        public SpriteSegment uvRight;
+        public SpriteSegment uvRight1;
+        public SpriteSegment uvRight2;
+        public SpriteSegment uvOutsideTopLeft;
+        public SpriteSegment uvOutsideTopRight;
+        public SpriteSegment uvOutsideBottomLeft;
+        public SpriteSegment uvOutsideBottomRight;
+        public SpriteSegment uvInsideTopLeft;
+        public SpriteSegment uvInsideTopRight;
+        public SpriteSegment uvInsideBottomLeft;
+        public SpriteSegment uvInsideBottomRight;
 
         public TileVariant(Vector2 uv00, Vector2 uv11) {
 
@@ -67,44 +67,29 @@ namespace AmarokGames.Grids {
             float y5 = uv00.y + 5 * a.y;
             float y6 = uv00.y + 6 * a.y;
 
-            uvMiddle  = new TilePartUV(x1, y1, x3, y3);
-            uvTop     = new TilePartUV(x1, y3, x3, y4);
-            uvTop1    = new TilePartUV(x1, y3, x2, y4);
-            uvTop2    = new TilePartUV(x2, y3, x3, y4);
-            uvBottom  = new TilePartUV(x1, y0, x3, y1);
-            uvBottom1 = new TilePartUV(x1, y0, x2, y1);
-            uvBottom2 = new TilePartUV(x2, y0, x3, y1);
-            uvLeft    = new TilePartUV(x0, y1, x1, y3);
-            uvLeft1   = new TilePartUV(x0, y1, x1, y2);
-            uvLeft2   = new TilePartUV(x0, y2, x1, y3);
-            uvRight   = new TilePartUV(x3, y1, x4, y3);
-            uvRight1  = new TilePartUV(x3, y1, x4, y2);
-            uvRight2  = new TilePartUV(x3, y2, x4, y3);
+            uvMiddle  = new SpriteSegment(x1, y1, x3, y3);
+            uvTop     = new SpriteSegment(x1, y3, x3, y4);
+            uvTop1    = new SpriteSegment(x1, y3, x2, y4);
+            uvTop2    = new SpriteSegment(x2, y3, x3, y4);
+            uvBottom  = new SpriteSegment(x1, y0, x3, y1);
+            uvBottom1 = new SpriteSegment(x1, y0, x2, y1);
+            uvBottom2 = new SpriteSegment(x2, y0, x3, y1);
+            uvLeft    = new SpriteSegment(x0, y1, x1, y3);
+            uvLeft1   = new SpriteSegment(x0, y1, x1, y2);
+            uvLeft2   = new SpriteSegment(x0, y2, x1, y3);
+            uvRight   = new SpriteSegment(x3, y1, x4, y3);
+            uvRight1  = new SpriteSegment(x3, y1, x4, y2);
+            uvRight2  = new SpriteSegment(x3, y2, x4, y3);
 
-            uvOutsideTopLeft     = new TilePartUV(x0, y3, x1, y4);
-            uvOutsideTopRight    = new TilePartUV(x3, y3, x4, y4);
-            uvOutsideBottomLeft  = new TilePartUV(x0, y0, x1, y1);
-            uvOutsideBottomRight = new TilePartUV(x3, y0, x4, y1);
+            uvOutsideTopLeft     = new SpriteSegment(x0, y3, x1, y4);
+            uvOutsideTopRight    = new SpriteSegment(x3, y3, x4, y4);
+            uvOutsideBottomLeft  = new SpriteSegment(x0, y0, x1, y1);
+            uvOutsideBottomRight = new SpriteSegment(x3, y0, x4, y1);
 
-            uvInsideTopLeft     = new TilePartUV(x0, y5, x1, y6);
-            uvInsideTopRight    = new TilePartUV(x1, y5, x2, y6);
-            uvInsideBottomLeft  = new TilePartUV(x0, y4, x1, y5);
-            uvInsideBottomRight = new TilePartUV(x1, y4, x2, y5);
-        }
-    }
-
-    public struct TilePartUV {
-        public Vector2 uv00;
-        public Vector2 uv11;
-
-        public TilePartUV(Vector2 uv00, Vector2 uv11) {
-            this.uv00 = uv00;
-            this.uv11 = uv11;
-        }
-
-        public TilePartUV(float x0, float y0, float x1, float y1) {
-            this.uv00 = new Vector2(x0, y0);
-            this.uv11 = new Vector2(x1, y1);
+            uvInsideTopLeft     = new SpriteSegment(x0, y5, x1, y6);
+            uvInsideTopRight    = new SpriteSegment(x1, y5, x2, y6);
+            uvInsideBottomLeft  = new SpriteSegment(x0, y4, x1, y5);
+            uvInsideBottomRight = new SpriteSegment(x1, y4, x2, y5);
         }
     }
 
