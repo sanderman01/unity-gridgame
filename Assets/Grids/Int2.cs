@@ -55,5 +55,8 @@ namespace AmarokGames.Grids {
         public static implicit operator Vector3(Int2 a) {
             return new Vector3(a.x, a.y, 0);
         }
+
+        public static bool operator ==(Int2 a, Int2 b) { return a.x == b.x && a.y == b.y; }
+        public static bool operator !=(Int2 a, Int2 b) { return a.x != b.x || a.y != b.y; }
     }
 }
