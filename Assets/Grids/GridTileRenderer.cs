@@ -236,9 +236,10 @@ namespace AmarokGames.Grids {
                     if (tileRenderData[current].draw) {
 
                         // Draw the middle of the tile. The middle will always be drawn.
-                        float zLayer = zOffset * tileRenderData[current].zLayer;
+                        int zLayer = tileRenderData[current].zLayer;
+                        float zDepth = zOffset * zLayer;
                         {
-                            Vector3 v = new Vector3(gridCoord.x, gridCoord.y, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x, gridCoord.y, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvMiddle.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvMiddle.uv11;
                             AddQuad(v, Vector2.one, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -246,36 +247,36 @@ namespace AmarokGames.Grids {
 
                         // Draw outside borders
                         // Draw right border
-                        bool renderRight = right != current && topright != current && bottomright != current;
+                        bool renderRight = right != current && topright != current && bottomright != current && zLayer > tileRenderData[right].zLayer;
                         if (renderRight) {
-                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvRight.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvRight.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw left border
-                        bool renderLeft = left != current && topleft != current && bottomleft != current;
+                        bool renderLeft = left != current && topleft != current && bottomleft != current && zLayer > tileRenderData[left].zLayer;
                         if (renderLeft) {
-                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvLeft.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvLeft.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw top border
-                        bool renderTop = top != current && topleft != current && topright != current;
+                        bool renderTop = top != current && topleft != current && topright != current && zLayer > tileRenderData[top].zLayer;
                         if (renderTop) {
-                            Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y + 1.0f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y + 1.0f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvTop.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvTop.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom border
-                        bool renderBottom = bottom != current && bottomleft != current && bottomright != current;
+                        bool renderBottom = bottom != current && bottomleft != current && bottomright != current && zLayer > tileRenderData[bottom].zLayer;
                         if (renderBottom) {
-                            Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y - 0.5f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y - 0.5f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvBottom.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvBottom.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -283,36 +284,36 @@ namespace AmarokGames.Grids {
 
                         // Draw outside corners
                         // Draw top left outside corner
-                        bool renderTopLeft = left != current && top != current && topleft != current;
+                        bool renderTopLeft = left != current && top != current && topleft != current && zLayer > tileRenderData[topleft].zLayer;
                         if (renderTopLeft) {
-                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y + 1.0f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y + 1.0f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvOutsideTopLeft.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvOutsideTopLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw top right outside corner
-                        bool renderTopRight = right != current && top != current && topright != current;
+                        bool renderTopRight = right != current && top != current && topright != current && zLayer > tileRenderData[topright].zLayer;
                         if (renderTopRight) {
-                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y + 1.0f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y + 1.0f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvOutsideTopRight.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvOutsideTopRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom left outside corner
-                        bool renderBottomLeft = left != current && bottom != current && bottomleft != current;
+                        bool renderBottomLeft = left != current && bottom != current && bottomleft != current && zLayer > tileRenderData[bottomleft].zLayer;
                         if (renderBottomLeft) {
-                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y - 0.5f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y - 0.5f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvOutsideBottomLeft.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvOutsideBottomLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom right outside corner
-                        bool renderBottomRight = right != current && bottom != current && bottomright != current;
+                        bool renderBottomRight = right != current && bottom != current && bottomright != current && zLayer > tileRenderData[bottomright].zLayer;
                         if (renderBottomRight) {
-                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y - 0.5f, zLayer);
+                            Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y - 0.5f, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvOutsideBottomRight.uv00;
                             Vector2 uv11 = tileRenderData[current].variants[0].uvOutsideBottomRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -339,22 +340,22 @@ namespace AmarokGames.Grids {
 
                     // Draw bottom left inside corner
                     if (renderBottomLeftInside) {
-                        float zLayer = zOffset * tileRenderData[left].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvInsideBottomLeft.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvInsideBottomLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight1) {
-                        float zLayer = zOffset * tileRenderData[left].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvRight1.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvRight1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop1) {
-                        float zLayer = zOffset * tileRenderData[bottom].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[bottom].variants[0].uvTop1.uv00;
                         Vector2 uv11 = tileRenderData[bottom].variants[0].uvTop1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -362,22 +363,22 @@ namespace AmarokGames.Grids {
 
                     // Draw bottom right inside corner
                     if (renderBottomRightInside) {
-                        float zLayer = zOffset * tileRenderData[bottom].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvInsideBottomRight.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvInsideBottomRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop2) {
-                        float zLayer = zOffset * tileRenderData[bottom].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[bottom].variants[0].uvTop2.uv00;
                         Vector2 uv11 = tileRenderData[bottom].variants[0].uvTop2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft1) {
-                        float zLayer = zOffset * tileRenderData[right].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zLayer);
+                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvLeft1.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvLeft1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -385,22 +386,22 @@ namespace AmarokGames.Grids {
 
                     // Draw top left inside corner
                     if (renderTopLeftInside) {
-                        float zLayer = zOffset * tileRenderData[left].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvInsideTopLeft.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvInsideTopLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight2) {
-                        float zLayer = zOffset * tileRenderData[left].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvRight2.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvRight2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom1) {
-                        float zLayer = zOffset * tileRenderData[top].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[top].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[top].variants[0].uvBottom1.uv00;
                         Vector2 uv11 = tileRenderData[top].variants[0].uvBottom1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
@@ -408,22 +409,22 @@ namespace AmarokGames.Grids {
 
                     // draw top right inside corner
                     if (renderTopRightInside) {
-                        float zLayer = zOffset * tileRenderData[right].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvInsideTopRight.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvInsideTopRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft2) {
-                        float zLayer = zOffset * tileRenderData[right].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvLeft2.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvLeft2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom2) {
-                        float zLayer = zOffset * tileRenderData[top].zLayer;
-                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zLayer);
+                        float zDepth = zOffset * tileRenderData[top].zLayer;
+                        Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[top].variants[0].uvBottom2.uv00;
                         Vector2 uv11 = tileRenderData[top].variants[0].uvBottom2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
