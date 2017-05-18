@@ -83,6 +83,7 @@ namespace AmarokGames.Grids.Examples {
                     Tile tile = tiles[i];
                     TileRenderData d = new TileRenderData();
                     d.draw = tile.BatchedRendering;
+                    d.zLayer = (ushort)i;
                     d.variants = new TileVariant[1];
                     d.variants[0] = new TileVariant(
                         new Vector2(tile.SpriteUV.x, tile.SpriteUV.y), 
