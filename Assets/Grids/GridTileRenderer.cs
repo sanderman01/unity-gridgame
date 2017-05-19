@@ -3,6 +3,7 @@
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace AmarokGames.Grids {
 
@@ -15,6 +16,8 @@ namespace AmarokGames.Grids {
 
     public class GridTileRenderer : MonoBehaviour {
 
+        private Material mat;
+
         [SerializeField]
         private TileRenderData[] tileData;
 
@@ -23,63 +26,76 @@ namespace AmarokGames.Grids {
         public int VertexCount { get { return vertexCount; } }
 
         private Grid2D grid;
-        private Mesh mesh;
 
         private Grid2DBehaviour gridBehaviour;
-        private MeshFilter filter;
 
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector2> uvs = new List<Vector2>();
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
-        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material material, Grid2DBehaviour gridBehaviour) {
+        private Dictionary<Int2, ChunkMeshRenderer> chunkMeshes = new Dictionary<Int2, ChunkMeshRenderer>();
+
+        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2DBehaviour gridBehaviour) {
+
+            Assert.IsNotNull(mat);
+
             GameObject obj = new GameObject(objName);
             GridTileRenderer result = obj.AddComponent<GridTileRenderer>();
             result.gridBehaviour = gridBehaviour;
             result.grid = gridBehaviour.ParentGrid;
-            result.filter = obj.AddComponent<MeshFilter>();
-            MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = material;
             result.tileData = tileData;
+            result.mat = mat;
             return result;
         }
 
         void Start() {
             grid = gridBehaviour.ParentGrid;
-            mesh = new Mesh();
-            filter = GetComponent<MeshFilter>();
-            filter.sharedMesh = mesh;
         }
 
         void Update() {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
-            vertices.Clear();
-            uvs.Clear();
-            normals.Clear();
-            triangles.Clear();
-
             IEnumerable<Int2> chunksToRender = gridBehaviour.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
                 Chunk chunk;
                 if (grid.TryGetChunk(chunkCoord, out chunk)) {
+
+                    Mesh mesh = null;
+                    ChunkMeshRenderer chunkMeshRenderer;
+
+                    // if no chunk mesh renderer exists yet, create one now
+                    if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
+                        
+                        mesh = new Mesh();
+                        GameObject parentChunkObj = gridBehaviour.GetChunkObj(chunkCoord).gameObject;
+                        string name = string.Format("chunk {0} tilemesh", chunkCoord);
+                        chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, mat, mesh);
+                        chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
+                    }
+                    else {
+                        mesh = chunkMeshRenderer.Mesh;
+                    }
+
+                    // We have a mesh. Generate new data for the mesh.
+                    vertices.Clear();
+                    uvs.Clear();
+                    normals.Clear();
+                    triangles.Clear();
                     BuildChunkGeometry(grid, chunk, chunkCoord, tileData, mesh, chunkWidth, chunkHeight, vertices, uvs, normals, triangles);
+
+                    // finalize mesh
+                    vertexCount = vertices.Count;
+                    mesh.Clear();
+                    mesh.SetVertices(vertices);
+                    mesh.SetUVs(0, uvs);
+                    mesh.SetNormals(normals);
+                    mesh.SetTriangles(triangles, 0);
+                    mesh.UploadMeshData(false);
                 }
             }
-
-            // finalize mesh
-            vertexCount = vertices.Count;
-            mesh.Clear();
-            mesh.SetVertices(vertices);
-            mesh.SetUVs(0, uvs);
-            mesh.SetNormals(normals);
-            mesh.SetTriangles(triangles, 0);
-
-            mesh.UploadMeshData(false);
-            //enabled = false;
         }
 
         private static void BuildChunkGeometry(Grid2D grid, Chunk chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
@@ -116,7 +132,7 @@ namespace AmarokGames.Grids {
             for (int y = 0; y < chunkHeight; y++) {
                 for (int x = 0; x < chunkWidth; x++) {
 
-                    Int2 gridCoord = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkHeight + y);
+                    Int2 gridCoord = new Int2(x, y);
 
                     // get tile values from buffer and determine if we should draw the tile
                     ushort current = b[y + 1, x + 1];

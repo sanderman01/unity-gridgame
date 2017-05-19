@@ -10,6 +10,8 @@ namespace AmarokGames.Grids {
 
         public Grid2D ParentGrid { get; private set; }
 
+        private Dictionary<Int2, GridChunkBehaviour> chunkObjs = new Dictionary<Int2, GridChunkBehaviour>();
+
         public void Setup(Grid2D parentGrid) {
             this.ParentGrid = parentGrid;
         }
@@ -31,6 +33,7 @@ namespace AmarokGames.Grids {
             Vector2 pos = new Vector2(chunkCoord.x * ParentGrid.ChunkWidth, chunkCoord.y * ParentGrid.ChunkHeight);
             chunkBehaviour.transform.localPosition = pos;
             chunkBehaviour.Setup(chunkCoord, ParentGrid);
+            chunkObjs.Add(chunkCoord, chunkBehaviour);
         }
 
         // Get all chunks that are currently visible in the camera. This assumes an orthographic camera.
@@ -59,6 +62,12 @@ namespace AmarokGames.Grids {
             Int2 minGridCoord = new Int2(xMin, yMin);
             Int2 maxGridCoord = new Int2(xMax, yMax);
             return Grid2D.GetChunks(minGridCoord, maxGridCoord, ParentGrid.ChunkWidth, ParentGrid.ChunkHeight);
+        }
+
+        public GridChunkBehaviour GetChunkObj(Int2 chunkCoord) {
+            GridChunkBehaviour chunkObj = null;
+            chunkObjs.TryGetValue(chunkCoord, out chunkObj);
+            return chunkObj;
         }
 
         void OnDrawGizmos() {
