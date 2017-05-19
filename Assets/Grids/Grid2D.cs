@@ -2,11 +2,11 @@
 
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
 
 namespace AmarokGames.Grids {
 
-    public class Grid2D {
+    public class Grid2D : MonoBehaviour {
 
         public int ChunkWidth { get { return chunkWidth; } }
         public int ChunkHeight { get { return chunkHeight; } }
@@ -25,16 +25,18 @@ namespace AmarokGames.Grids {
         private List<Int2> recentlyCreatedChunks = new List<Int2>();
         private List<Int2> recentlyRemovedChunks = new List<Int2>();
 
-        private readonly int chunkWidth;
-        private readonly int chunkHeight;
-        private readonly LayerConfig layers;
-        private Dictionary<Int2, ChunkData> chunks = new Dictionary<Int2, ChunkData>();
+        private int chunkWidth;
+        private int chunkHeight;
+        private LayerConfig layers;
+        private Dictionary<Int2, ChunkData> chunkDatas = new Dictionary<Int2, ChunkData>();
+        private Dictionary<Int2, GridChunkBehaviour> chunkObjects = new Dictionary<Int2, GridChunkBehaviour>();
+        private const bool drawChunkBoundsGizmo = true;
 
         /// <summary>
         /// Create a new grid with the specified dimensions and layers. 
         /// Make sure to setup correctly setup the LayerConfig before creating any grids, since this cannot be changed after construction.
         /// </summary>
-        public Grid2D(int chunkWidth, int chunkHeight, LayerConfig layers) {
+        public void Setup(int chunkWidth, int chunkHeight, LayerConfig layers) {
             this.chunkWidth = chunkWidth;
             this.chunkHeight = chunkHeight;
             this.layers = layers;
@@ -44,16 +46,30 @@ namespace AmarokGames.Grids {
         /// Creates a new empty chunk at the specified chunk coordinate.
         /// </summary>
         public ChunkData CreateChunk(Int2 chunkCoord) {
-            if (chunks.ContainsKey(chunkCoord)) {
+            if (chunkDatas.ContainsKey(chunkCoord)) {
                 throw new System.Exception(string.Format("Chunk with offset {0} already exists in this grid.", chunkCoord));
             }
 
             ChunkData chunk = new ChunkData(chunkWidth * chunkHeight, layers);
-            chunks.Add(chunkCoord, chunk);
+            chunkDatas.Add(chunkCoord, chunk);
 
+            CreateChunkBehaviour(chunkCoord);
             recentlyCreatedChunks.Add(chunkCoord);
 
             return chunk;
+        }
+
+        public void CreateChunkBehaviour(Int2 chunkCoord) {
+            // Create and position chunk GameObject
+            string name = string.Format("chunk {0}", chunkCoord);
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(this.transform, false);
+
+            GridChunkBehaviour chunkBehaviour = obj.AddComponent<GridChunkBehaviour>();
+            Vector2 pos = new Vector2(chunkCoord.x * ChunkWidth, chunkCoord.y * ChunkHeight);
+            chunkBehaviour.transform.localPosition = pos;
+            chunkBehaviour.Setup(chunkCoord, this);
+            chunkObjects.Add(chunkCoord, chunkBehaviour);
         }
 
         #region indexing
@@ -120,13 +136,17 @@ namespace AmarokGames.Grids {
 
         #region data access
 
-        public bool TryGetChunk(Int2 chunkCoord, out ChunkData result) {
-            return chunks.TryGetValue(chunkCoord, out result);
+        public bool TryGetChunkData(Int2 chunkCoord, out ChunkData result) {
+            return chunkDatas.TryGetValue(chunkCoord, out result);
+        }
+
+        public bool TryGetChunkObject(Int2 chunkCoord, out GridChunkBehaviour result) {
+            return chunkObjects.TryGetValue(chunkCoord, out result);
         }
 
         public IDataBuffer TryGetBuffer(Int2 chunkCoord, int layerId) {
             ChunkData chunk;
-            if(TryGetChunk(chunkCoord, out chunk)) {
+            if(TryGetChunkData(chunkCoord, out chunk)) {
                 return chunk.GetBuffer(layerId);
             } else {
                 return null;
@@ -134,7 +154,7 @@ namespace AmarokGames.Grids {
         }
 
         public IEnumerable<Int2> GetLoadedChunks() {
-            return chunks.Keys;
+            return chunkDatas.Keys;
         }
 
         public static IEnumerable<Int2> GetChunks(Int2 minGridCoord, Int2 maxGridCoord, int chunkWidth, int chunkHeight) {
@@ -156,7 +176,7 @@ namespace AmarokGames.Grids {
         public ushort GetUShort(Int2 gridCoord, int layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
             ChunkData chunk;
-            if (TryGetChunk(chunkCoord, out chunk)) {
+            if (TryGetChunkData(chunkCoord, out chunk)) {
                 int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
                 UShortBuffer buffer = (UShortBuffer)chunk.GetBuffer(layerId);
                 return buffer.GetValue(index);
@@ -204,5 +224,57 @@ namespace AmarokGames.Grids {
             recentlyCreatedChunks.Clear();
             recentlyRemovedChunks.Clear();
         }
+
+        // Get all chunks that are currently visible in the camera. This assumes an orthographic camera.
+        public IEnumerable<Int2> GetChunksWithinCameraBounds(Camera cam) {
+
+            // take the corners of the viewport and convert them to world coordinates
+            Vector2 bottomLeft = cam.ViewportToWorldPoint(new Vector2(0, 0));
+            Vector2 bottomRight = cam.ViewportToWorldPoint(new Vector2(1, 0));
+            Vector2 topLeft = cam.ViewportToWorldPoint(new Vector2(0, 1));
+            Vector2 topRight = cam.ViewportToWorldPoint(new Vector2(1, 1));
+
+            // convert those world coordinates to grid local coordinates
+            Vector2 localBottomLeft = this.transform.InverseTransformPoint(bottomLeft);
+            Vector2 localBottomRight = this.transform.InverseTransformPoint(bottomRight);
+            Vector2 localTopLeft = this.transform.InverseTransformPoint(topLeft);
+            Vector2 localTopRight = this.transform.InverseTransformPoint(topRight);
+
+            // get the minimums and maximums of those
+            float xMin = Mathf.Min(localBottomLeft.x, localBottomRight.x, localTopLeft.x, localTopRight.x);
+            float xMax = Mathf.Max(localBottomLeft.x, localBottomRight.x, localTopLeft.x, localTopRight.x);
+
+            float yMin = Mathf.Min(localBottomLeft.y, localBottomRight.y, localTopLeft.y, localTopRight.y);
+            float yMax = Mathf.Max(localBottomLeft.y, localBottomRight.y, localTopLeft.y, localTopRight.y);
+
+            // determine required chunks
+            Int2 minGridCoord = new Int2(xMin, yMin);
+            Int2 maxGridCoord = new Int2(xMax, yMax);
+            return Grid2D.GetChunks(minGridCoord, maxGridCoord, ChunkWidth, ChunkHeight);
+        }
+
+        #region Gizmos
+
+        void OnDrawGizmos() {
+            if (drawChunkBoundsGizmo) {
+                DrawChunkBoundsGizmo();
+            }
+        }
+
+        void DrawChunkBoundsGizmo() {
+            Gizmos.matrix = transform.localToWorldMatrix;
+
+            int chunkWidth = ChunkWidth;
+            int chunkHeight = ChunkHeight;
+            IEnumerable<Int2> loadedChunks = GetLoadedChunks();
+
+            Vector2 size = new Vector2(chunkWidth, chunkHeight);
+            foreach (Int2 chunkCoord in loadedChunks) {
+                Vector2 center = new Vector2(chunkCoord.x * chunkWidth + chunkWidth / 2, chunkCoord.y * chunkHeight + chunkHeight / 2);
+                Gizmos.DrawWireCube(center, size);
+            }
+        }
+
+        #endregion
     }
 }

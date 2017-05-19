@@ -66,7 +66,7 @@ namespace AmarokGames.Grids.Examples {
                 // Solid Renderer
                 Shader shader = Shader.Find("Particles/Additive");
                 Material mat = new Material(shader);
-                GridSolidRenderer solidRenderer = GridSolidRenderer.Create("solidRenderer", mat, world.WorldGridBehaviour);
+                GridSolidRenderer solidRenderer = GridSolidRenderer.Create("solidRenderer", mat, world.WorldGrid);
                 solidRenderer.gameObject.SetActive(false);
             }
 
@@ -92,7 +92,7 @@ namespace AmarokGames.Grids.Examples {
                 }
                 
 
-                GridTileRenderer tileRenderer = GridTileRenderer.Create("tileRenderer", tileData, mat, world.WorldGridBehaviour);
+                GridTileRenderer.Create("tileRenderer", tileData, mat, world.WorldGrid);
             }
 
         }

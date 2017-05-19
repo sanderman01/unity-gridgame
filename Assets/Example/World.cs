@@ -10,7 +10,6 @@ namespace AmarokGames.Grids.Examples {
         private Int2 worldChunkSize;
 
         public Grid2D WorldGrid { get; private set; }
-        public Grid2DBehaviour WorldGridBehaviour { get; private set; }
 
         public static World CreateWorld(string name, Int2 worldSize, Int2 worldChunkSize) {
             GameObject obj = new GameObject(name);
@@ -35,12 +34,10 @@ namespace AmarokGames.Grids.Examples {
                 .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerIndex)
                 .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex);
 
-            Grid2D grid = new Grid2D(chunkWidth, chunkHeight, layers);
-
             GameObject obj = new GameObject("worldgrid");
             obj.transform.SetParent(this.transform, false);
-            WorldGridBehaviour = obj.AddComponent<Grid2DBehaviour>();
-            WorldGridBehaviour.Setup(grid);
+            Grid2D grid = obj.AddComponent<Grid2D>();
+            grid.Setup(chunkWidth, chunkHeight, layers);
 
             CreateChunks(chunkWidth, chunkHeight, solidLayerIndex, tileForegroundLayerIndex, grid);
 

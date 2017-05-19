@@ -19,18 +19,16 @@ namespace AmarokGames.Grids {
         private Grid2D grid;
         private Mesh mesh;
 
-        private Grid2DBehaviour gridBehaviour;
         private MeshFilter filter;
 
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
-        public static GridSolidRenderer Create(string objName, Material material, Grid2DBehaviour gridBehaviour) {
+        public static GridSolidRenderer Create(string objName, Material material, Grid2D grid) {
             GameObject obj = new GameObject(objName);
             GridSolidRenderer result = obj.AddComponent<GridSolidRenderer>();
-            result.gridBehaviour = gridBehaviour;
-            result.grid = gridBehaviour.ParentGrid;
+            result.grid = grid;
             result.filter = obj.AddComponent<MeshFilter>();
             MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
@@ -39,7 +37,6 @@ namespace AmarokGames.Grids {
 
         void Start() {
             filter = GetComponent<MeshFilter>();
-            grid = gridBehaviour.ParentGrid;
             mesh = new Mesh();
             filter.sharedMesh = mesh;
         }
@@ -52,11 +49,11 @@ namespace AmarokGames.Grids {
             normals.Clear();
             triangles.Clear();
 
-            IEnumerable<Int2> chunksToRender = gridBehaviour.GetChunksWithinCameraBounds(Camera.main);
+            IEnumerable<Int2> chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
                 ChunkData chunk;
-                if (!grid.TryGetChunk(chunkCoord, out chunk)) {
+                if (!grid.TryGetChunkData(chunkCoord, out chunk)) {
                     continue;
                 }
 

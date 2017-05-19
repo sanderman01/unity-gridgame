@@ -27,8 +27,6 @@ namespace AmarokGames.Grids {
 
         private Grid2D grid;
 
-        private Grid2DBehaviour gridBehaviour;
-
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector2> uvs = new List<Vector2>();
         private List<Vector3> normals = new List<Vector3>();
@@ -36,32 +34,27 @@ namespace AmarokGames.Grids {
 
         private Dictionary<Int2, ChunkMeshRenderer> chunkMeshes = new Dictionary<Int2, ChunkMeshRenderer>();
 
-        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2DBehaviour gridBehaviour) {
+        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2D grid) {
 
             Assert.IsNotNull(mat);
 
             GameObject obj = new GameObject(objName);
             GridTileRenderer result = obj.AddComponent<GridTileRenderer>();
-            result.gridBehaviour = gridBehaviour;
-            result.grid = gridBehaviour.ParentGrid;
+            result.grid = grid;
             result.tileData = tileData;
             result.mat = mat;
             return result;
-        }
-
-        void Start() {
-            grid = gridBehaviour.ParentGrid;
         }
 
         void Update() {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
-            IEnumerable<Int2> chunksToRender = gridBehaviour.GetChunksWithinCameraBounds(Camera.main);
+            IEnumerable<Int2> chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
                 ChunkData chunk;
-                if (grid.TryGetChunk(chunkCoord, out chunk)) {
+                if (grid.TryGetChunkData(chunkCoord, out chunk)) {
 
                     Mesh mesh = null;
                     ChunkMeshRenderer chunkMeshRenderer;
@@ -70,7 +63,9 @@ namespace AmarokGames.Grids {
                     if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
                         
                         mesh = new Mesh();
-                        GameObject parentChunkObj = gridBehaviour.GetChunkObj(chunkCoord).gameObject;
+                        GridChunkBehaviour chunkObject;
+                        grid.TryGetChunkObject(chunkCoord, out chunkObject);
+                        GameObject parentChunkObj = chunkObject.gameObject;
                         string name = string.Format("chunk {0} tilemesh", chunkCoord);
                         chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, mat, mesh);
                         chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
