@@ -63,7 +63,7 @@ namespace AmarokGames.Grids {
                     if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
                         
                         mesh = new Mesh();
-                        GridChunkBehaviour chunkObject;
+                        Grid2DChunk chunkObject;
                         grid.TryGetChunkObject(chunkCoord, out chunkObject);
                         GameObject parentChunkObj = chunkObject.gameObject;
                         string name = string.Format("chunk {0} tilemesh", chunkCoord);

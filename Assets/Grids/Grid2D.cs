@@ -29,7 +29,7 @@ namespace AmarokGames.Grids {
         private int chunkHeight;
         private LayerConfig layers;
         private Dictionary<Int2, ChunkData> chunkDatas = new Dictionary<Int2, ChunkData>();
-        private Dictionary<Int2, GridChunkBehaviour> chunkObjects = new Dictionary<Int2, GridChunkBehaviour>();
+        private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
         private const bool drawChunkBoundsGizmo = true;
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace AmarokGames.Grids {
             GameObject obj = new GameObject(name);
             obj.transform.SetParent(this.transform, false);
 
-            GridChunkBehaviour chunkBehaviour = obj.AddComponent<GridChunkBehaviour>();
+            Grid2DChunk chunkBehaviour = obj.AddComponent<Grid2DChunk>();
             Vector2 pos = new Vector2(chunkCoord.x * ChunkWidth, chunkCoord.y * ChunkHeight);
             chunkBehaviour.transform.localPosition = pos;
             chunkBehaviour.Setup(chunkCoord, this);
@@ -140,7 +140,7 @@ namespace AmarokGames.Grids {
             return chunkDatas.TryGetValue(chunkCoord, out result);
         }
 
-        public bool TryGetChunkObject(Int2 chunkCoord, out GridChunkBehaviour result) {
+        public bool TryGetChunkObject(Int2 chunkCoord, out Grid2DChunk result) {
             return chunkObjects.TryGetValue(chunkCoord, out result);
         }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AmarokGames.Grids {
 
-    public class GridChunkBehaviour : MonoBehaviour {
+    public class Grid2DChunk : MonoBehaviour {
 
         [SerializeField]
         private Int2 chunkCoord;
