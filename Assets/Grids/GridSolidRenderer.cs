@@ -55,7 +55,7 @@ namespace AmarokGames.Grids {
             IEnumerable<Int2> chunksToRender = gridBehaviour.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
-                Chunk chunk;
+                ChunkData chunk;
                 if (!grid.TryGetChunk(chunkCoord, out chunk)) {
                     continue;
                 }

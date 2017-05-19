@@ -60,7 +60,7 @@ namespace AmarokGames.Grids {
             IEnumerable<Int2> chunksToRender = gridBehaviour.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
-                Chunk chunk;
+                ChunkData chunk;
                 if (grid.TryGetChunk(chunkCoord, out chunk)) {
 
                     Mesh mesh = null;
@@ -98,7 +98,7 @@ namespace AmarokGames.Grids {
             }
         }
 
-        private static void BuildChunkGeometry(Grid2D grid, Chunk chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Grid2D grid, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
             int vertexCount = vertices.Count;
             const int layerId = 1;
             const float zOffset = -0.1f;

@@ -52,7 +52,7 @@ namespace AmarokGames.Grids.Examples {
             for (int y = 0; y < worldSize.y / chunkHeight; ++y) {
                 for (int x = 0; x < worldSize.x / chunkWidth; ++x) {
                     Int2 chunkCoord = new Int2(x, y);
-                    Chunk chunk = grid.CreateChunk(chunkCoord);
+                    ChunkData chunk = grid.CreateChunk(chunkCoord);
 
                     // fill chunk with some random data
 

@@ -2,12 +2,12 @@
 
 namespace AmarokGames.Grids.Data {
 
-    public class Chunk {
+    public class ChunkData {
 
         private readonly IDataBuffer[] buffers;
 
         // Create a square chunk with the specified buffer length and buffer layers.
-        public Chunk(int bufferSize, LayerConfig layerConfig) {
+        public ChunkData(int bufferSize, LayerConfig layerConfig) {
 
             // create a buffer for each data layer
             this.buffers = new IDataBuffer[layerConfig.Count];

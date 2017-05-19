@@ -28,7 +28,7 @@ namespace AmarokGames.Grids {
         private readonly int chunkWidth;
         private readonly int chunkHeight;
         private readonly LayerConfig layers;
-        private Dictionary<Int2, Chunk> chunks = new Dictionary<Int2, Chunk>();
+        private Dictionary<Int2, ChunkData> chunks = new Dictionary<Int2, ChunkData>();
 
         /// <summary>
         /// Create a new grid with the specified dimensions and layers. 
@@ -43,12 +43,12 @@ namespace AmarokGames.Grids {
         /// <summary>
         /// Creates a new empty chunk at the specified chunk coordinate.
         /// </summary>
-        public Chunk CreateChunk(Int2 chunkCoord) {
+        public ChunkData CreateChunk(Int2 chunkCoord) {
             if (chunks.ContainsKey(chunkCoord)) {
                 throw new System.Exception(string.Format("Chunk with offset {0} already exists in this grid.", chunkCoord));
             }
 
-            Chunk chunk = new Chunk(chunkWidth * chunkHeight, layers);
+            ChunkData chunk = new ChunkData(chunkWidth * chunkHeight, layers);
             chunks.Add(chunkCoord, chunk);
 
             recentlyCreatedChunks.Add(chunkCoord);
@@ -120,12 +120,12 @@ namespace AmarokGames.Grids {
 
         #region data access
 
-        public bool TryGetChunk(Int2 chunkCoord, out Chunk result) {
+        public bool TryGetChunk(Int2 chunkCoord, out ChunkData result) {
             return chunks.TryGetValue(chunkCoord, out result);
         }
 
         public IDataBuffer TryGetBuffer(Int2 chunkCoord, int layerId) {
-            Chunk chunk;
+            ChunkData chunk;
             if(TryGetChunk(chunkCoord, out chunk)) {
                 return chunk.GetBuffer(layerId);
             } else {
@@ -155,7 +155,7 @@ namespace AmarokGames.Grids {
         // Temporarily use this until we figure out a better approach to accessing data across chunk boundaries
         public ushort GetUShort(Int2 gridCoord, int layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
-            Chunk chunk;
+            ChunkData chunk;
             if (TryGetChunk(chunkCoord, out chunk)) {
                 int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
                 UShortBuffer buffer = (UShortBuffer)chunk.GetBuffer(layerId);
