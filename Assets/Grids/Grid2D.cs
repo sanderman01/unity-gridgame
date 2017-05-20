@@ -30,7 +30,11 @@ namespace AmarokGames.Grids {
         private LayerConfig layers;
         private Dictionary<Int2, ChunkData> chunkDatas = new Dictionary<Int2, ChunkData>();
         private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
-        private const bool drawChunkBoundsGizmo = true;
+
+        [SerializeField]
+        private bool drawChunkBoundsGizmo = false;
+        [SerializeField]
+        private bool drawChunkAABBGizmo = false;
 
         /// <summary>
         /// Create a new grid with the specified dimensions and layers. 
@@ -172,6 +176,29 @@ namespace AmarokGames.Grids {
             return result;
         }
 
+        /// <summary>
+        /// Calculates Axis-Aligned Bounding Box in world space for the specified chunk.
+        /// </summary>
+        public Bounds CalculateChunkAABB(Int2 chunkCoord) {
+            Matrix4x4 m = transform.localToWorldMatrix;
+            Vector2 p1 = m * new Vector2(chunkCoord.x * chunkWidth, chunkCoord.y * chunkHeight);
+            Vector2 p2 = m * new Vector2(chunkCoord.x * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
+            Vector2 p3 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
+            Vector2 p4 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, chunkCoord.y * chunkHeight);
+
+            float[] x = { p1.x, p2.x, p3.x, p4.x };
+            float[] y = { p1.y, p2.y, p3.y, p4.y };
+
+            float minX = Mathf.Min(x);
+            float minY = Mathf.Min(y);
+            float maxX = Mathf.Max(x);
+            float maxY = Mathf.Max(y);
+
+            Vector2 size = new Vector2(maxX - minX, maxY - minY);
+            Vector2 center = new Vector2(minX, minY) + 0.5f * size;
+            return new Bounds(center, size);
+        }
+
         // Temporarily use this until we figure out a better approach to accessing data across chunk boundaries
         public ushort GetUShort(Int2 gridCoord, int layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
@@ -256,23 +283,32 @@ namespace AmarokGames.Grids {
         #region Gizmos
 
         void OnDrawGizmos() {
-            if (drawChunkBoundsGizmo) {
-                DrawChunkBoundsGizmo();
+            DrawChunkGizmos();
+        }
+
+        private void DrawChunkGizmos() {
+            IEnumerable<Int2> loadedChunks = GetLoadedChunks();
+            foreach (Int2 chunkCoord in loadedChunks) {
+                if(drawChunkBoundsGizmo)
+                    DrawChunkBoundsGizmo(chunkCoord);
+                if (drawChunkAABBGizmo)
+                    DrawChunkAABBGizmo(chunkCoord);
             }
         }
 
-        void DrawChunkBoundsGizmo() {
+        private void DrawChunkBoundsGizmo(Int2 chunkCoord) {
             Gizmos.matrix = transform.localToWorldMatrix;
-
-            int chunkWidth = ChunkWidth;
-            int chunkHeight = ChunkHeight;
-            IEnumerable<Int2> loadedChunks = GetLoadedChunks();
-
+            Gizmos.color = Color.white;
+            Vector2 center = new Vector2(chunkCoord.x * chunkWidth + chunkWidth / 2, chunkCoord.y * chunkHeight + chunkHeight / 2);
             Vector2 size = new Vector2(chunkWidth, chunkHeight);
-            foreach (Int2 chunkCoord in loadedChunks) {
-                Vector2 center = new Vector2(chunkCoord.x * chunkWidth + chunkWidth / 2, chunkCoord.y * chunkHeight + chunkHeight / 2);
-                Gizmos.DrawWireCube(center, size);
-            }
+            Gizmos.DrawWireCube(center, size);
+        }
+
+        private void DrawChunkAABBGizmo(Int2 chunkCoord) {
+            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.color = Color.red;
+            Bounds bounds = CalculateChunkAABB(chunkCoord);
+            Gizmos.DrawWireCube(bounds.center, bounds.size);
         }
 
         #endregion
