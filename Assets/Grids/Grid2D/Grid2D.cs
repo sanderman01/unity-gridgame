@@ -2,6 +2,7 @@
 
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AmarokGames.Grids {
@@ -194,8 +195,8 @@ namespace AmarokGames.Grids {
             float maxX = Mathf.Max(x);
             float maxY = Mathf.Max(y);
 
-            Vector2 size = new Vector2(maxX - minX, maxY - minY);
-            Vector2 center = new Vector2(minX, minY) + 0.5f * size;
+            Vector3 size = new Vector3(maxX - minX, maxY - minY, 10);
+            Vector3 center = new Vector3(minX, minY) + 0.5f * size;
             return new Bounds(center, size);
         }
 
@@ -252,32 +253,19 @@ namespace AmarokGames.Grids {
             recentlyRemovedChunks.Clear();
         }
 
-        // Get all chunks that are currently visible in the camera. This assumes an orthographic camera.
+        // Get all chunks that are currently visible in the camera. This assumes a non-rotating orthographic camera.
         public IEnumerable<Int2> GetChunksWithinCameraBounds(Camera cam) {
 
-            // take the corners of the viewport and convert them to world coordinates
-            Vector2 bottomLeft = cam.ViewportToWorldPoint(new Vector2(0, 0));
-            Vector2 bottomRight = cam.ViewportToWorldPoint(new Vector2(1, 0));
-            Vector2 topLeft = cam.ViewportToWorldPoint(new Vector2(0, 1));
-            Vector2 topRight = cam.ViewportToWorldPoint(new Vector2(1, 1));
+            // Calculate camera bounds
+            float orthoSize = cam.orthographicSize;
+            float ratio = 2f * (float)Screen.width / (float)Screen.height;
+            Vector3 size = new Vector3(orthoSize * ratio, cam.orthographicSize * 2f, 1000);
+            Vector3 center = cam.transform.position;
+            Bounds bounds = new Bounds(center, size);
 
-            // convert those world coordinates to grid local coordinates
-            Vector2 localBottomLeft = this.transform.InverseTransformPoint(bottomLeft);
-            Vector2 localBottomRight = this.transform.InverseTransformPoint(bottomRight);
-            Vector2 localTopLeft = this.transform.InverseTransformPoint(topLeft);
-            Vector2 localTopRight = this.transform.InverseTransformPoint(topRight);
-
-            // get the minimums and maximums of those
-            float xMin = Mathf.Min(localBottomLeft.x, localBottomRight.x, localTopLeft.x, localTopRight.x);
-            float xMax = Mathf.Max(localBottomLeft.x, localBottomRight.x, localTopLeft.x, localTopRight.x);
-
-            float yMin = Mathf.Min(localBottomLeft.y, localBottomRight.y, localTopLeft.y, localTopRight.y);
-            float yMax = Mathf.Max(localBottomLeft.y, localBottomRight.y, localTopLeft.y, localTopRight.y);
-
-            // determine required chunks
-            Int2 minGridCoord = new Int2(xMin, yMin);
-            Int2 maxGridCoord = new Int2(xMax, yMax);
-            return Grid2D.GetChunks(minGridCoord, maxGridCoord, ChunkWidth, ChunkHeight);
+            // Filter all chunks that intersect with camera bounds
+            IEnumerable<Int2> result = chunkDatas.Keys.Where(coord => { return bounds.Intersects(this.CalculateChunkAABB(coord)); });
+            return result;
         }
 
         #region Gizmos
