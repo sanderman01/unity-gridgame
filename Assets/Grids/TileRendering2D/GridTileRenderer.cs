@@ -52,59 +52,90 @@ namespace AmarokGames.Grids {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
-            var chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
-            foreach (Int2 chunkCoord in chunksToRender) {
-                UpdateChunk(grid, chunkCoord);
+            var chunks = grid.GetAllChunks();
+            Bounds bounds = CalculateCameraBounds(Camera.main);
+
+            foreach (Int2 chunkCoord in chunks) {
+                UpdateChunk(bounds, grid, chunkCoord);
             }
         }
 
-        private void UpdateChunk(Grid2D grid, Int2 chunkCoord) {
+        private static Bounds CalculateCameraBounds(Camera cam) {
+            float orthoSize = cam.orthographicSize;
+            float ratio = (float)Screen.width / (float)Screen.height;
+            Vector3 size = new Vector3(2f * orthoSize * ratio, cam.orthographicSize * 2f, 1000);
+            Vector3 center = cam.transform.position;
+            Bounds bounds = new Bounds(center, size);
+            return bounds;
+        }
+
+        private void UpdateChunk(Bounds cameraBounds, Grid2D grid, Int2 chunkCoord) {
 
             // skip chunk if it doesn't exist.
             ChunkData chunk;
             if (grid.TryGetChunkData(chunkCoord, out chunk)) {
 
-                Mesh mesh = null;
-                ChunkMeshRenderer chunkMeshRenderer;
-
-                // if no chunk mesh renderer exists yet, create one now
-                if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
-
-                    mesh = new Mesh();
-                    Grid2DChunk chunkObject;
-                    grid.TryGetChunkObject(chunkCoord, out chunkObject);
-                    GameObject parentChunkObj = chunkObject.gameObject;
-                    string name = string.Format("chunk {0} tilemesh", chunkCoord);
-                    chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, mat, mesh);
-                    chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
+                if (cameraBounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
+                    // The chunk is currently visible. Refresh the mesh if needed.
+                    RefreshChunk(grid, chunk, chunkCoord);
                 } else {
-                    // mesh renderer already exists
-                    mesh = chunkMeshRenderer.Mesh;
-
-                    // check if we need to update it
-                    if (chunk.LastModified < chunkMeshRenderer.LastModified) {
-                        // We are up to date, no need to update the mesh.
-                        return;
-                    }
+                    // The chunk is currently not visible. We should clean up the mesh so we don't waste memory.
+                    CleanChunk(chunkCoord);
                 }
 
-                // We have a mesh. Generate new data for the mesh.
-                vertices.Clear();
-                uvs.Clear();
-                normals.Clear();
-                triangles.Clear();
-                BuildChunkGeometry(grid, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
-
-                // finalize mesh
-                vertexCount = vertices.Count;
-                mesh.Clear();
-                mesh.SetVertices(vertices);
-                mesh.SetUVs(0, uvs);
-                mesh.SetNormals(normals);
-                mesh.SetTriangles(triangles, 0);
-                mesh.UploadMeshData(false);
-                chunkMeshRenderer.MarkModified(Time.frameCount);
             }
+        }
+
+        private void CleanChunk(Int2 chunkCoord) {
+
+            ChunkMeshRenderer chunkMeshRenderer;
+            if (chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
+                chunkMeshRenderer.Mesh.Clear();
+                chunkMeshRenderer.MarkModified(0);
+            }
+        }
+
+        private void RefreshChunk(Grid2D grid, ChunkData chunk, Int2 chunkCoord) {
+            Mesh mesh = null;
+            ChunkMeshRenderer chunkMeshRenderer;
+
+            // if no chunk mesh renderer exists yet, create one now
+            if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
+
+                mesh = new Mesh();
+                Grid2DChunk chunkObject;
+                grid.TryGetChunkObject(chunkCoord, out chunkObject);
+                GameObject parentChunkObj = chunkObject.gameObject;
+                string name = string.Format("chunk {0} tilemesh", chunkCoord);
+                chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, mat, mesh);
+                chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
+            } else {
+                // mesh renderer already exists
+                mesh = chunkMeshRenderer.Mesh;
+
+                // check if we need to update it
+                if (chunk.LastModified < chunkMeshRenderer.LastModified) {
+                    // We are up to date, no need to update the mesh.
+                    return;
+                }
+            }
+
+            // We have a mesh. Generate new data for the mesh.
+            vertices.Clear();
+            uvs.Clear();
+            normals.Clear();
+            triangles.Clear();
+            BuildChunkGeometry(grid, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
+
+            // finalize mesh
+            vertexCount = vertices.Count;
+            mesh.Clear();
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetNormals(normals);
+            mesh.SetTriangles(triangles, 0);
+            mesh.UploadMeshData(false);
+            chunkMeshRenderer.MarkModified(Time.frameCount);
         }
 
         private static void BuildChunkGeometry(Grid2D grid, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {

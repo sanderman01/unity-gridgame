@@ -136,6 +136,10 @@ namespace AmarokGames.Grids {
 
         #region data access
 
+        public IEnumerable<Int2> GetAllChunks() {
+            return chunkObjects.Keys;
+        }
+
         public bool TryGetChunkData(Int2 chunkCoord, out ChunkData result) {
             Grid2DChunk chunk = null;
             if(chunkObjects.TryGetValue(chunkCoord, out chunk)) {
