@@ -29,7 +29,6 @@ namespace AmarokGames.Grids {
         private int chunkWidth;
         private int chunkHeight;
         private LayerConfig layers;
-        private Dictionary<Int2, ChunkData> chunkDatas = new Dictionary<Int2, ChunkData>();
         private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
 
         [SerializeField]
@@ -51,30 +50,26 @@ namespace AmarokGames.Grids {
         /// Creates a new empty chunk at the specified chunk coordinate.
         /// </summary>
         public ChunkData CreateChunk(Int2 chunkCoord) {
-            if (chunkDatas.ContainsKey(chunkCoord)) {
+
+            if (chunkObjects.ContainsKey(chunkCoord)) {
                 throw new System.Exception(string.Format("Chunk with offset {0} already exists in this grid.", chunkCoord));
             }
 
+            // Create chunk data object
             ChunkData chunk = new ChunkData(chunkWidth * chunkHeight, layers);
-            chunkDatas.Add(chunkCoord, chunk);
 
-            CreateChunkBehaviour(chunkCoord);
-            recentlyCreatedChunks.Add(chunkCoord);
-
-            return chunk;
-        }
-
-        public void CreateChunkBehaviour(Int2 chunkCoord) {
             // Create and position chunk GameObject
             string name = string.Format("chunk {0}", chunkCoord);
             GameObject obj = new GameObject(name);
             obj.transform.SetParent(this.transform, false);
-
             Grid2DChunk chunkBehaviour = obj.AddComponent<Grid2DChunk>();
             Vector2 pos = new Vector2(chunkCoord.x * ChunkWidth, chunkCoord.y * ChunkHeight);
             chunkBehaviour.transform.localPosition = pos;
-            chunkBehaviour.Setup(chunkCoord, this);
+            chunkBehaviour.Setup(chunkCoord, this, chunk);
             chunkObjects.Add(chunkCoord, chunkBehaviour);
+
+            recentlyCreatedChunks.Add(chunkCoord);
+            return chunk;
         }
 
         #region indexing
@@ -142,7 +137,14 @@ namespace AmarokGames.Grids {
         #region data access
 
         public bool TryGetChunkData(Int2 chunkCoord, out ChunkData result) {
-            return chunkDatas.TryGetValue(chunkCoord, out result);
+            Grid2DChunk chunk = null;
+            if(chunkObjects.TryGetValue(chunkCoord, out chunk)) {
+                result = chunk.Data;
+                return true;
+            } else {
+                result = null;
+                return false;
+            }
         }
 
         public bool TryGetChunkObject(Int2 chunkCoord, out Grid2DChunk result) {
@@ -159,7 +161,7 @@ namespace AmarokGames.Grids {
         }
 
         public IEnumerable<Int2> GetLoadedChunks() {
-            return chunkDatas.Keys;
+            return chunkObjects.Keys;
         }
 
         public static IEnumerable<Int2> GetChunks(Int2 minGridCoord, Int2 maxGridCoord, int chunkWidth, int chunkHeight) {
@@ -264,7 +266,7 @@ namespace AmarokGames.Grids {
             Bounds bounds = new Bounds(center, size);
 
             // Filter all chunks that intersect with camera bounds
-            IEnumerable<Int2> result = chunkDatas.Keys.Where(coord => { return bounds.Intersects(this.CalculateChunkAABB(coord)); });
+            IEnumerable<Int2> result = chunkObjects.Keys.Where(coord => { return bounds.Intersects(this.CalculateChunkAABB(coord)); });
             return result;
         }
 

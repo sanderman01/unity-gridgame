@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.Grids.Data;
 using UnityEngine;
 
 namespace AmarokGames.Grids {
@@ -13,9 +14,13 @@ namespace AmarokGames.Grids {
         private Grid2D grid;
         public Grid2D ParentGrid { get { return grid; } }
 
-        public void Setup(Int2 chunkCoord, Grid2D parentGrid) {
+        private ChunkData chunkData;
+        public ChunkData Data { get { return chunkData; } }
+
+        public void Setup(Int2 chunkCoord, Grid2D parentGrid, ChunkData chunkData) {
             this.chunkCoord = chunkCoord;
             this.grid = parentGrid;
+            this.chunkData = chunkData;
         }
     }
 }
