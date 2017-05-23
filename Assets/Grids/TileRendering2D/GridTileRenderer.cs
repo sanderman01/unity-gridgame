@@ -53,20 +53,11 @@ namespace AmarokGames.Grids {
             int chunkHeight = grid.ChunkHeight;
 
             var chunks = grid.GetAllChunks();
-            Bounds bounds = CalculateCameraBounds(Camera.main);
+            Bounds bounds = Camera.main.CalcOrthographicCameraBounds();
 
             foreach (Int2 chunkCoord in chunks) {
                 UpdateChunk(bounds, grid, chunkCoord);
             }
-        }
-
-        private static Bounds CalculateCameraBounds(Camera cam) {
-            float orthoSize = cam.orthographicSize;
-            float ratio = (float)Screen.width / (float)Screen.height;
-            Vector3 size = new Vector3(2f * orthoSize * ratio, cam.orthographicSize * 2f, 1000);
-            Vector3 center = cam.transform.position;
-            Bounds bounds = new Bounds(center, size);
-            return bounds;
         }
 
         private void UpdateChunk(Bounds cameraBounds, Grid2D grid, Int2 chunkCoord) {
