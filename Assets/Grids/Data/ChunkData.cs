@@ -39,8 +39,8 @@ namespace AmarokGames.Grids.Data {
             return buffer;
         }
 
-        public IDataBuffer GetBuffer(int layerIndex) {
-            return this.buffers[layerIndex];
+        public IDataBuffer GetBuffer(LayerId layerIndex) {
+            return this.buffers[layerIndex.id];
         }
 
         public void MarkModified(int layerIndex, int frameCount) {

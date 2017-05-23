@@ -155,7 +155,7 @@ namespace AmarokGames.Grids {
             return chunkObjects.TryGetValue(chunkCoord, out result);
         }
 
-        public IDataBuffer TryGetBuffer(Int2 chunkCoord, int layerId) {
+        public IDataBuffer TryGetBuffer(Int2 chunkCoord, LayerId layerId) {
             ChunkData chunk;
             if(TryGetChunkData(chunkCoord, out chunk)) {
                 return chunk.GetBuffer(layerId);
@@ -207,7 +207,7 @@ namespace AmarokGames.Grids {
         }
 
         // Temporarily use this until we figure out a better approach to accessing data across chunk boundaries
-        public ushort GetUShort(Int2 gridCoord, int layerId) {
+        public ushort GetUShort(Int2 gridCoord, LayerId layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
             ChunkData chunk;
             if (TryGetChunkData(chunkCoord, out chunk)) {

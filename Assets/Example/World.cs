@@ -25,9 +25,9 @@ namespace AmarokGames.Grids.Examples {
             int chunkWidth = worldChunkSize.x;
             int chunkHeight = worldChunkSize.y;
 
-            int solidLayerIndex;
-            int tileForegroundLayerIndex;
-            int tileBackgroundLayerIndex;
+            LayerId solidLayerIndex;
+            LayerId tileForegroundLayerIndex;
+            LayerId tileBackgroundLayerIndex;
 
             LayerConfig layers = new LayerConfig()
                 .AddLayer("solid", BufferType.Boolean, out solidLayerIndex)
@@ -44,7 +44,7 @@ namespace AmarokGames.Grids.Examples {
             return grid;
         }
 
-        private void CreateChunks(int chunkWidth, int chunkHeight, int solidLayerIndex, int tileForegroundLayerIndex, Grid2D grid) {
+        private void CreateChunks(int chunkWidth, int chunkHeight, LayerId solidLayerIndex, LayerId tileForegroundLayerIndex, Grid2D grid) {
             // create chunks
             for (int y = 0; y < worldSize.y / chunkHeight; ++y) {
                 for (int x = 0; x < worldSize.x / chunkWidth; ++x) {

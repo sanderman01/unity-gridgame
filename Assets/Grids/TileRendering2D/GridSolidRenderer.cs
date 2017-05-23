@@ -10,6 +10,9 @@ namespace AmarokGames.Grids {
     public class GridSolidRenderer : MonoBehaviour {
 
         [SerializeField]
+        private LayerId layerId = new LayerId(0);
+
+        [SerializeField]
         private Material material;
 
         [SerializeField]
@@ -57,7 +60,7 @@ namespace AmarokGames.Grids {
                     continue;
                 }
 
-                BooleanBuffer buffer = (BooleanBuffer)chunk.GetBuffer(0);
+                BooleanBuffer buffer = (BooleanBuffer)chunk.GetBuffer(layerId);
                 BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
             }
 

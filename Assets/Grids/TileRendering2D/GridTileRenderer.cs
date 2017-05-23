@@ -34,7 +34,7 @@ namespace AmarokGames.Grids {
 
         private Dictionary<Int2, ChunkMeshRenderer> chunkMeshes = new Dictionary<Int2, ChunkMeshRenderer>();
 
-        const int layerId = 1;
+        private LayerId layerId = new LayerId(1);
 
         public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2D grid) {
 
@@ -116,7 +116,7 @@ namespace AmarokGames.Grids {
             uvs.Clear();
             normals.Clear();
             triangles.Clear();
-            BuildChunkGeometry(grid, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
+            BuildChunkGeometry(grid, layerId, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
 
             // finalize mesh
             vertexCount = vertices.Count;
@@ -129,7 +129,7 @@ namespace AmarokGames.Grids {
             chunkMeshRenderer.MarkModified(Time.frameCount);
         }
 
-        private static void BuildChunkGeometry(Grid2D grid, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Grid2D grid, LayerId layerId, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             int vertexCount = vertices.Count;
