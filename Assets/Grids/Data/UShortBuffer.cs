@@ -5,6 +5,7 @@ namespace AmarokGames.Grids.Data {
     public class UShortBuffer : IDataBuffer {
 
         private readonly ushort[] buffer;
+        private int lastModified;
 
         public UShortBuffer(int length) {
             this.buffer = new ushort[length];
@@ -18,6 +19,10 @@ namespace AmarokGames.Grids.Data {
             get { return buffer.Length; }
         }
 
+        public int LastModified {
+            get { return lastModified; }
+        }
+
         public ushort[] GetRawBuffer() {
             return buffer;
         }
@@ -28,6 +33,10 @@ namespace AmarokGames.Grids.Data {
 
         public void SetValue(ushort value, int index) {
             buffer[index] = value;
+        }
+
+        public void MarkModified(int frameCount) {
+            lastModified = frameCount;
         }
     }
 }

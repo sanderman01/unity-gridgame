@@ -5,6 +5,8 @@ namespace AmarokGames.Grids.Data {
     public class ChunkData {
 
         private readonly IDataBuffer[] buffers;
+        
+        public int LastModified { get; private set; }
 
         // Create a square chunk with the specified buffer length and buffer layers.
         public ChunkData(int bufferSize, LayerConfig layerConfig) {
@@ -39,6 +41,11 @@ namespace AmarokGames.Grids.Data {
 
         public IDataBuffer GetBuffer(int layerIndex) {
             return this.buffers[layerIndex];
+        }
+
+        public void MarkModified(int layerIndex, int frameCount) {
+            LastModified = frameCount;
+            buffers[layerIndex].MarkModified(frameCount);
         }
     }
 

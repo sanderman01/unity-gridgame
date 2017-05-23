@@ -7,6 +7,7 @@ namespace AmarokGames.Grids.Data {
 
     public class BooleanBuffer : IDataBuffer {
         private readonly BitArray buffer;
+        private int lastModified;
 
         public BooleanBuffer(int length) {
             this.buffer = new BitArray(length);
@@ -20,6 +21,10 @@ namespace AmarokGames.Grids.Data {
             get { return buffer.Length; }
         }
 
+        public int LastModified {
+            get { return lastModified; }
+        }
+
         public BitArray GetRawBuffer() {
             return buffer;
         }
@@ -30,6 +35,10 @@ namespace AmarokGames.Grids.Data {
 
         public void SetValue(bool value, int index) {
             buffer[index] = value;
+        }
+
+        public void MarkModified(int frameCount) {
+            lastModified = frameCount;
         }
     }
 }

@@ -24,11 +24,16 @@ namespace AmarokGames.Grids {
             set { meshRenderer.sharedMaterial = value; }
         }
 
+        public int LastModified { get { return lastModified; } }
+
         public MeshFilter MeshFilter { get { return meshFilter; } }
         public MeshRenderer MeshRenderer { get { return meshRenderer; } }
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
+
+        [SerializeField]
+        private int lastModified;
 
         public static ChunkMeshRenderer Create(string name, GameObject parentChunk, Material material, Mesh mesh) {
 
@@ -48,6 +53,10 @@ namespace AmarokGames.Grids {
             result.meshRenderer.sharedMaterial = material;
 
             return result;
+        }
+
+        public void MarkModified(int frameCount) {
+            lastModified = frameCount;
         }
     }
 }

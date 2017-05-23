@@ -7,6 +7,7 @@ namespace AmarokGames.Grids.Data {
     public class ByteBuffer : IDataBuffer {
 
         private readonly byte[] buffer;
+        private int lastModified;
 
         public ByteBuffer(int length) {
             this.buffer = new byte[length];
@@ -20,6 +21,10 @@ namespace AmarokGames.Grids.Data {
             get { return buffer.Length; }
         }
 
+        public int LastModified {
+            get { return lastModified; }
+        }
+
         public byte[] GetRawBuffer() {
             return buffer;
         }
@@ -30,6 +35,10 @@ namespace AmarokGames.Grids.Data {
 
         public void SetValue(byte value, int index) {
             buffer[index] = value;
+        }
+
+        public void MarkModified(int frameCount) {
+            lastModified = frameCount;
         }
     }
 }

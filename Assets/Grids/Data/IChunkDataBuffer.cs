@@ -6,5 +6,8 @@ namespace AmarokGames.Grids.Data {
 
         BufferType Type { get; }
         int Length { get; }
+
+        int LastModified { get; }
+        void MarkModified(int frameCount);
     }
 }

@@ -34,6 +34,8 @@ namespace AmarokGames.Grids {
 
         private Dictionary<Int2, ChunkMeshRenderer> chunkMeshes = new Dictionary<Int2, ChunkMeshRenderer>();
 
+        const int layerId = 1;
+
         public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2D grid) {
 
             Assert.IsNotNull(mat);
@@ -50,7 +52,7 @@ namespace AmarokGames.Grids {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
-            IEnumerable<Int2> chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
+            var chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
             foreach (Int2 chunkCoord in chunksToRender) {
                 // skip chunk if it doesn't exist.
                 ChunkData chunk;
@@ -71,7 +73,15 @@ namespace AmarokGames.Grids {
                         chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
                     }
                     else {
+                        // mesh renderer already exists
                         mesh = chunkMeshRenderer.Mesh;
+
+                        // check if we need to update it
+                        if (chunk.LastModified < chunkMeshRenderer.LastModified) {
+                            // We are up to date, no need to update the mesh.
+                            continue;
+                        }
+
                     }
 
                     // We have a mesh. Generate new data for the mesh.
@@ -89,13 +99,13 @@ namespace AmarokGames.Grids {
                     mesh.SetNormals(normals);
                     mesh.SetTriangles(triangles, 0);
                     mesh.UploadMeshData(false);
+                    chunkMeshRenderer.MarkModified(Time.frameCount);
                 }
             }
         }
 
         private static void BuildChunkGeometry(Grid2D grid, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
             int vertexCount = vertices.Count;
-            const int layerId = 1;
             const float zOffset = -0.1f;
 
             // Copy data to a local buffer for easier access.
