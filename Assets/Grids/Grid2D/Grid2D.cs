@@ -9,6 +9,7 @@ namespace AmarokGames.Grids {
 
     public class Grid2D : MonoBehaviour {
 
+        public int GridId { get { return gridId; } }
         public int ChunkWidth { get { return chunkWidth; } }
         public int ChunkHeight { get { return chunkHeight; } }
 
@@ -26,6 +27,7 @@ namespace AmarokGames.Grids {
         private List<Int2> recentlyCreatedChunks = new List<Int2>();
         private List<Int2> recentlyRemovedChunks = new List<Int2>();
 
+        private int gridId;
         private int chunkWidth;
         private int chunkHeight;
         private LayerConfig layers;
@@ -40,7 +42,8 @@ namespace AmarokGames.Grids {
         /// Create a new grid with the specified dimensions and layers. 
         /// Make sure to setup correctly setup the LayerConfig before creating any grids, since this cannot be changed after construction.
         /// </summary>
-        public void Setup(int chunkWidth, int chunkHeight, LayerConfig layers) {
+        public void Setup(int gridId, int chunkWidth, int chunkHeight, LayerConfig layers) {
+            this.gridId = gridId;
             this.chunkWidth = chunkWidth;
             this.chunkHeight = chunkHeight;
             this.layers = layers;

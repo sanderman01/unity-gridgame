@@ -37,7 +37,7 @@ namespace AmarokGames.Grids.Examples {
             GameObject obj = new GameObject("worldgrid");
             obj.transform.SetParent(this.transform, false);
             Grid2D grid = obj.AddComponent<Grid2D>();
-            grid.Setup(chunkWidth, chunkHeight, layers);
+            grid.Setup(0, chunkWidth, chunkHeight, layers);
 
             CreateChunks(chunkWidth, chunkHeight, solidLayerIndex, tileForegroundLayerIndex, grid);
 

@@ -18,6 +18,8 @@ namespace AmarokGames.Grids.Examples {
         private TileRegistry tileRegistry;
         private World world;
 
+        private GridTileRenderer foregroundTileRenderer;
+
         public void Start() {
             tileRegistry = new TileRegistry();
 
@@ -90,11 +92,14 @@ namespace AmarokGames.Grids.Examples {
                         new Vector2(tile.SpriteUV.xMax, tile.SpriteUV.yMax));
                     tileData[i] = d;
                 }
-                
 
-                GridTileRenderer.Create("tileRenderer", tileData, mat, world.WorldGrid);
+                foregroundTileRenderer = GridTileRenderer.Create("tileRenderer", tileData, mat, new Data.LayerId(1));
             }
 
+        }
+
+        void Update() {
+            foregroundTileRenderer.UpdateTiles(world.WorldGrid);
         }
     }
 

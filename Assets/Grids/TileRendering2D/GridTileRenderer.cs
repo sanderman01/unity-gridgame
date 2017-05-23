@@ -15,40 +15,33 @@ namespace AmarokGames.Grids {
     }
 
     public class GridTileRenderer : MonoBehaviour {
-
-        private Material mat;
+        [SerializeField]
+        private Material material;
 
         [SerializeField]
         private TileRenderData[] tileData;
-
-        [SerializeField]
-        private int vertexCount;
-        public int VertexCount { get { return vertexCount; } }
-
-        private Grid2D grid;
 
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector2> uvs = new List<Vector2>();
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
-        private Dictionary<Int2, ChunkMeshRenderer> chunkMeshes = new Dictionary<Int2, ChunkMeshRenderer>();
+        private Dictionary<ChunkKey, ChunkMeshRenderer> chunkMeshes = new Dictionary<ChunkKey, ChunkMeshRenderer>();
 
-        private LayerId layerId = new LayerId(1);
+        private LayerId layerId;
 
-        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material mat, Grid2D grid) {
-
-            Assert.IsNotNull(mat);
+        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material material, LayerId layerId) {
+            Assert.IsNotNull(material);
 
             GameObject obj = new GameObject(objName);
             GridTileRenderer result = obj.AddComponent<GridTileRenderer>();
-            result.grid = grid;
             result.tileData = tileData;
-            result.mat = mat;
+            result.material = material;
+            result.layerId = layerId;
             return result;
         }
 
-        void Update() {
+        public void UpdateTiles(Grid2D grid) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
@@ -71,16 +64,16 @@ namespace AmarokGames.Grids {
                     RefreshChunk(grid, chunk, chunkCoord);
                 } else {
                     // The chunk is currently not visible. We should clean up the mesh so we don't waste memory.
-                    CleanChunk(chunkCoord);
+                    CleanChunk(grid.GridId, chunkCoord);
                 }
 
             }
         }
 
-        private void CleanChunk(Int2 chunkCoord) {
+        private void CleanChunk(int gridId, Int2 chunkCoord) {
 
             ChunkMeshRenderer chunkMeshRenderer;
-            if (chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
+            if (chunkMeshes.TryGetValue(new ChunkKey(gridId, chunkCoord), out chunkMeshRenderer)) {
                 chunkMeshRenderer.Mesh.Clear();
                 chunkMeshRenderer.MarkModified(0);
             }
@@ -91,15 +84,16 @@ namespace AmarokGames.Grids {
             ChunkMeshRenderer chunkMeshRenderer;
 
             // if no chunk mesh renderer exists yet, create one now
-            if (!chunkMeshes.TryGetValue(chunkCoord, out chunkMeshRenderer)) {
+            ChunkKey key = new ChunkKey(grid.GridId, chunkCoord);
+            if (!chunkMeshes.TryGetValue(key, out chunkMeshRenderer)) {
 
                 mesh = new Mesh();
                 Grid2DChunk chunkObject;
                 grid.TryGetChunkObject(chunkCoord, out chunkObject);
                 GameObject parentChunkObj = chunkObject.gameObject;
                 string name = string.Format("chunk {0} tilemesh", chunkCoord);
-                chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, mat, mesh);
-                chunkMeshes.Add(chunkCoord, chunkMeshRenderer);
+                chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, material, mesh);
+                chunkMeshes.Add(key, chunkMeshRenderer);
             } else {
                 // mesh renderer already exists
                 mesh = chunkMeshRenderer.Mesh;
@@ -119,7 +113,6 @@ namespace AmarokGames.Grids {
             BuildChunkGeometry(grid, layerId, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
 
             // finalize mesh
-            vertexCount = vertices.Count;
             mesh.Clear();
             mesh.SetVertices(vertices);
             mesh.SetUVs(0, uvs);
@@ -426,6 +419,37 @@ namespace AmarokGames.Grids {
             triangles.Add(vertexCount + 0);
 
             vertexCount += 4;
+        }
+
+
+        struct ChunkKey {
+            public int gridId;
+            public Int2 chunkCoord;
+
+            public ChunkKey(int gridId, Int2 chunkCoord) {
+                this.gridId = gridId;
+                this.chunkCoord = chunkCoord;
+            }
+
+            public bool Equals(ChunkKey other) {
+                return this.gridId == other.gridId && this.chunkCoord == other.chunkCoord;
+            }
+
+            public override bool Equals(object obj) {
+                if (obj is ChunkKey) {
+                    ChunkKey other = (ChunkKey)obj;
+                    return Equals(other);
+                } else {
+                    return false;
+                }
+            }
+
+            public override int GetHashCode() {
+                int hash = 17;
+                hash *= hash * 23 + gridId.GetHashCode();
+                hash *= hash * 23 + chunkCoord.GetHashCode();
+                return hash;
+            }
         }
     }
 }
