@@ -14,7 +14,7 @@ namespace AmarokGames.Grids {
         public TileVariant[] variants;
     }
 
-    public class GridTileRenderer : MonoBehaviour {
+    public class GridTileRenderer {
         [SerializeField]
         private Material material;
 
@@ -30,18 +30,13 @@ namespace AmarokGames.Grids {
 
         private LayerId layerId;
 
-        public static GridTileRenderer Create(string objName, TileRenderData[] tileData, Material material, LayerId layerId) {
-            Assert.IsNotNull(material);
-
-            GameObject obj = new GameObject(objName);
-            GridTileRenderer result = obj.AddComponent<GridTileRenderer>();
-            result.tileData = tileData;
-            result.material = material;
-            result.layerId = layerId;
-            return result;
+        public GridTileRenderer(TileRenderData[] tileData, Material material, LayerId layerId) {
+            this.tileData = tileData;
+            this.material = material;
+            this.layerId = layerId;
         }
 
-        public void UpdateTiles(Grid2D grid) {
+        public void Update(Grid2D grid) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 

@@ -93,13 +93,13 @@ namespace AmarokGames.Grids.Examples {
                     tileData[i] = d;
                 }
 
-                foregroundTileRenderer = GridTileRenderer.Create("tileRenderer", tileData, mat, new Data.LayerId(1));
+                foregroundTileRenderer = new GridTileRenderer(tileData, mat, new Data.LayerId(1));
             }
 
         }
 
         void Update() {
-            foregroundTileRenderer.UpdateTiles(world.WorldGrid);
+            foregroundTileRenderer.Update(world.WorldGrid);
         }
     }
 
