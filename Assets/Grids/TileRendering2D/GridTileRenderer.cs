@@ -52,6 +52,10 @@ namespace AmarokGames.Grids {
             foreach (Grid2D grid in grids) Update(grid);
         }
 
+        public void Remove(Grid2D grid) {
+            throw new System.NotImplementedException();
+        }
+
         private void UpdateChunk(Bounds cameraBounds, Grid2D grid, Int2 chunkCoord) {
 
             // skip chunk if it doesn't exist.
@@ -85,16 +89,28 @@ namespace AmarokGames.Grids {
             // if no chunk mesh renderer exists yet, create one now
             ChunkKey key = new ChunkKey(grid.GridId, chunkCoord);
             if (!chunkMeshes.TryGetValue(key, out chunkMeshRenderer)) {
-
                 mesh = new Mesh();
                 Grid2DChunk chunkObject;
                 grid.TryGetChunkObject(chunkCoord, out chunkObject);
+
+                // Check that the game object is still valid.
+                if(chunkObject == null) {
+                    return;
+                }
+
                 GameObject parentChunkObj = chunkObject.gameObject;
                 string name = string.Format("chunk {0} tilemesh", chunkCoord);
                 chunkMeshRenderer = ChunkMeshRenderer.Create(name, parentChunkObj, material, mesh);
                 chunkMeshes.Add(key, chunkMeshRenderer);
             } else {
-                // mesh renderer already exists
+                // mesh renderer already exists in dictionary
+                // check that it hasn't been destroyed since
+                if(chunkMeshRenderer == null) {
+                    chunkMeshes.Remove(key);
+                    RefreshChunk(grid, chunk, chunkCoord);
+                    return;
+                }
+
                 mesh = chunkMeshRenderer.Mesh;
 
                 // check if we need to update it
