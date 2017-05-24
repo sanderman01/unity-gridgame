@@ -48,6 +48,10 @@ namespace AmarokGames.Grids {
             }
         }
 
+        public void Update(IEnumerable<Grid2D> grids) {
+            foreach (Grid2D grid in grids) Update(grid);
+        }
+
         private void UpdateChunk(Bounds cameraBounds, Grid2D grid, Int2 chunkCoord) {
 
             // skip chunk if it doesn't exist.
