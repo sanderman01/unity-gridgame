@@ -2,8 +2,9 @@
 
 using UnityEngine;
 using AmarokGames.Grids.Data;
+using AmarokGames.Grids;
 
-namespace AmarokGames.Grids.Examples {
+namespace AmarokGames.GridGame {
 
     public class World : MonoBehaviour {
         private Int2 worldSize;

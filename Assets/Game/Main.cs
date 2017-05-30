@@ -1,9 +1,10 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.Grids;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AmarokGames.Grids.Examples {
+namespace AmarokGames.GridGame {
 
     public class Main : MonoBehaviour {
         [SerializeField]
@@ -93,7 +94,7 @@ namespace AmarokGames.Grids.Examples {
                     tileData[i] = d;
                 }
 
-                foregroundTileRenderer = new GridTileRenderer(tileData, mat, new Data.LayerId(1));
+                foregroundTileRenderer = new GridTileRenderer(tileData, mat, new Grids.Data.LayerId(1));
             }
 
         }

@@ -1,10 +1,10 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using System;
+using AmarokGames.Grids;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames.GridGame {
 
     public class TileRegistry {
 

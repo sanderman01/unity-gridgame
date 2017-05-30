@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames.GridGame {
 
     public class Tile {
         public virtual string HumanName { get; set; }
