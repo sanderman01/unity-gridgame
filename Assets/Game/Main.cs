@@ -21,6 +21,9 @@ namespace AmarokGames.GridGame {
 
         private GridTileRenderer foregroundTileRenderer;
 
+        private Player player;
+        private PlayerCharacter playerCharacter;
+
         public void Start() {
             tileRegistry = new TileRegistry();
 
@@ -56,6 +59,13 @@ namespace AmarokGames.GridGame {
             tileRegistry.Finalise();
 
             tempTileAtlasTex = tileRegistry.GetAtlas().GetTexture();
+
+            // Add Player
+            player = new Player();
+            PlayerCharacter characterPrefab = Resources.Load<PlayerCharacter>("PlayerCharacter");
+            playerCharacter = Instantiate(characterPrefab);
+            UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
+            playerCharacter.Possess(player);
         }
 
         private void CreateWorld(int seed) {
@@ -89,7 +99,7 @@ namespace AmarokGames.GridGame {
                     d.zLayer = (ushort)i;
                     d.variants = new TileVariant[1];
                     d.variants[0] = new TileVariant(
-                        new Vector2(tile.SpriteUV.x, tile.SpriteUV.y), 
+                        new Vector2(tile.SpriteUV.x, tile.SpriteUV.y),
                         new Vector2(tile.SpriteUV.xMax, tile.SpriteUV.yMax));
                     tileData[i] = d;
                 }
@@ -101,6 +111,7 @@ namespace AmarokGames.GridGame {
 
         void Update() {
             foregroundTileRenderer.Update(world.WorldGrid);
+            player.Update();
         }
     }
 
