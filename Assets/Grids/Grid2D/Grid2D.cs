@@ -123,12 +123,18 @@ namespace AmarokGames.Grids {
             return localCoord.y * chunkWidth + localCoord.x;
         }
 
+        /// <summary>
+        /// Get grid coordinate of the cell in chunk local space.
+        /// </summary>
         public static Int2 GetLocalGridCoordFromCellIndex(int index, int chunkWidth) {
             int x = index % chunkWidth;
             int y = index / chunkWidth;
             return new Int2(x, y);
         }
 
+        /// <summary>
+        /// Get grid coordinate of the cell in grid space.
+        /// </summary>
         public static Int2 GetGridCoordFromCellIndex(int index, Int2 chunkCoord, int chunkWidth, int chunkHeight) {
             Int2 localCoord = GetLocalGridCoordFromCellIndex(index, chunkWidth);
             Int2 chunkGridCoord = GetGridCoord(chunkCoord, chunkWidth, chunkHeight);

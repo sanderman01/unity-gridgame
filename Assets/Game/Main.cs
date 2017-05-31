@@ -25,7 +25,7 @@ namespace AmarokGames.GridGame {
             tileRegistry = new TileRegistry();
 
             RegisterTiles(tileRegistry);
-            CreateWorld();
+            CreateWorld(0);
             CreateRenderers();
         }
 
@@ -58,8 +58,8 @@ namespace AmarokGames.GridGame {
             tempTileAtlasTex = tileRegistry.GetAtlas().GetTexture();
         }
 
-        private void CreateWorld() {
-            world = World.CreateWorld("world", worldSize, worldChunkSize);
+        private void CreateWorld(int seed) {
+            world = World.CreateWorld("world", worldSize, worldChunkSize, seed);
         }
 
         private void CreateRenderers() {
