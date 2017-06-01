@@ -79,8 +79,7 @@ namespace AmarokGames.Grids {
                 }
                 chunkCollidersEntry.colliders.Clear();
 
-                // TODO Do row scan to determine all the rectangles we want to create box colliders for
-                // for now, lets just make a rectangle for each cell.
+                // Do row scan to determine all the rectangles we want to create box colliders for
                 List<Rect> rects = new List<Rect>();
 
                 bool makingRect;
@@ -111,6 +110,26 @@ namespace AmarokGames.Grids {
                         makingRect = false;
                         currentRect.xMax = grid.ChunkWidth;
                         rects.Add(currentRect);
+                    }
+                }
+
+                for(int i = rects.Count - 1; i > 0; --i) {
+                    Rect a = rects[i];
+                    Rect b = rects[i - 1];
+                    if(a.xMin == b.xMin && a.xMax == b.xMax)
+                    {
+                        // Then merge them in to one larger rect
+                        Rect newRect = new Rect();
+                        newRect.xMin = a.xMin;
+                        newRect.xMax = a.xMax;
+                        newRect.yMin = b.yMin;
+                        newRect.yMax = a.yMax;
+                        // remove the old ones from the list
+                        rects.RemoveAt(i);
+                        rects.RemoveAt(i - 1);
+
+                        // put the new one in the list
+                        rects.Insert(i-1, newRect);
                     }
                 }
                 
