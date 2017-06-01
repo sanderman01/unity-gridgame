@@ -21,6 +21,8 @@ namespace AmarokGames.GridGame {
 
         private GridTileRenderer foregroundTileRenderer;
 
+        private GridCollisionSystem collisionSystem;
+
         private Player player;
         private PlayerCharacter playerCharacter;
 
@@ -30,6 +32,7 @@ namespace AmarokGames.GridGame {
             RegisterTiles(tileRegistry);
             CreateWorld(0);
             CreateRenderers();
+            collisionSystem = new GridCollisionSystem(new Grids.Data.LayerId(0));
         }
 
         private void RegisterTiles(TileRegistry tileRegistry) {
@@ -113,6 +116,7 @@ namespace AmarokGames.GridGame {
 
         void Update() {
             foregroundTileRenderer.Update(world.WorldGrid);
+            collisionSystem.Update(world.WorldGrid);
             player.Update();
         }
     }
