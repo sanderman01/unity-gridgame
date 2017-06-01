@@ -58,6 +58,9 @@ namespace AmarokGames.Grids {
                             chunkColliders = new ChunkCollidersEntry();
                             chunkColliders.chunkColliderObject = new GameObject(string.Format("chunk {0} colliders", chunkCoord));
                             chunkColliders.chunkColliderObject.transform.SetParent(chunk.gameObject.transform, false);
+                            Rigidbody2D rigidbody = chunkColliders.chunkColliderObject.AddComponent<Rigidbody2D>();
+                            rigidbody.isKinematic = true;
+                            rigidbody.simulated = true; // ???
 
                             chunksColliders.Add(new ChunkKey(grid.GridId, chunkCoord), chunkColliders);
                             UpdateColliders(grid, chunkCoord, solidBuffer, chunkColliders);
