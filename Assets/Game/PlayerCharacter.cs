@@ -30,7 +30,8 @@ public class PlayerCharacter : MonoBehaviour {
         }
 
         if(controller.Down) {
-            // anything?
+            // Go down
+            transform.Translate(0, -walkingSpeed * Time.deltaTime, 0, Space.World);
         }
     }
 }

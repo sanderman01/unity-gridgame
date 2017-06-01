@@ -66,6 +66,8 @@ namespace AmarokGames.GridGame {
             playerCharacter = Instantiate(characterPrefab);
             UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
             playerCharacter.Possess(player);
+
+            Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
         }
 
         private void CreateWorld(int seed) {
