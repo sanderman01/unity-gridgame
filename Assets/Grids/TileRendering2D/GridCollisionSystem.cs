@@ -57,7 +57,7 @@ namespace AmarokGames.Grids {
                         if(grid.TryGetChunkObject(chunkCoord, out chunk)) {
                             chunkColliders = new ChunkCollidersEntry();
                             chunkColliders.chunkColliderObject = new GameObject(string.Format("chunk {0} colliders", chunkCoord));
-                            chunkColliders.chunkColliderObject.transform.SetParent(chunk.gameObject.transform);
+                            chunkColliders.chunkColliderObject.transform.SetParent(chunk.gameObject.transform, false);
 
                             chunksColliders.Add(new ChunkKey(grid.GridId, chunkCoord), chunkColliders);
                             UpdateColliders(grid, chunkCoord, solidBuffer, chunkColliders);
@@ -82,13 +82,35 @@ namespace AmarokGames.Grids {
                 // TODO Do row scan to determine all the rectangles we want to create box colliders for
                 // for now, lets just make a rectangle for each cell.
                 List<Rect> rects = new List<Rect>();
-                for(int i = 0; i < grid.ChunkWidth*grid.ChunkHeight; ++i) {
-                    bool solid = solidBuffer.GetValue(i);
-                    if(solid) {
-                        // This grid cell is solid.
-                        Int2 localGridCoord = Grid2D.GetLocalGridCoordFromCellIndex(i, grid.ChunkWidth);
-                        Rect rect = new Rect(localGridCoord.x, localGridCoord.y, 1, 1);
-                        rects.Add(rect);
+
+                bool makingRect;
+                Rect currentRect = new Rect();
+                for(int y = 0; y < grid.ChunkHeight; ++y) {
+                    makingRect = false;
+                    for(int x = 0; x < grid.ChunkWidth; ++x) {
+                        Int2 localCoord = new Int2(x, y);
+                        int cellIndex = Grid2D.GetCellIndex(localCoord, grid.ChunkWidth);
+                        bool solid = solidBuffer.GetValue(cellIndex);
+
+                        if(solid && !makingRect) {
+                            // Start a new rect
+                            makingRect = true;
+                            currentRect.yMin = y;
+                            currentRect.yMax = y + 1;
+                            currentRect.xMin = x;
+                        } else if(!solid && makingRect) {
+                            // finish the current rect
+                            makingRect = false;
+                            currentRect.xMax = x;
+                            rects.Add(currentRect);
+                        }
+                    }
+                    
+                    if(makingRect) {
+                        // finish the current rect
+                        makingRect = false;
+                        currentRect.xMax = grid.ChunkWidth;
+                        rects.Add(currentRect);
                     }
                 }
                 
@@ -96,7 +118,8 @@ namespace AmarokGames.Grids {
                 foreach(Rect rect in rects) {
                     BoxCollider2D col = colliderGameObject.AddComponent<BoxCollider2D>();
                     col.size = rect.size;
-                    col.offset = rect.position + 0.5f * Vector2.one;
+                    //col.offset = rect.position; // + 0.5f * Vector2.one;
+                    col.offset = rect.center;
                     chunkCollidersEntry.colliders.Add(col);
                 }
 
