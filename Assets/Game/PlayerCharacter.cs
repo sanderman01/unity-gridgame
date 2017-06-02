@@ -10,6 +10,9 @@ public class PlayerCharacter : MonoBehaviour {
     [SerializeField]
     private Vector2 velocity;
 
+    [SerializeField]
+    private bool rotateToSurfaceNormal = false;
+
     public void Possess(Player player) {
         controller = player;
     }
@@ -62,6 +65,11 @@ public class PlayerCharacter : MonoBehaviour {
         }
 
         rigidbody.MovePosition(rigidbody.position + velocity * Time.deltaTime);
+
+        if (rotateToSurfaceNormal && !grounded) {
+            const float rotationDampening = 1;
+            rigidbody.MoveRotation(Mathf.Lerp(rigidbody.rotation, 0, Time.deltaTime * rotationDampening));
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
@@ -93,6 +101,18 @@ public class PlayerCharacter : MonoBehaviour {
             if (separation < -0.1f) {
                 transform.Translate(0.9f * -separation * collisionNormal);
                 grounded = true;
+            }
+        }
+
+        // Tilt character when appropriate
+        if (rotateToSurfaceNormal) {
+            const float tiltThreshold = 30;
+            Vector2 collisionNormal = collision.contacts[0].normal;
+            Vector2 up = Vector2.up;
+            float angle = Vector2.Angle(up, collisionNormal);
+            if (Mathf.Abs(angle) < tiltThreshold) {
+                // tilt snap to surface
+                rigidbody.MoveRotation(angle);
             }
         }
     }
