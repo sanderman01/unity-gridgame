@@ -46,7 +46,7 @@ public class PlayerCharacter : MonoBehaviour {
             velocity.x = 0;
         }
 
-        if (controller.Jump) {
+        if (controller.Jump && grounded) {
             velocity.y += jumpVelocity;
             grounded = false;
         }
