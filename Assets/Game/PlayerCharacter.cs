@@ -13,6 +13,9 @@ public class PlayerCharacter : MonoBehaviour {
     [SerializeField]
     private bool rotateToSurfaceNormal = false;
 
+    // Debugging aids
+    private ContactPoint2D[] points = new ContactPoint2D[0];
+
     public void Possess(Player player) {
         controller = player;
     }
@@ -73,6 +76,7 @@ public class PlayerCharacter : MonoBehaviour {
     void OnCollisionStay2D(Collision2D collision) {
         Debug.Log("OnCollisionStay");
         HandleCollision(collision);
+        points = collision.contacts;
     }
 
     void OnCollisionExit2D(Collision2D collision) {
@@ -108,6 +112,47 @@ public class PlayerCharacter : MonoBehaviour {
                 // tilt snap to surface
                 rigidbody.MoveRotation(angle);
             }
+        }
+
+        // Step-assist
+        // Iterate over contact points to determine if we should do a step-assist this frame
+        bool applyStepAssistThisFrame = false;
+        float highestPoint = float.MinValue;
+        foreach (ContactPoint2D p in collision.contacts) {
+            const float thresholdAngle = 45f;
+            float angleRight = Vector2.Angle(p.normal, Vector2.right);
+            float angleLeft = Vector2.Angle(p.normal, -Vector2.right);
+            bool verticalWall = Mathf.Abs(angleRight) < thresholdAngle || Mathf.Abs(angleLeft) < thresholdAngle;
+
+            if(verticalWall && grounded) {
+                // Schedule step-assist
+                // Do a 1-tile jump, because this way we don't need to worry about ceilings
+                applyStepAssistThisFrame = true;
+                highestPoint = Mathf.Max(highestPoint, p.point.y);
+            }
+        }
+
+        // Apply the step-assist by moving the character to same y-value as the highest contact point.
+        if(applyStepAssistThisFrame) {
+            Vector2 position = transform.position;
+            position.y = highestPoint;
+            position.x += 0.1f;
+            transform.position = position;
+        }
+    }
+
+
+
+    void OnDrawGizmos() {
+        //DrawGizmosContactPoints(points);
+    }
+
+    void DrawGizmosContactPoints(ContactPoint2D[] points) {
+        foreach (ContactPoint2D p in points) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(p.point, 0.1f);
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(p.point, p.point + p.normal);
         }
     }
 }
