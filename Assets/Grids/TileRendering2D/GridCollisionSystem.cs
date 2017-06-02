@@ -48,6 +48,7 @@ namespace AmarokGames.Grids {
                         // Check if we need to update them or if they are still up-to-date.
                         if (solidBuffer.LastModified > chunkColliders.LastModified) {
                             UpdateColliders(grid, chunkCoord, solidBuffer, chunkColliders);
+                            chunkColliders.LastModified = Time.frameCount;
                         }
                     }
                     else {

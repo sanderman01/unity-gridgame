@@ -12,36 +12,27 @@ namespace AmarokGames.GridGame {
 
         public Grid2D WorldGrid { get; private set; }
 
-        public static World CreateWorld(string name, Int2 worldSize, Int2 worldChunkSize, int seed) {
+        public static World CreateWorld(string name, Int2 worldSize, Int2 worldChunkSize, int seed, LayerConfig layers) {
             FastNoise noise = new FastNoise(seed);
             GameObject obj = new GameObject(name);
             World world = obj.AddComponent<World>();
             world.worldSize = worldSize;
             world.worldChunkSize = worldChunkSize;
-            world.WorldGrid = world.CreateWorldGrid(noise);
+            world.WorldGrid = world.CreateWorldGrid(noise, layers);
             return world;
         }
 
-        private Grid2D CreateWorldGrid(FastNoise noise) {
+        private Grid2D CreateWorldGrid(FastNoise noise, LayerConfig layers) {
 
             int chunkWidth = worldChunkSize.x;
             int chunkHeight = worldChunkSize.y;
-
-            LayerId solidLayerIndex;
-            LayerId tileForegroundLayerIndex;
-            LayerId tileBackgroundLayerIndex;
-
-            LayerConfig layers = new LayerConfig()
-                .AddLayer("solid", BufferType.Boolean, out solidLayerIndex)
-                .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerIndex)
-                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex);
 
             GameObject obj = new GameObject("worldgrid");
             obj.transform.SetParent(this.transform, false);
             Grid2D grid = obj.AddComponent<Grid2D>();
             grid.Setup(0, chunkWidth, chunkHeight, layers);
 
-            CreateChunks(noise, chunkWidth, chunkHeight, solidLayerIndex, tileForegroundLayerIndex, grid);
+            CreateChunks(noise, chunkWidth, chunkHeight, layers.GetLayer(0).id, layers.GetLayer(1).id, grid);
 
             return grid;
         }

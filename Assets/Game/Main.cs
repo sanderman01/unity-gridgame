@@ -1,6 +1,7 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
 using AmarokGames.Grids;
+using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,8 +27,18 @@ namespace AmarokGames.GridGame {
         private Player player;
         private PlayerCharacter playerCharacter;
 
+        private LayerConfig layers;
+        LayerId solidLayerIndex;
+        LayerId tileForegroundLayerIndex;
+        LayerId tileBackgroundLayerIndex;
+
         public void Start() {
             tileRegistry = new TileRegistry();
+
+            layers = new LayerConfig()
+                .AddLayer("solid", BufferType.Boolean, out solidLayerIndex)
+                .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerIndex)
+                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex);
 
             RegisterTiles(tileRegistry);
             CreateWorld(0);
@@ -74,7 +85,7 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateWorld(int seed) {
-            world = World.CreateWorld("world", worldSize, worldChunkSize, seed);
+            world = World.CreateWorld("world", worldSize, worldChunkSize, seed, layers);
         }
 
         private void CreateRenderers() {
@@ -111,13 +122,47 @@ namespace AmarokGames.GridGame {
 
                 foregroundTileRenderer = new GridTileRenderer(tileData, mat, new Grids.Data.LayerId(1));
             }
-
         }
 
         void Update() {
             foregroundTileRenderer.Update(world.WorldGrid);
             collisionSystem.Update(world.WorldGrid);
             player.Update();
+
+            const int buttonLeft = 0;
+            const int buttonRight = 1;
+            Vector2 mousePos = Input.mousePosition;
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+
+            if(Input.GetMouseButton(buttonLeft)) {
+                PlaceTile(mouseWorldPos, 0);
+            }
+            else if(Input.GetMouseButton(buttonRight)) {
+                PlaceTile(mouseWorldPos, 1);
+            }
+        }
+
+        private void PlaceTile(Vector2 worldPos, ushort tileValue) {
+            // right now we only have the worldgrid, but we'll eventually have more grids
+            Grid2D[] grids = new Grid2D[] { world.WorldGrid };
+
+            // find the first grid that overlaps with this world position.
+            foreach (Grid2D grid in grids) {
+                Bounds bounds = grid.GetBounds();
+                if(bounds.Contains(worldPos)) {
+                    // Found a valid grid
+                    Vector2 localPos = grid.gameObject.transform.worldToLocalMatrix * worldPos;
+                    Int2 gridCoord = new Int2(localPos.x, localPos.y);
+                    PlaceTile(grid, gridCoord, tileValue);
+                }
+            }
+        }
+
+        private void PlaceTile(Grid2D grid, Int2 gridCoord, ushort tileValue) {
+            grid.SetCellValue(gridCoord, tileForegroundLayerIndex, tileValue);
+
+            bool solid = tileRegistry.GetTiles()[tileValue].CollisionSolid;
+            grid.SetCellValue(gridCoord, solidLayerIndex, solid);
         }
     }
 

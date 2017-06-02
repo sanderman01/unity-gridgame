@@ -133,6 +133,18 @@ namespace AmarokGames.Grids {
         }
 
         /// <summary>
+        /// Returns the axis aligned boundary containing all the currently loaded chunks in this grid.
+        /// </summary>
+        public Bounds GetBounds() {
+            Bounds gridBounds = new Bounds();
+            foreach(Int2 chunkCoord in chunkObjects.Keys) {
+                Bounds chunkBounds = CalculateChunkAABB(chunkCoord);
+                gridBounds.Encapsulate(chunkBounds);
+            }
+            return gridBounds;
+        }
+
+        /// <summary>
         /// Get grid coordinate of the cell in grid space.
         /// </summary>
         public static Int2 GetGridCoordFromCellIndex(int index, Int2 chunkCoord, int chunkWidth, int chunkHeight) {
@@ -228,33 +240,34 @@ namespace AmarokGames.Grids {
             }
         }
 
-        //public bool GetBoolValue(Int2 gridCoord, int layer) {
-        //    Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
-        //    Chunk chunk = GetChunk(chunkCoord);
-        //    BooleanBuffer buffer = (BooleanBuffer)chunk.GetBuffer(layer);
-        //    int cellIndex = GetCellIndex(gridCoord, chunkWidth);
-        //    return buffer.GetValue(cellIndex);
-        //}
+        public void SetCellValue<T>(Int2 gridCoord, LayerId layerId, T value) {
+            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            ChunkData chunk;
+            if (TryGetChunkData(chunkCoord, out chunk)) {
+                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                IDataBuffer buffer = chunk.GetBuffer(layerId);
 
-        //public void SetBoolValue(bool value, Int2 gridCoord, int layer) {
-        //    Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
-        //    Chunk chunk = GetChunk(chunkCoord);
-        //    BooleanBuffer buffer = (BooleanBuffer)chunk.GetBuffer(layer);
-        //    int cellIndex = GetCellIndex(gridCoord, chunkWidth);
-        //    buffer.SetValue(value, cellIndex);
-        //}
+                // set the new cell value
+                buffer.SetValue(index, value);
 
-        //public static bool GetBoolValue(Int2 gridCoord, int layer, int chunkWidth, int chunkHeight, BooleanBuffer buffer) {
-        //    Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
-        //    int cellIndex = GetCellIndex(gridCoord, chunkWidth);
-        //    return buffer.GetValue(cellIndex);
-        //}
+                // mark the chunk and buffer as modified, so that other systems will be aware of the change.
+                chunk.MarkModified(layerId.id, Time.frameCount);
+            } else {
+                // The chunk did not exist, don't set cell value.
+            }
+        }
 
-        //public static void SetBoolValue(bool value, Int2 gridCoord, int layer, int chunkWidth, int chunkHeight, BooleanBuffer buffer) {
-        //    Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
-        //    int cellIndex = GetCellIndex(gridCoord, chunkWidth);
-        //    buffer.SetValue(value, cellIndex);
-        //}
+        public object GetCellValue(Int2 gridCoord, LayerId layerId) {
+            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            ChunkData chunk;
+            if (TryGetChunkData(chunkCoord, out chunk)) {
+                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                IDataBuffer buffer = chunk.GetBuffer(layerId);
+                return buffer.GetValue(index);
+            } else {
+                return 0;
+            }
+        }
 
         #endregion
 
