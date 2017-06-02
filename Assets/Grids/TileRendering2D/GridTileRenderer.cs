@@ -29,11 +29,13 @@ namespace AmarokGames.Grids {
         private Dictionary<ChunkKey, ChunkMeshRenderer> chunkMeshes = new Dictionary<ChunkKey, ChunkMeshRenderer>();
 
         private LayerId layerId;
+        private float zOffsetGlobal;
 
-        public GridTileRenderer(TileRenderData[] tileData, Material material, LayerId layerId) {
+        public GridTileRenderer(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
             this.tileData = tileData;
             this.material = material;
             this.layerId = layerId;
+            this.zOffsetGlobal = zPos;
         }
 
         public void Update(Grid2D grid) {
@@ -125,7 +127,7 @@ namespace AmarokGames.Grids {
             uvs.Clear();
             normals.Clear();
             triangles.Clear();
-            BuildChunkGeometry(grid, layerId, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles);
+            BuildChunkGeometry(grid, layerId, chunk, chunkCoord, tileData, mesh, vertices, uvs, normals, triangles, zOffsetGlobal);
 
             // finalize mesh
             mesh.Clear();
@@ -137,11 +139,11 @@ namespace AmarokGames.Grids {
             chunkMeshRenderer.MarkModified(Time.frameCount);
         }
 
-        private static void BuildChunkGeometry(Grid2D grid, LayerId layerId, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Grid2D grid, LayerId layerId, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles, float zOffsetGlobal) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             int vertexCount = vertices.Count;
-            const float zOffset = -0.1f;
+            const float zOffset = -0.01f;
 
             // Copy data to a local buffer for easier access.
             // Because tiles encroach on their neighbours, we need both the data for the current chunk, and the borders of any neighbouring chunks.
@@ -198,7 +200,7 @@ namespace AmarokGames.Grids {
 
                         // Draw the middle of the tile. The middle will always be drawn.
                         int zLayer = tileRenderData[current].zLayer;
-                        float zDepth = zOffset * zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * zLayer;
                         {
                             Vector3 v = new Vector3(gridCoord.x, gridCoord.y, zDepth);
                             Vector2 uv00 = tileRenderData[current].variants[0].uvMiddle.uv00;
@@ -301,21 +303,21 @@ namespace AmarokGames.Grids {
 
                     // Draw bottom left inside corner
                     if (renderBottomLeftInside) {
-                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvInsideBottomLeft.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvInsideBottomLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight1) {
-                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvRight1.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvRight1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop1) {
-                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[bottom].variants[0].uvTop1.uv00;
                         Vector2 uv11 = tileRenderData[bottom].variants[0].uvTop1.uv11;
@@ -324,21 +326,21 @@ namespace AmarokGames.Grids {
 
                     // Draw bottom right inside corner
                     if (renderBottomRightInside) {
-                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvInsideBottomRight.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvInsideBottomRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop2) {
-                        float zDepth = zOffset * tileRenderData[bottom].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[bottom].variants[0].uvTop2.uv00;
                         Vector2 uv11 = tileRenderData[bottom].variants[0].uvTop2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft1) {
-                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvLeft1.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvLeft1.uv11;
@@ -347,21 +349,21 @@ namespace AmarokGames.Grids {
 
                     // Draw top left inside corner
                     if (renderTopLeftInside) {
-                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvInsideTopLeft.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvInsideTopLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight2) {
-                        float zDepth = zOffset * tileRenderData[left].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[left].variants[0].uvRight2.uv00;
                         Vector2 uv11 = tileRenderData[left].variants[0].uvRight2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom1) {
-                        float zDepth = zOffset * tileRenderData[top].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[top].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[top].variants[0].uvBottom1.uv00;
                         Vector2 uv11 = tileRenderData[top].variants[0].uvBottom1.uv11;
@@ -370,21 +372,21 @@ namespace AmarokGames.Grids {
 
                     // draw top right inside corner
                     if (renderTopRightInside) {
-                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvInsideTopRight.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvInsideTopRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft2) {
-                        float zDepth = zOffset * tileRenderData[right].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[right].variants[0].uvLeft2.uv00;
                         Vector2 uv11 = tileRenderData[right].variants[0].uvLeft2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom2) {
-                        float zDepth = zOffset * tileRenderData[top].zLayer;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[top].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
                         Vector2 uv00 = tileRenderData[top].variants[0].uvBottom2.uv00;
                         Vector2 uv11 = tileRenderData[top].variants[0].uvBottom2.uv11;
