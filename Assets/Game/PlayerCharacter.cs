@@ -29,10 +29,10 @@ public class PlayerCharacter : MonoBehaviour {
         const float jetpackAcceleration = 50f;
         const float jumpVelocity = 30f;
 
-        if(controller.Right && velocity.x < walkingSpeed) {
+        if (controller.Right && velocity.x < walkingSpeed) {
             // Move right
-                velocity.x += walkingAcceleration * Time.deltaTime;
-        } else if(!controller.Right && velocity.x > 0) {
+            velocity.x += walkingAcceleration * Time.deltaTime;
+        } else if (!controller.Right && velocity.x > 0) {
             velocity.x = 0;
         }
 
@@ -43,7 +43,7 @@ public class PlayerCharacter : MonoBehaviour {
             velocity.x = 0;
         }
 
-        if(controller.Jump) {
+        if (controller.Jump) {
             velocity.y += jumpVelocity;
             grounded = false;
         }
@@ -53,15 +53,9 @@ public class PlayerCharacter : MonoBehaviour {
             if (velocity.y < jetpackMaxVerticalSpeed) {
                 velocity.y = Mathf.Min(velocity.y + jetpackAcceleration, jetpackMaxVerticalSpeed);
             }
-        } else if(!grounded) {
+        } else if (!grounded) {
             // Get pulled down by gravity
             velocity.y -= gravityAcceleration * Time.deltaTime;
-        }
-
-        if(controller.Down) {
-            // Go down
-            // Vector2 translation = new Vector3(0, -walkingSpeed * Time.deltaTime);
-            // rigidbody.MovePosition(rigidbody.position + translation);
         }
 
         rigidbody.MovePosition(rigidbody.position + velocity * Time.deltaTime);
@@ -94,7 +88,7 @@ public class PlayerCharacter : MonoBehaviour {
             float separation = collision.contacts[0].separation;
 
             // Kill velocity in the direction of the collision.
-            if(Vector2.Dot(collisionNormal, velocity) < 0)
+            if (Vector2.Dot(collisionNormal, velocity) < 0)
                 velocity = Vector3.ProjectOnPlane(velocity, collisionNormal);
 
             // Reduce overlap
