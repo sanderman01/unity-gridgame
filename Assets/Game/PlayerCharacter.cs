@@ -52,7 +52,7 @@ public class PlayerCharacter : MonoBehaviour {
             velocity.y += jumpVelocity;
             grounded = false;
         }
-        if (controller.Up) {
+        if (controller.Jump && !grounded) {
             // Jetpack
             const float jetpackMaxVerticalSpeed = 10;
             if (velocity.y < jetpackMaxVerticalSpeed) {

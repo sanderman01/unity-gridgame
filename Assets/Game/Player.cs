@@ -21,6 +21,6 @@ public class Player {
         Right = Input.GetKey(KeyRight);
         Up = Input.GetKey(KeyUp);
         Down = Input.GetKey(KeyDown);
-        Jump = Input.GetKeyDown(KeyJump);
+        Jump = Input.GetKey(KeyJump);
 	}
 }
