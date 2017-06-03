@@ -20,11 +20,7 @@ namespace AmarokGames.GridGame {
         private TileRegistry tileRegistry;
         private World world;
 
-        private GridTileRenderSystem foregroundTileRenderer;
-
-        private GridCollisionSystem collisionSystem;
-
-        private GridSolidRenderer solidRenderSystem;
+        private List<IGameSystem> gameSystems = new List<IGameSystem>();
 
         private Player player;
         private PlayerCharacter playerCharacter;
@@ -45,7 +41,7 @@ namespace AmarokGames.GridGame {
             RegisterTiles(tileRegistry);
             CreateWorld(0);
             CreateRenderers();
-            collisionSystem = new GridCollisionSystem(new Grids.Data.LayerId(0));
+            gameSystems.Add(new GridCollisionSystem(new Grids.Data.LayerId(0)));
         }
 
         private void RegisterTiles(TileRegistry tileRegistry) {
@@ -97,7 +93,9 @@ namespace AmarokGames.GridGame {
                 // Solid Renderer
                 Shader shader = Shader.Find("Particles/Additive");
                 Material mat = new Material(shader);
-                solidRenderSystem = new GridSolidRenderer("solidRenderer", mat, world.WorldGrid);
+                GridSolidRenderer solidRenderer = new GridSolidRenderer("solidRenderer", mat, world.WorldGrid);
+                gameSystems.Add(solidRenderer);
+                solidRenderer.Enabled = false;
             }
 
             {
@@ -121,15 +119,17 @@ namespace AmarokGames.GridGame {
                     tileData[i] = d;
                 }
 
-                foregroundTileRenderer = new GridTileRenderSystem(tileData, mat, new Grids.Data.LayerId(1));
+                gameSystems.Add(new GridTileRenderSystem(tileData, mat, new Grids.Data.LayerId(1)));
             }
         }
 
         void Update() {
             Grid2D[] grids = new Grid2D[] { world.WorldGrid };
-            foregroundTileRenderer.Update(world, grids);
-            collisionSystem.Update(world, grids );
-            //solidRenderSystem.Update(world, grids);
+
+            foreach (IGameSystem system in gameSystems) {
+                if(system.Enabled) system.Update(world, grids);
+            }
+
             player.Update();
 
             const int buttonLeft = 0;

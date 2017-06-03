@@ -9,16 +9,9 @@ using System;
 namespace AmarokGames.Grids {
 
     public class GridSolidRenderer : IGameSystem {
-
-        [SerializeField]
+        
         private LayerId layerId = new LayerId(0);
-
-        [SerializeField]
         private Material material;
-
-        [SerializeField]
-        private int vertexCount;
-        public int VertexCount { get { return vertexCount; } }
 
         private Grid2D grid;
         private Mesh mesh;
@@ -28,6 +21,33 @@ namespace AmarokGames.Grids {
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
+
+        private int vertexCount;
+        public int VertexCount { get { return vertexCount; } }
+
+        private bool enabled = true;
+        public bool Enabled {
+            get {
+                return enabled;
+            }
+
+            set {
+                if (!enabled && value) Enable();
+                else if (enabled && !value) Disable();
+                enabled = value;
+            }
+        }
+
+        private void Enable() {
+            filter.gameObject.SetActive(true);
+        }
+
+        private void Disable() {
+            filter.gameObject.SetActive(false);
+            mesh.Clear();
+        }
+
+
 
         public GridSolidRenderer(string objName, Material material, Grid2D grid) {
             GameObject obj = new GameObject(objName);

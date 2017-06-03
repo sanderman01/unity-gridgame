@@ -4,6 +4,7 @@ using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.Grids {
 
@@ -12,18 +13,41 @@ namespace AmarokGames.Grids {
     /// </summary>
     public class GridCollisionSystem : IGameSystem {
 
-        private LayerId solidLayer;
-        private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
-        private LayerId layerId;
-
         private class ChunkCollidersEntry {
             public int LastModified;
             public GameObject chunkColliderObject;
             public List<BoxCollider2D> colliders = new List<BoxCollider2D>();
         }
 
+        private LayerId solidLayer;
+        private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
+
+        private bool enabled = true;
+        public bool Enabled {
+            get {
+                return enabled;
+            }
+
+            set {
+                if (!enabled && value) Enable();
+                else if (enabled && !value) Disable();
+                enabled = value;
+            }
+        }
+
+        private void Enable() {
+        }
+
+        private void Disable() {
+            foreach(ChunkCollidersEntry entry in chunksColliders.Values) {
+                UnityEngine.Object.Destroy(entry.chunkColliderObject);
+                entry.colliders.Clear();
+            }
+            chunksColliders.Clear();
+        }
+
         public GridCollisionSystem(LayerId layerId) {
-            this.layerId = layerId;
+            this.solidLayer = layerId;
         }
 
         public void Update(World world, IEnumerable<Grid2D> grids) {

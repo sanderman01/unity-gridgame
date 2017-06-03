@@ -7,6 +7,8 @@ namespace AmarokGames.GridGame {
 
     public interface IGameSystem {
 
+        bool Enabled { get; set; }
+
         void Update(World world, IEnumerable<Grid2D> grids);
     }
 }

@@ -4,7 +4,6 @@ using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace AmarokGames.Grids {
 
@@ -31,6 +30,34 @@ namespace AmarokGames.Grids {
 
         private LayerId layerId;
         private float zOffsetGlobal;
+
+        private bool enabled = true;
+        public bool Enabled {
+            get {
+                return enabled;
+            }
+
+            set {
+                if (!enabled && value) Enable();
+                else if (enabled && !value) Disable();
+                enabled = value;
+            }
+        }
+
+        private void Enable() {
+        }
+
+        private void Disable() {
+            vertices.Clear();
+            uvs.Clear();
+            normals.Clear();
+            triangles.Clear();
+            foreach (ChunkMeshRenderer renderer in chunkMeshes.Values) {
+                UnityEngine.Object.Destroy(renderer.Mesh);
+                UnityEngine.Object.Destroy(renderer.gameObject);
+            }
+            chunkMeshes.Clear();
+        }
 
         public GridTileRenderSystem(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
             this.tileData = tileData;
