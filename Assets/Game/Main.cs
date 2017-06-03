@@ -20,7 +20,7 @@ namespace AmarokGames.GridGame {
         private TileRegistry tileRegistry;
         private World world;
 
-        private GridTileRenderer foregroundTileRenderer;
+        private GridTileRenderSystem foregroundTileRenderer;
 
         private GridCollisionSystem collisionSystem;
 
@@ -120,7 +120,7 @@ namespace AmarokGames.GridGame {
                     tileData[i] = d;
                 }
 
-                foregroundTileRenderer = new GridTileRenderer(tileData, mat, new Grids.Data.LayerId(1));
+                foregroundTileRenderer = new GridTileRenderSystem(tileData, mat, new Grids.Data.LayerId(1));
             }
         }
 

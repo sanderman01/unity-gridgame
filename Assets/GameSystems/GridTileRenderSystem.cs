@@ -15,7 +15,7 @@ namespace AmarokGames.Grids {
         public TileVariant[] variants;
     }
 
-    public class GridTileRenderer {
+    public class GridTileRenderSystem : IGameSystem {
         [SerializeField]
         private Material material;
 
@@ -32,7 +32,7 @@ namespace AmarokGames.Grids {
         private LayerId layerId;
         private float zOffsetGlobal;
 
-        public GridTileRenderer(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
+        public GridTileRenderSystem(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
             this.tileData = tileData;
             this.material = material;
             this.layerId = layerId;
