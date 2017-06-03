@@ -7,15 +7,17 @@ using AmarokGames.Grids;
 namespace AmarokGames.GridGame {
 
     public class World : MonoBehaviour {
+        public int WorldId { get; private set; }
         private Int2 worldSize;
         private Int2 worldChunkSize;
 
         public Grid2D WorldGrid { get; private set; }
 
-        public static World CreateWorld(string name, Int2 worldSize, Int2 worldChunkSize, int seed, LayerConfig layers) {
+        public static World CreateWorld(string name, int worldId, Int2 worldSize, Int2 worldChunkSize, int seed, LayerConfig layers) {
             FastNoise noise = new FastNoise(seed);
             GameObject obj = new GameObject(name);
             World world = obj.AddComponent<World>();
+            world.WorldId = worldId;
             world.worldSize = worldSize;
             world.worldChunkSize = worldChunkSize;
             world.WorldGrid = world.CreateWorldGrid(noise, layers);

@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +39,7 @@ namespace AmarokGames.Grids {
             this.zOffsetGlobal = zPos;
         }
 
-        public void Update(Grid2D grid) {
+        public void Update(World world, Grid2D grid) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
@@ -46,19 +47,19 @@ namespace AmarokGames.Grids {
             Bounds bounds = Camera.main.CalcOrthographicCameraBounds();
 
             foreach (Int2 chunkCoord in chunks) {
-                UpdateChunk(bounds, grid, chunkCoord);
+                UpdateChunk(bounds, world.WorldId, grid, chunkCoord);
             }
         }
 
-        public void Update(IEnumerable<Grid2D> grids) {
-            foreach (Grid2D grid in grids) Update(grid);
+        public void Update(World world, IEnumerable<Grid2D> grids) {
+            foreach (Grid2D grid in grids) Update(world, grid);
         }
 
         public void Remove(Grid2D grid) {
             throw new System.NotImplementedException();
         }
 
-        private void UpdateChunk(Bounds cameraBounds, Grid2D grid, Int2 chunkCoord) {
+        private void UpdateChunk(Bounds cameraBounds, int worldId, Grid2D grid, Int2 chunkCoord) {
 
             // skip chunk if it doesn't exist.
             ChunkData chunk;
@@ -66,30 +67,30 @@ namespace AmarokGames.Grids {
 
                 if (cameraBounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
                     // The chunk is currently visible. Refresh the mesh if needed.
-                    RefreshChunk(grid, chunk, chunkCoord);
+                    RefreshChunk(worldId, grid, chunk, chunkCoord);
                 } else {
                     // The chunk is currently not visible. We should clean up the mesh so we don't waste memory.
-                    CleanChunk(grid.GridId, chunkCoord);
+                    CleanChunk(worldId, grid.GridId, chunkCoord);
                 }
 
             }
         }
 
-        private void CleanChunk(int gridId, Int2 chunkCoord) {
+        private void CleanChunk(int worldId, int gridId, Int2 chunkCoord) {
 
             ChunkMeshRenderer chunkMeshRenderer;
-            if (chunkMeshes.TryGetValue(new ChunkKey(gridId, chunkCoord), out chunkMeshRenderer)) {
+            if (chunkMeshes.TryGetValue(new ChunkKey(worldId, gridId, chunkCoord), out chunkMeshRenderer)) {
                 chunkMeshRenderer.Mesh.Clear();
                 chunkMeshRenderer.MarkModified(0);
             }
         }
 
-        private void RefreshChunk(Grid2D grid, ChunkData chunk, Int2 chunkCoord) {
+        private void RefreshChunk(int worldId, Grid2D grid, ChunkData chunk, Int2 chunkCoord) {
             Mesh mesh = null;
             ChunkMeshRenderer chunkMeshRenderer;
 
             // if no chunk mesh renderer exists yet, create one now
-            ChunkKey key = new ChunkKey(grid.GridId, chunkCoord);
+            ChunkKey key = new ChunkKey(worldId, grid.GridId, chunkCoord);
             if (!chunkMeshes.TryGetValue(key, out chunkMeshRenderer)) {
                 mesh = new Mesh();
                 Grid2DChunk chunkObject;
@@ -109,7 +110,7 @@ namespace AmarokGames.Grids {
                 // check that it hasn't been destroyed since
                 if(chunkMeshRenderer == null) {
                     chunkMeshes.Remove(key);
-                    RefreshChunk(grid, chunk, chunkCoord);
+                    RefreshChunk(worldId, grid, chunk, chunkCoord);
                     return;
                 }
 

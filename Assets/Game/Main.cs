@@ -85,7 +85,7 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateWorld(int seed) {
-            world = World.CreateWorld("world", worldSize, worldChunkSize, seed, layers);
+            world = World.CreateWorld("world", 0, worldSize, worldChunkSize, seed, layers);
         }
 
         private void CreateRenderers() {
@@ -125,8 +125,8 @@ namespace AmarokGames.GridGame {
         }
 
         void Update() {
-            foregroundTileRenderer.Update(world.WorldGrid);
-            collisionSystem.Update(world.WorldGrid);
+            foregroundTileRenderer.Update(world, world.WorldGrid);
+            collisionSystem.Update(world, world.WorldGrid);
             player.Update();
 
             const int buttonLeft = 0;

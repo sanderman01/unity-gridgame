@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace AmarokGames.Grids {
             this.layerId = layerId;
         }
 
-        public void Update(Grid2D grid) {
+        public void Update(World world, Grid2D grid) {
             // For each chunk
             // Check that the chunk is still up to date
             // If not, then regenerate the colliders for this chunk
@@ -43,12 +44,12 @@ namespace AmarokGames.Grids {
                     BitBuffer solidBuffer = (BitBuffer)data.GetBuffer(solidLayer);
 
                     ChunkCollidersEntry chunkColliders;
-                    if(chunksColliders.TryGetValue(new ChunkKey(grid.GridId, chunkCoord), out chunkColliders)) {
+                    if(chunksColliders.TryGetValue(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), out chunkColliders)) {
                         // We found existing colliders for this chunk
 
                         // Check if we need to update them or if they are still up-to-date.
                         if (solidBuffer.LastModified > chunkColliders.LastModified) {
-                            UpdateColliders(grid, chunkCoord, solidBuffer, chunkColliders);
+                            UpdateColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
                             chunkColliders.LastModified = Time.frameCount;
                         }
                     }
@@ -64,8 +65,8 @@ namespace AmarokGames.Grids {
                             rigidbody.isKinematic = true;
                             rigidbody.simulated = true; // ???
 
-                            chunksColliders.Add(new ChunkKey(grid.GridId, chunkCoord), chunkColliders);
-                            UpdateColliders(grid, chunkCoord, solidBuffer, chunkColliders);
+                            chunksColliders.Add(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), chunkColliders);
+                            UpdateColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
                         } else {
                             // No chunk gameobject exists? Wha?
                         }
@@ -74,7 +75,7 @@ namespace AmarokGames.Grids {
             }
         }
 
-        private void UpdateColliders(Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
+        private void UpdateColliders(int worldId, Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
 
             GameObject colliderGameObject = chunkCollidersEntry.chunkColliderObject;
             if(colliderGameObject != null) {
@@ -150,7 +151,7 @@ namespace AmarokGames.Grids {
             } else {
                 // The chunk did not exist for some reason
                 // Clean lingering entries in our bookkeeping.
-                chunksColliders.Remove(new ChunkKey(grid.GridId, chunkCoord));
+                chunksColliders.Remove(new ChunkKey(worldId, grid.GridId, chunkCoord));
             }
         }
     }
