@@ -10,7 +10,7 @@ namespace AmarokGames.Grids {
     /// <summary>
     /// Manages chunk collision components.
     /// </summary>
-    public class GridCollisionSystem {
+    public class GridCollisionSystem : IGameSystem {
 
         private LayerId solidLayer;
         private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
@@ -26,7 +26,13 @@ namespace AmarokGames.Grids {
             this.layerId = layerId;
         }
 
-        public void Update(World world, Grid2D grid) {
+        public void Update(World world, IEnumerable<Grid2D> grids) {
+            foreach(Grid2D grid in grids) {
+                Update(world, grid);
+            }
+        }
+
+        private void Update(World world, Grid2D grid) {
             // For each chunk
             // Check that the chunk is still up to date
             // If not, then regenerate the colliders for this chunk

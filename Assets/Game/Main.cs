@@ -125,8 +125,9 @@ namespace AmarokGames.GridGame {
         }
 
         void Update() {
-            foregroundTileRenderer.Update(world, world.WorldGrid);
-            collisionSystem.Update(world, world.WorldGrid);
+            Grid2D[] grids = new Grid2D[] { world.WorldGrid };
+            foregroundTileRenderer.Update(world, grids);
+            collisionSystem.Update(world, grids );
             player.Update();
 
             const int buttonLeft = 0;

@@ -1,10 +1,12 @@
-﻿using AmarokGames.GridGame;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
 using AmarokGames.Grids;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public interface IGameSystem {
+namespace AmarokGames.GridGame {
 
-    void Update(World world, IEnumerable<Grid2D> grids);
+    public interface IGameSystem {
+
+        void Update(World world, IEnumerable<Grid2D> grids);
+    }
 }
