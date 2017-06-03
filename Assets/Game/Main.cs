@@ -24,6 +24,8 @@ namespace AmarokGames.GridGame {
 
         private GridCollisionSystem collisionSystem;
 
+        private GridSolidRenderer solidRenderSystem;
+
         private Player player;
         private PlayerCharacter playerCharacter;
 
@@ -95,8 +97,7 @@ namespace AmarokGames.GridGame {
                 // Solid Renderer
                 Shader shader = Shader.Find("Particles/Additive");
                 Material mat = new Material(shader);
-                GridSolidRenderer solidRenderer = GridSolidRenderer.Create("solidRenderer", mat, world.WorldGrid);
-                solidRenderer.gameObject.SetActive(false);
+                solidRenderSystem = new GridSolidRenderer("solidRenderer", mat, world.WorldGrid);
             }
 
             {
@@ -128,6 +129,7 @@ namespace AmarokGames.GridGame {
             Grid2D[] grids = new Grid2D[] { world.WorldGrid };
             foregroundTileRenderer.Update(world, grids);
             collisionSystem.Update(world, grids );
+            //solidRenderSystem.Update(world, grids);
             player.Update();
 
             const int buttonLeft = 0;

@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,7 @@ using System;
 
 namespace AmarokGames.Grids {
 
-    public class GridSolidRenderer : MonoBehaviour {
+    public class GridSolidRenderer : IGameSystem {
 
         [SerializeField]
         private LayerId layerId = new LayerId(0);
@@ -28,40 +29,31 @@ namespace AmarokGames.Grids {
         private List<Vector3> normals = new List<Vector3>();
         private List<int> triangles = new List<int>();
 
-        public static GridSolidRenderer Create(string objName, Material material, Grid2D grid) {
+        public GridSolidRenderer(string objName, Material material, Grid2D grid) {
             GameObject obj = new GameObject(objName);
-            GridSolidRenderer result = obj.AddComponent<GridSolidRenderer>();
-            result.grid = grid;
-            result.filter = obj.AddComponent<MeshFilter>();
+            this.grid = grid;
+            this.filter = obj.AddComponent<MeshFilter>();
+            this.filter.sharedMesh = mesh = new Mesh();
             MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
-            return result;
         }
 
-        void Start() {
-            filter = GetComponent<MeshFilter>();
-            mesh = new Mesh();
-            filter.sharedMesh = mesh;
-        }
-
-        void Update() {
+        public void Update(World world, IEnumerable<Grid2D> grids) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
+            IEnumerable<Int2> chunks = grid.GetAllChunks();
+            Bounds bounds = Camera.main.CalcOrthographicCameraBounds();
 
             vertices.Clear();
             normals.Clear();
             triangles.Clear();
 
-            IEnumerable<Int2> chunksToRender = grid.GetChunksWithinCameraBounds(Camera.main);
-            foreach (Int2 chunkCoord in chunksToRender) {
-                // skip chunk if it doesn't exist.
+            foreach (Int2 chunkCoord in chunks) {
                 ChunkData chunk;
-                if (!grid.TryGetChunkData(chunkCoord, out chunk)) {
-                    continue;
+                if (grid.TryGetChunkData(chunkCoord, out chunk) && bounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
+                    BitBuffer buffer = (BitBuffer)chunk.GetBuffer(layerId);
+                    BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
                 }
-
-                BitBuffer buffer = (BitBuffer)chunk.GetBuffer(layerId);
-                BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
             }
 
             // finalize mesh
