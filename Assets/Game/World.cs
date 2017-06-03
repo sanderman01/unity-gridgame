@@ -46,7 +46,7 @@ namespace AmarokGames.GridGame {
 
                     // fill chunk with some random data
 
-                    BooleanBuffer solidBuffer = (BooleanBuffer)chunk.GetBuffer(solidLayerIndex);
+                    BitBuffer solidBuffer = (BitBuffer)chunk.GetBuffer(solidLayerIndex);
                     UShortBuffer foregroundBuffer = (UShortBuffer)chunk.GetBuffer(tileForegroundLayerIndex);
                     for (int i = 0; i < solidBuffer.Length; ++i) {
                         //Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);

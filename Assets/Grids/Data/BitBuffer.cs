@@ -5,11 +5,11 @@ using System.Collections;
 
 namespace AmarokGames.Grids.Data {
 
-    public class BooleanBuffer : IDataBuffer {
+    public class BitBuffer : IDataBuffer {
         private readonly BitArray buffer;
         private int lastModified;
 
-        public BooleanBuffer(int length) {
+        public BitBuffer(int length) {
             this.buffer = new BitArray(length);
         }
 

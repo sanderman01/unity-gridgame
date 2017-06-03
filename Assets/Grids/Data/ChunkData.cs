@@ -25,7 +25,7 @@ namespace AmarokGames.Grids.Data {
             IDataBuffer buffer;
             switch (type) {
                 case BufferType.Boolean:
-                    buffer = new BooleanBuffer(length);
+                    buffer = new BitBuffer(length);
                     break;
                 case BufferType.Byte:
                     buffer = new ByteBuffer(length);

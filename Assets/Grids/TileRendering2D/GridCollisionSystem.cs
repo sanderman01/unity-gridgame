@@ -39,7 +39,7 @@ namespace AmarokGames.Grids {
                 // Get the solid buffer. This buffer tracks whether cells contain solid tiles or not.
                 ChunkData data = null;
                 if(grid.TryGetChunkData(chunkCoord, out data)) {
-                    BooleanBuffer solidBuffer = (BooleanBuffer)data.GetBuffer(solidLayer);
+                    BitBuffer solidBuffer = (BitBuffer)data.GetBuffer(solidLayer);
 
                     ChunkCollidersEntry chunkColliders;
                     if(chunksColliders.TryGetValue(new ChunkKey(grid.GridId, chunkCoord), out chunkColliders)) {
@@ -73,7 +73,7 @@ namespace AmarokGames.Grids {
             }
         }
 
-        private void UpdateColliders(Grid2D grid, Int2 chunkCoord, BooleanBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
+        private void UpdateColliders(Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
 
             GameObject colliderGameObject = chunkCollidersEntry.chunkColliderObject;
             if(colliderGameObject != null) {

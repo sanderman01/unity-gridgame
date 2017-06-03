@@ -60,7 +60,7 @@ namespace AmarokGames.Grids {
                     continue;
                 }
 
-                BooleanBuffer buffer = (BooleanBuffer)chunk.GetBuffer(layerId);
+                BitBuffer buffer = (BitBuffer)chunk.GetBuffer(layerId);
                 BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
             }
 
@@ -73,7 +73,7 @@ namespace AmarokGames.Grids {
             mesh.UploadMeshData(false);
         }
 
-        private static void BuildChunkGeometry(Int2 chunkCoord, BooleanBuffer buffer, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Int2 chunkCoord, BitBuffer buffer, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector3> normals, List<int> triangles) {
             int vertexCount = vertices.Count;
 
             for (int i = 0; i < buffer.Length; ++i) {
