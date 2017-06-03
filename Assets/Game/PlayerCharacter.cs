@@ -98,7 +98,9 @@ public class PlayerCharacter : MonoBehaviour {
             // Reduce overlap
             if (separation < -0.1f) {
                 transform.Translate(0.9f * -separation * collisionNormal);
-                grounded = true;
+                Vector3 oldPosition = transform.position;
+                if (Mathf.Abs(collision.contacts[0].point.y - oldPosition.y) < 0.1f)
+                    grounded = true;
             }
         }
 
