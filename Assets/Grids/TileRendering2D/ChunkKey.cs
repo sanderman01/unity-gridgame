@@ -1,4 +1,6 @@
-﻿namespace AmarokGames.Grids {
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+namespace AmarokGames.Grids {
 
     public struct ChunkKey {
         public int gridId;

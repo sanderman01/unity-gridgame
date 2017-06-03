@@ -1,7 +1,8 @@
-﻿using AmarokGames.Grids.Data;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 namespace AmarokGames.Grids {
 

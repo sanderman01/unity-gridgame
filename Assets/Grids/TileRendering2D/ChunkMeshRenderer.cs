@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace AmarokGames.Grids {

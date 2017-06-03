@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+using UnityEngine;
 
 public class Player {
 
