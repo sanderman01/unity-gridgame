@@ -76,13 +76,11 @@ public class PlayerCharacter : MonoBehaviour {
     }
 
     void OnCollisionStay2D(Collision2D collision) {
-        Debug.Log("OnCollisionStay");
         HandleCollision(collision);
         points = collision.contacts;
     }
 
     void OnCollisionExit2D(Collision2D collision) {
-        Debug.Log("OnCollisionExit");
         grounded = false;
     }
 
