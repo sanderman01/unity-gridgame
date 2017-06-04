@@ -41,13 +41,13 @@ namespace AmarokGames.Grids {
             normals.Clear();
             triangles.Clear();
             foreach (ChunkMeshRenderer renderer in chunkMeshes.Values) {
-                UnityEngine.Object.Destroy(renderer.gameObject);
+                if(renderer != null) UnityEngine.Object.Destroy(renderer.gameObject);
             }
             chunkMeshes.Clear();
         }
 
         public static GridTileRenderSystem Create(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
-            GridTileRenderSystem sys = Create<GridTileRenderSystem>("GridTileRenderSystem");
+            GridTileRenderSystem sys = Create<GridTileRenderSystem>();
             sys.tileData = tileData;
             sys.material = material;
             sys.layerId = layerId;

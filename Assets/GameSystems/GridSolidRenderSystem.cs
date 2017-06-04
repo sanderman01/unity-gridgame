@@ -31,8 +31,8 @@ namespace AmarokGames.Grids {
             mesh.Clear();
         }
 
-        public static GridSolidRendererSystem Create(string gameObjectName, Material material, LayerId solidLayer) {
-            GridSolidRendererSystem sys = Create<GridSolidRendererSystem>(gameObjectName);
+        public static GridSolidRendererSystem Create(Material material, LayerId solidLayer) {
+            GridSolidRendererSystem sys = Create<GridSolidRendererSystem>();
             sys.solidLayer = solidLayer;
             sys.filter = sys.gameObject.AddComponent<MeshFilter>();
             sys.filter.sharedMesh = sys.mesh = new Mesh();

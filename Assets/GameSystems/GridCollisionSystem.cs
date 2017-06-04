@@ -33,8 +33,8 @@ namespace AmarokGames.Grids {
             chunksColliders.Clear();
         }
 
-        public static GridCollisionSystem Create(string gameObjectName, LayerId layerId) {
-            GridCollisionSystem sys = Create<GridCollisionSystem>(gameObjectName);
+        public static GridCollisionSystem Create(LayerId layerId) {
+            GridCollisionSystem sys = Create<GridCollisionSystem>();
             sys.solidLayer = layerId;
             return sys;
         }

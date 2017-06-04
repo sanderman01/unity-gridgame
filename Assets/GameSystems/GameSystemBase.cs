@@ -5,7 +5,8 @@ namespace AmarokGames.GridGame {
 
     public abstract class GameSystemBase : MonoBehaviour, IGameSystem {
 
-        public static T Create<T>(string name) where T : MonoBehaviour {
+        public static T Create<T>() where T : MonoBehaviour {
+            string name = typeof(T).Name;
             GameObject gameObject = new GameObject(name);
             T sys = gameObject.AddComponent<T>();
             return sys;

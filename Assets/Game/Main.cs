@@ -41,7 +41,7 @@ namespace AmarokGames.GridGame {
             RegisterTiles(tileRegistry);
             CreateWorld(0);
             CreateRenderers();
-            gameSystems.Add(GridCollisionSystem.Create("collision", new Grids.Data.LayerId(0)));
+            gameSystems.Add(GridCollisionSystem.Create(new Grids.Data.LayerId(0)));
         }
 
         private void RegisterTiles(TileRegistry tileRegistry) {
@@ -95,7 +95,7 @@ namespace AmarokGames.GridGame {
                 Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
-                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create("solidRenderer", mat, solidLayerIndex);
+                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, solidLayerIndex);
                 gameSystems.Add(solidRenderer);
                 solidRenderer.Enabled = false;
             }
