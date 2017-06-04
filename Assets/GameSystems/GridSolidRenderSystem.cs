@@ -8,7 +8,7 @@ using System;
 
 namespace AmarokGames.Grids {
 
-    public class GridSolidRenderer : IGameSystem {
+    public class GridSolidRendererSystem : GameSystemBase, IGameSystem {
 
         private LayerId solidLayer;
         private Material material;
@@ -24,43 +24,27 @@ namespace AmarokGames.Grids {
         private int vertexCount;
         public int VertexCount { get { return vertexCount; } }
 
-        private bool enabled = true;
-        public bool Enabled {
-            get {
-                return enabled;
-            }
-
-            set {
-                if (!enabled && value) Enable();
-                else if (enabled && !value) Disable();
-                enabled = value;
-            }
+        protected override void Enable() {
         }
 
-        private void Enable() {
-            filter.gameObject.SetActive(true);
-        }
-
-        private void Disable() {
-            filter.gameObject.SetActive(false);
+        protected override void Disable() {
             mesh.Clear();
         }
 
-
-
-        public GridSolidRenderer(string objName, Material material, LayerId solidLayer) {
-            GameObject obj = new GameObject(objName);
-            this.solidLayer = solidLayer;
-            this.filter = obj.AddComponent<MeshFilter>();
-            this.filter.sharedMesh = mesh = new Mesh();
-            MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
+        public static GridSolidRendererSystem Create(string gameObjectName, Material material, LayerId solidLayer) {
+            GridSolidRendererSystem sys = Create<GridSolidRendererSystem>(gameObjectName);
+            sys.solidLayer = solidLayer;
+            sys.filter = sys.gameObject.AddComponent<MeshFilter>();
+            sys.filter.sharedMesh = sys.mesh = new Mesh();
+            MeshRenderer renderer = sys.gameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
+            return sys;
         }
 
-        public void TickWorld(World world, int tickRate) {
+        public override void TickWorld(World world, int tickRate) {
         }
 
-        public void UpdateWorld(World world, float deltaTime) {
+        public override void UpdateWorld(World world, float deltaTime) {
             Grid2D grid = world.Grids[0]; // TODO Fix GridSolidRenderSystem for handling multiple grids.
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;

@@ -95,7 +95,7 @@ namespace AmarokGames.GridGame {
                 Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
-                GridSolidRenderer solidRenderer = new GridSolidRenderer("solidRenderer", mat, solidLayerIndex);
+                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create("solidRenderer", mat, solidLayerIndex);
                 gameSystems.Add(solidRenderer);
                 solidRenderer.Enabled = false;
             }
