@@ -54,7 +54,9 @@ namespace AmarokGames.Grids {
         }
 
         public void UpdateWorld(World world, float deltaTime) {
-            Update(world, world.WorldGrid);
+            foreach(Grid2D grid in world.Grids) {
+                Update(world, grid);
+            }
         }
 
         private void Update(World world, Grid2D grid) {

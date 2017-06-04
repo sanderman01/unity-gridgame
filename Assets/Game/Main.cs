@@ -83,7 +83,8 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateWorld(int seed) {
-            world = World.CreateWorld("world", 0, worldSize, worldChunkSize, seed, layers);
+            world = World.CreateWorld("world", 0, worldSize, worldChunkSize, layers, new WorldGenerator());
+            world.WorldGenerator.Init(world);
         }
 
         private void CreateRenderers() {
@@ -145,11 +146,9 @@ namespace AmarokGames.GridGame {
         }
 
         private void PlaceTile(Vector2 worldPos, ushort tileValue) {
-            // right now we only have the worldgrid, but we'll eventually have more grids
-            Grid2D[] grids = new Grid2D[] { world.WorldGrid };
 
             // find the first grid that overlaps with this world position.
-            foreach (Grid2D grid in grids) {
+            foreach (Grid2D grid in world.Grids) {
                 Bounds bounds = grid.GetBounds();
                 if(bounds.Contains(worldPos)) {
                     // Found a valid grid

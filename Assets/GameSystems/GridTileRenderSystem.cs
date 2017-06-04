@@ -71,7 +71,10 @@ namespace AmarokGames.Grids {
         }
 
         public void UpdateWorld(World world, float deltaTime) {
-            Grid2D grid = world.WorldGrid;
+            foreach (Grid2D grid in world.Grids) UpdateWorld(world, deltaTime, grid);
+        }
+
+        private void UpdateWorld(World world, float deltaTime, Grid2D grid) {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 

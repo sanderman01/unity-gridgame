@@ -61,7 +61,7 @@ namespace AmarokGames.Grids {
         }
 
         public void UpdateWorld(World world, float deltaTime) {
-            Grid2D grid = world.WorldGrid;
+            Grid2D grid = world.Grids[0]; // TODO Fix GridSolidRenderSystem for handling multiple grids.
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             IEnumerable<Int2> chunks = grid.GetAllChunks();
