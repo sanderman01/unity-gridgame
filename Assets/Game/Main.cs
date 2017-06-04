@@ -41,7 +41,7 @@ namespace AmarokGames.GridGame {
             RegisterTiles(tileRegistry);
             CreateWorld(0);
             CreateRenderers();
-            gameSystems.Add(new GridCollisionSystem(new Grids.Data.LayerId(0)));
+            gameSystems.Add(GridCollisionSystem.Create("collision", new Grids.Data.LayerId(0)));
         }
 
         private void RegisterTiles(TileRegistry tileRegistry) {

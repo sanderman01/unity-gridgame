@@ -11,7 +11,7 @@ namespace AmarokGames.Grids {
     /// <summary>
     /// Manages chunk collision components.
     /// </summary>
-    public class GridCollisionSystem : IGameSystem {
+    public class GridCollisionSystem : GameSystemBase, IGameSystem {
 
         private class ChunkCollidersEntry {
             public int LastModified;
@@ -22,23 +22,10 @@ namespace AmarokGames.Grids {
         private LayerId solidLayer;
         private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
 
-        private bool enabled = true;
-        public bool Enabled {
-            get {
-                return enabled;
-            }
-
-            set {
-                if (!enabled && value) Enable();
-                else if (enabled && !value) Disable();
-                enabled = value;
-            }
+        protected override void Enable() {
         }
 
-        private void Enable() {
-        }
-
-        private void Disable() {
+        protected override void Disable() {
             foreach(ChunkCollidersEntry entry in chunksColliders.Values) {
                 UnityEngine.Object.Destroy(entry.chunkColliderObject);
                 entry.colliders.Clear();
@@ -46,20 +33,22 @@ namespace AmarokGames.Grids {
             chunksColliders.Clear();
         }
 
-        public GridCollisionSystem(LayerId layerId) {
-            this.solidLayer = layerId;
+        public static GridCollisionSystem Create(string gameObjectName, LayerId layerId) {
+            GridCollisionSystem sys = Create<GridCollisionSystem>(gameObjectName);
+            sys.solidLayer = layerId;
+            return sys;
         }
 
-        public void TickWorld(World world, int tickRate) {
+        public override void TickWorld(World world, int tickRate) {
         }
 
-        public void UpdateWorld(World world, float deltaTime) {
+        public override void UpdateWorld(World world, float deltaTime) {
             foreach(Grid2D grid in world.Grids) {
-                Update(world, grid);
+                UpdateGrid(world, grid);
             }
         }
 
-        private void Update(World world, Grid2D grid) {
+        private void UpdateGrid(World world, Grid2D grid) {
             // For each chunk
             // Check that the chunk is still up to date
             // If not, then regenerate the colliders for this chunk
