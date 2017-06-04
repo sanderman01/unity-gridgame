@@ -50,10 +50,11 @@ namespace AmarokGames.Grids {
             this.solidLayer = layerId;
         }
 
-        public void Update(World world, IEnumerable<Grid2D> grids) {
-            foreach(Grid2D grid in grids) {
-                Update(world, grid);
-            }
+        public void TickWorld(World world, int tickRate) {
+        }
+
+        public void UpdateWorld(World world, float deltaTime) {
+            Update(world, world.WorldGrid);
         }
 
         private void Update(World world, Grid2D grid) {

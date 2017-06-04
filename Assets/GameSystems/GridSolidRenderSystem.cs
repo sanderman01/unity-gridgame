@@ -9,11 +9,10 @@ using System;
 namespace AmarokGames.Grids {
 
     public class GridSolidRenderer : IGameSystem {
-        
-        private LayerId layerId = new LayerId(0);
+
+        private LayerId solidLayer;
         private Material material;
 
-        private Grid2D grid;
         private Mesh mesh;
 
         private MeshFilter filter;
@@ -49,16 +48,20 @@ namespace AmarokGames.Grids {
 
 
 
-        public GridSolidRenderer(string objName, Material material, Grid2D grid) {
+        public GridSolidRenderer(string objName, Material material, LayerId solidLayer) {
             GameObject obj = new GameObject(objName);
-            this.grid = grid;
+            this.solidLayer = solidLayer;
             this.filter = obj.AddComponent<MeshFilter>();
             this.filter.sharedMesh = mesh = new Mesh();
             MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
         }
 
-        public void Update(World world, IEnumerable<Grid2D> grids) {
+        public void TickWorld(World world, int tickRate) {
+        }
+
+        public void UpdateWorld(World world, float deltaTime) {
+            Grid2D grid = world.WorldGrid;
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             IEnumerable<Int2> chunks = grid.GetAllChunks();
@@ -71,7 +74,7 @@ namespace AmarokGames.Grids {
             foreach (Int2 chunkCoord in chunks) {
                 ChunkData chunk;
                 if (grid.TryGetChunkData(chunkCoord, out chunk) && bounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
-                    BitBuffer buffer = (BitBuffer)chunk.GetBuffer(layerId);
+                    BitBuffer buffer = (BitBuffer)chunk.GetBuffer(solidLayer);
                     BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
                 }
             }

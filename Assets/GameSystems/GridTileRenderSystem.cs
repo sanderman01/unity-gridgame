@@ -4,6 +4,7 @@ using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.Grids {
 
@@ -66,7 +67,11 @@ namespace AmarokGames.Grids {
             this.zOffsetGlobal = zPos;
         }
 
-        public void Update(World world, Grid2D grid) {
+        public void TickWorld(World world, int tickRate) {
+        }
+
+        public void UpdateWorld(World world, float deltaTime) {
+            Grid2D grid = world.WorldGrid;
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
 
@@ -76,10 +81,6 @@ namespace AmarokGames.Grids {
             foreach (Int2 chunkCoord in chunks) {
                 UpdateChunk(bounds, world.WorldId, grid, chunkCoord);
             }
-        }
-
-        public void Update(World world, IEnumerable<Grid2D> grids) {
-            foreach (Grid2D grid in grids) Update(world, grid);
         }
 
         public void Remove(Grid2D grid) {

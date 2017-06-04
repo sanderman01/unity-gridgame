@@ -91,9 +91,10 @@ namespace AmarokGames.GridGame {
             // TODO Clean up this mess. Where should we put this renderer setup stuff?
             {
                 // Solid Renderer
-                Shader shader = Shader.Find("Particles/Additive");
+                Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
-                GridSolidRenderer solidRenderer = new GridSolidRenderer("solidRenderer", mat, world.WorldGrid);
+                mat.color = new Color(1, 1, 1, 0.5f);
+                GridSolidRenderer solidRenderer = new GridSolidRenderer("solidRenderer", mat, solidLayerIndex);
                 gameSystems.Add(solidRenderer);
                 solidRenderer.Enabled = false;
             }
@@ -124,10 +125,8 @@ namespace AmarokGames.GridGame {
         }
 
         void Update() {
-            Grid2D[] grids = new Grid2D[] { world.WorldGrid };
-
             foreach (IGameSystem system in gameSystems) {
-                if(system.Enabled) system.Update(world, grids);
+                if (system.Enabled) system.UpdateWorld(world, Time.deltaTime);
             }
 
             player.Update();
