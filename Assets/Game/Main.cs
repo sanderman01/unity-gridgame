@@ -121,7 +121,7 @@ namespace AmarokGames.GridGame {
                     tileData[i] = d;
                 }
 
-                gameSystems.Add(new GridTileRenderSystem(tileData, mat, new Grids.Data.LayerId(1)));
+                gameSystems.Add(GridTileRenderSystem.Create(tileData, mat, new Grids.Data.LayerId(1)));
             }
         }
 

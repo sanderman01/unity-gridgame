@@ -15,7 +15,7 @@ namespace AmarokGames.Grids {
         public TileVariant[] variants;
     }
 
-    public class GridTileRenderSystem : IGameSystem {
+    public class GridTileRenderSystem : GameSystemBase, IGameSystem {
         [SerializeField]
         private Material material;
 
@@ -32,45 +32,33 @@ namespace AmarokGames.Grids {
         private LayerId layerId;
         private float zOffsetGlobal;
 
-        private bool enabled = true;
-        public bool Enabled {
-            get {
-                return enabled;
-            }
-
-            set {
-                if (!enabled && value) Enable();
-                else if (enabled && !value) Disable();
-                enabled = value;
-            }
+        protected override void Enable() {
         }
 
-        private void Enable() {
-        }
-
-        private void Disable() {
+        protected override void Disable() {
             vertices.Clear();
             uvs.Clear();
             normals.Clear();
             triangles.Clear();
             foreach (ChunkMeshRenderer renderer in chunkMeshes.Values) {
-                UnityEngine.Object.Destroy(renderer.Mesh);
                 UnityEngine.Object.Destroy(renderer.gameObject);
             }
             chunkMeshes.Clear();
         }
 
-        public GridTileRenderSystem(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
-            this.tileData = tileData;
-            this.material = material;
-            this.layerId = layerId;
-            this.zOffsetGlobal = zPos;
+        public static GridTileRenderSystem Create(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
+            GridTileRenderSystem sys = Create<GridTileRenderSystem>("GridTileRenderSystem");
+            sys.tileData = tileData;
+            sys.material = material;
+            sys.layerId = layerId;
+            sys.zOffsetGlobal = zPos;
+            return sys;
         }
 
-        public void TickWorld(World world, int tickRate) {
+        public override void TickWorld(World world, int tickRate) {
         }
 
-        public void UpdateWorld(World world, float deltaTime) {
+        public override void UpdateWorld(World world, float deltaTime) {
             foreach (Grid2D grid in world.Grids) UpdateWorld(world, deltaTime, grid);
         }
 
