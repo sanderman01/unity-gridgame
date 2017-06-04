@@ -41,7 +41,10 @@ namespace AmarokGames.Grids {
             normals.Clear();
             triangles.Clear();
             foreach (ChunkMeshRenderer renderer in chunkMeshes.Values) {
-                if(renderer != null) UnityEngine.Object.Destroy(renderer.gameObject);
+                if (renderer != null) {
+                    UnityEngine.Object.Destroy(renderer.Mesh);
+                    UnityEngine.Object.Destroy(renderer.gameObject);
+                }
             }
             chunkMeshes.Clear();
         }

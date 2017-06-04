@@ -17,8 +17,11 @@ namespace AmarokGames.Grids {
     public class ChunkMeshRenderer : MonoBehaviour {
 
         public Mesh Mesh {
-            get { return meshFilter.sharedMesh; }
-            set { meshFilter.sharedMesh = value; }
+            get { return mesh; }
+            set {
+                mesh = value;
+                if(meshFilter != null) meshFilter.mesh = value;
+            }
         }
 
         public Material Material {
@@ -33,6 +36,8 @@ namespace AmarokGames.Grids {
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
+
+        private Mesh mesh;
 
         [SerializeField]
         private int lastModified;
@@ -51,6 +56,7 @@ namespace AmarokGames.Grids {
             result.meshRenderer = result.GetComponent<MeshRenderer>();
 
             // Set values;
+            result.Mesh = mesh;
             result.meshFilter.sharedMesh = mesh;
             result.meshRenderer.sharedMaterial = material;
 
