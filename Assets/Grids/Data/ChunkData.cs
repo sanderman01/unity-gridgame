@@ -33,6 +33,9 @@ namespace AmarokGames.Grids.Data {
                 case BufferType.UShort:
                     buffer = new UShortBuffer(length);
                     break;
+                case BufferType.Float:
+                    buffer = new FloatBuffer(length);
+                    break;
                 default:
                     throw new System.NotImplementedException(string.Format("No buffer implemented for BufferType={0}", type));
             }

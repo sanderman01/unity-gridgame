@@ -6,5 +6,6 @@ namespace AmarokGames.Grids.Data {
         Boolean = 0,
         Byte = 1,
         UShort = 2,
+        Float = 3
     }
 }

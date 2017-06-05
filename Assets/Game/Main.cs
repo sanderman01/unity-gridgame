@@ -29,6 +29,7 @@ namespace AmarokGames.GridGame {
         LayerId solidLayerIndex;
         LayerId tileForegroundLayerIndex;
         LayerId tileBackgroundLayerIndex;
+        LayerId terrainGenDebugLayer;
 
         public void Start() {
             tileRegistry = new TileRegistry();
@@ -36,7 +37,8 @@ namespace AmarokGames.GridGame {
             layers = new LayerConfig()
                 .AddLayer("solid", BufferType.Boolean, out solidLayerIndex)
                 .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerIndex)
-                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex);
+                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex)
+                .AddLayer("terrainGenDebugLayer", BufferType.Float, out terrainGenDebugLayer);
 
             RegisterTiles(tileRegistry);
             CreateWorld(0);
@@ -98,6 +100,15 @@ namespace AmarokGames.GridGame {
                 GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, solidLayerIndex);
                 gameSystems.Add(solidRenderer);
                 solidRenderer.Enabled = false;
+            }
+
+            {
+                Shader shader = Shader.Find("Sprites/Default");
+                Material mat = new Material(shader);
+                mat.color = new Color(1, 1, 1, 0.5f);
+                BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, terrainGenDebugLayer);
+                gameSystems.Add(sys);
+                sys.Enabled = false;
             }
 
             {
