@@ -9,9 +9,13 @@ namespace AmarokGames.Grids {
 
     public class Grid2D : MonoBehaviour {
 
+        public enum GridType { Static = 0, Dynamic = 1 }
+
         public int GridId { get { return gridId; } }
         public int ChunkWidth { get { return chunkWidth; } }
         public int ChunkHeight { get { return chunkHeight; } }
+        public GridType Type { get { return gridType; } }
+
 
         /// <summary>
         /// Contains a list of chunks that were created this frame.
@@ -30,6 +34,7 @@ namespace AmarokGames.Grids {
         private int gridId;
         private int chunkWidth;
         private int chunkHeight;
+        private GridType gridType;
         private LayerConfig layers;
         private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
 
@@ -42,11 +47,25 @@ namespace AmarokGames.Grids {
         /// Create a new grid with the specified dimensions and layers. 
         /// Make sure to setup correctly setup the LayerConfig before creating any grids, since this cannot be changed after construction.
         /// </summary>
-        public void Setup(int gridId, int chunkWidth, int chunkHeight, LayerConfig layers) {
+        public void Setup(int gridId, int chunkWidth, int chunkHeight, LayerConfig layers, GridType type) {
             this.gridId = gridId;
             this.chunkWidth = chunkWidth;
             this.chunkHeight = chunkHeight;
             this.layers = layers;
+            this.gridType = type;
+
+            // Set rigidbody settings according to gridType
+            Rigidbody2D rigidbody = gameObject.AddComponent<Rigidbody2D>();
+            switch(gridType) {
+                case GridType.Static:
+                    rigidbody.isKinematic = true;
+                    rigidbody.simulated = true;
+                    break;
+                case GridType.Dynamic:
+                    rigidbody.isKinematic = false;
+                    rigidbody.simulated = true;
+                    break;
+            }
         }
 
         /// <summary>

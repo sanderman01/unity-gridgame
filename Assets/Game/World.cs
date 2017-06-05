@@ -19,6 +19,8 @@ namespace AmarokGames.GridGame {
 
         public WorldGenerator WorldGenerator { get; private set; }
 
+        private int currentGridId = 0;
+
         public static World CreateWorld(string name, int worldId, Int2 worldSize, Int2 worldChunkSize, LayerConfig layers, WorldGenerator worldGenerator) {
             GameObject worldGameObject = new GameObject(name);
             World world = worldGameObject.AddComponent<World>();
@@ -30,12 +32,13 @@ namespace AmarokGames.GridGame {
             return world;
         }
 
-        public Grid2D CreateGrid(string name) {
+        public Grid2D CreateGrid(string name, Grid2D.GridType gridType) {
             GameObject gridGameObject = new GameObject(name);
             gridGameObject.transform.SetParent(this.transform, false);
             Grid2D grid = gridGameObject.AddComponent<Grid2D>();
             Grids.Add(grid);
-            grid.Setup(0, ChunkSize.x, ChunkSize.y, Layers);
+            grid.Setup(currentGridId, ChunkSize.x, ChunkSize.y, Layers, gridType);
+            currentGridId++;
             return grid;
         }
     }

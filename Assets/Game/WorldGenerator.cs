@@ -16,12 +16,18 @@ namespace AmarokGames.GridGame {
         }
 
         private Grid2D GenerateTerrainGrid(World world) {
-            Grid2D grid = world.CreateGrid("terrain");
-            CreateChunks(world, grid);
+            Grid2D grid = world.CreateGrid("terrain", Grid2D.GridType.Static);
+            CreateTerrainChunks(world, grid);
+
+            Grid2D dynamicGrid = world.CreateGrid("dynamic grid", Grid2D.GridType.Dynamic);
+            dynamicGrid.transform.position = new Vector3(150, 200);
+            CreateTerrainChunk(world, dynamicGrid, new Int2(0, 0));
+
+
             return grid;
         }
 
-        private void CreateChunks(World world, Grid2D grid) {
+        private void CreateTerrainChunks(World world, Grid2D grid) {
             int chunkHeight = world.ChunkSize.y;
             int chunkWidth = world.ChunkSize.x;
 
@@ -29,12 +35,12 @@ namespace AmarokGames.GridGame {
             for (int y = 0; y < world.Size.y / chunkHeight; ++y) {
                 for (int x = 0; x < world.Size.x / chunkWidth; ++x) {
                     Int2 chunkCoord = new Int2(x, y);
-                    CreateChunk(world, grid, chunkCoord);
+                    CreateTerrainChunk(world, grid, chunkCoord);
                 }
             }
         }
 
-        private void CreateChunk(World world, Grid2D grid, Int2 chunkCoord) {
+        private void CreateTerrainChunk(World world, Grid2D grid, Int2 chunkCoord) {
             int chunkHeight = world.ChunkSize.y;
             int chunkWidth = world.ChunkSize.x;
 
