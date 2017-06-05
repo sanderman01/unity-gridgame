@@ -13,10 +13,15 @@ public class PlayerCharacter : MonoBehaviour {
     private Vector2 velocity;
 
     [SerializeField]
-    private bool rotateToSurfaceNormal = false;
+    private bool showCollisionGizmos;
 
-    // Debugging aids
+    // Debugging aides
     private ContactPoint2D[] points = new ContactPoint2D[0];
+
+    // Fields used for step-assist
+    private bool applyStepAssistNextFrame;
+    private float stepAssistHeight;
+    private float previousFrameHorizontalVelocity;
 
     public void Possess(Player player) {
         controller = player;
@@ -67,19 +72,25 @@ public class PlayerCharacter : MonoBehaviour {
 
         rigidbody.MovePosition(rigidbody.position + velocity * Time.deltaTime);
 
-        if (rotateToSurfaceNormal && !grounded) {
-            const float rotationDampening = 1;
-            rigidbody.MoveRotation(Mathf.Lerp(rigidbody.rotation, 0, Time.deltaTime * rotationDampening));
+        // Apply the step-assist by moving the character to same y-value as the highest contact point.
+        Vector2 position = transform.position;
+        if (applyStepAssistNextFrame && stepAssistHeight < position.y + 1.1f) {
+            position.y = stepAssistHeight;
+            transform.position = position;
+            velocity.x = previousFrameHorizontalVelocity;
         }
+        applyStepAssistNextFrame = false;
+        stepAssistHeight = transform.position.y;
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
         HandleCollision(collision);
+        if(showCollisionGizmos) points = collision.contacts;
     }
 
     void OnCollisionStay2D(Collision2D collision) {
         HandleCollision(collision);
-        points = collision.contacts;
+        if(showCollisionGizmos) points = collision.contacts;
     }
 
     void OnCollisionExit2D(Collision2D collision) {
@@ -88,6 +99,7 @@ public class PlayerCharacter : MonoBehaviour {
 
 
     void HandleCollision(Collision2D collision) {
+        Vector3 oldVelocity = velocity;
         Collider2D[] overlapping = new Collider2D[1];
         if (collision.collider.OverlapCollider(new ContactFilter2D(), overlapping) > 0) {
             Vector3 collisionNormal = collision.contacts[0].normal;
@@ -106,22 +118,8 @@ public class PlayerCharacter : MonoBehaviour {
             }
         }
 
-        // Tilt character when appropriate
-        if (rotateToSurfaceNormal) {
-            const float tiltThreshold = 30;
-            Vector2 collisionNormal = collision.contacts[0].normal;
-            Vector2 up = Vector2.up;
-            float angle = Vector2.Angle(up, collisionNormal);
-            if (Mathf.Abs(angle) < tiltThreshold) {
-                // tilt snap to surface
-                rigidbody.MoveRotation(angle);
-            }
-        }
-
         // Step-assist
         // Iterate over contact points to determine if we should do a step-assist this frame
-        bool applyStepAssistThisFrame = false;
-        float highestPoint = float.MinValue;
         foreach (ContactPoint2D p in collision.contacts) {
             const float thresholdAngle = 45f;
             float angleRight = Vector2.Angle(p.normal, Vector2.right);
@@ -131,24 +129,15 @@ public class PlayerCharacter : MonoBehaviour {
             if(verticalWall && grounded) {
                 // Schedule step-assist
                 // Do a 1-tile jump, because this way we don't need to worry about ceilings
-                applyStepAssistThisFrame = true;
-                highestPoint = Mathf.Max(highestPoint, p.point.y);
+                applyStepAssistNextFrame = true;
+                stepAssistHeight = Mathf.Max(stepAssistHeight, p.point.y);
+                previousFrameHorizontalVelocity = oldVelocity.x;
             }
-        }
-
-        // Apply the step-assist by moving the character to same y-value as the highest contact point.
-        if(applyStepAssistThisFrame) {
-            Vector2 position = transform.position;
-            position.y = highestPoint;
-            position.x += 0.1f;
-            transform.position = position;
         }
     }
 
-
-
     void OnDrawGizmos() {
-        //DrawGizmosContactPoints(points);
+        if(showCollisionGizmos) DrawGizmosContactPoints(points);
     }
 
     void DrawGizmosContactPoints(ContactPoint2D[] points) {
