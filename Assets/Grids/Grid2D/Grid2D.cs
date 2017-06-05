@@ -208,6 +208,7 @@ namespace AmarokGames.Grids {
         /// Calculates Axis-Aligned Bounding Box in world space for the specified chunk.
         /// </summary>
         public Bounds CalculateChunkAABB(Int2 chunkCoord) {
+            Vector3 pos = transform.position;
             Matrix4x4 m = transform.localToWorldMatrix;
             Vector2 p1 = m * new Vector2(chunkCoord.x * chunkWidth, chunkCoord.y * chunkHeight);
             Vector2 p2 = m * new Vector2(chunkCoord.x * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
@@ -223,7 +224,7 @@ namespace AmarokGames.Grids {
             float maxY = Mathf.Max(y);
 
             Vector3 size = new Vector3(maxX - minX, maxY - minY, 10);
-            Vector3 center = new Vector3(minX, minY) + 0.5f * size;
+            Vector3 center = new Vector3(minX + pos.x, minY + pos.y) + 0.5f * size;
             return new Bounds(center, size);
         }
 
