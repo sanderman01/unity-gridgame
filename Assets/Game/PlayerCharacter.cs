@@ -32,20 +32,22 @@ public class PlayerCharacter : MonoBehaviour {
         const float walkingAcceleration = 50f;
         const float gravityAcceleration = 50;
         const float jetpackAcceleration = 50f;
+        const float dragAcceleration = 5f;
         const float jumpVelocity = 30f;
 
         if (controller.Right && velocity.x < walkingSpeed) {
             // Move right
             velocity.x += walkingAcceleration * Time.deltaTime;
-        } else if (!controller.Right && velocity.x > 0) {
-            velocity.x = 0;
         }
 
         if (controller.Left && velocity.x > -walkingSpeed) {
             // Move left
             velocity.x -= walkingAcceleration * Time.deltaTime;
-        } else if (!controller.Left && velocity.x < 0) {
-            velocity.x = 0;
+        }
+
+        if(!(controller.Left || controller.Right)) {
+            float drag = dragAcceleration * Time.deltaTime * velocity.x;
+            velocity.x -= drag;
         }
 
         if (controller.Jump && grounded) {
