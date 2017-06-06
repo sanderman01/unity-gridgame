@@ -114,14 +114,15 @@ namespace AmarokGames.GridGame {
 
             {
                 // Tile Renderer
-                Shader shader = Shader.Find("Sprites/Default");
                 Texture2D textureAtlas = tileRegistry.GetAtlas().GetTexture();
 
-                Material foregroundMaterial = new Material(shader);
+                Shader foregroundShader = Shader.Find("Unlit/Transparent Cutout");
+                Material foregroundMaterial = new Material(foregroundShader);
                 foregroundMaterial.mainTexture = textureAtlas;
                 foregroundMaterial.color = new Color(1, 1, 1, 1);
 
-                Material backgroundMaterial = new Material(shader);
+                Shader backgroundShader = Shader.Find("Sprites/Default");
+                Material backgroundMaterial = new Material(backgroundShader);
                 backgroundMaterial.mainTexture = textureAtlas;
                 backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
 
