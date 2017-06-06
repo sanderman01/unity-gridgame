@@ -52,11 +52,14 @@ namespace AmarokGames.GridGame {
             }
 
             // Scrollwheel zoom
-            Vector2 scrollDelta = Input.mouseScrollDelta;
-            if(scrollDelta.y > 0) {
-                ZoomIn();
-            } else if(scrollDelta.y < 0) {
-                ZoomOut();
+            Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+            if(screenRect.Contains(Input.mousePosition)) {
+                Vector2 scrollDelta = Input.mouseScrollDelta;
+                if (scrollDelta.y > 0) {
+                    ZoomIn();
+                } else if (scrollDelta.y < 0) {
+                    ZoomOut();
+                }
             }
         }
 
