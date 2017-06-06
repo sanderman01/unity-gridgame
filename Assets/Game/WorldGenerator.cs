@@ -67,8 +67,9 @@ namespace AmarokGames.GridGame {
             for (int i = 0; i < solidBuffer.Length; ++i) {
                 // Calculate value based on gridCoord
                 Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
-                ushort foregroundTileValue = GenerateTile(noise, gridCoord, debugBuffer, i);
-                ushort backgroundTileValue = foregroundTileValue;
+                ushort foregroundTileValue;
+                ushort backgroundTileValue;
+                GenerateTile(noise, gridCoord, debugBuffer, i, out foregroundTileValue, out backgroundTileValue);
 
                 bool solid = foregroundTileValue != 0;
                 solidBuffer.SetValue(solid, i);
@@ -78,7 +79,16 @@ namespace AmarokGames.GridGame {
             }
         }
 
-        private ushort GenerateTile(FastNoise noisegen, Int2 gridCoordinate, FloatBuffer debugBuffer, int bufferIndex) {
+        private void GenerateTile(
+            FastNoise noisegen,
+            Int2 gridCoordinate,
+            FloatBuffer debugBuffer,
+            int bufferIndex,
+            out ushort foregroundTile,
+            out ushort backgroundTile
+            ) 
+        {
+
             int x = gridCoordinate.x;
             int y = gridCoordinate.y;
 
@@ -96,17 +106,26 @@ namespace AmarokGames.GridGame {
             const float cavesFreq = 0.05f;
             const float cavesAmp = 8.0f;
             const float caveLevel = groundLevel - 10;
-            float caveStrength = Mathf.Clamp01((caveLevel-y) * (1f / caveLevel));
+            float caveStrength = Mathf.Clamp01((caveLevel - y) * (1f / caveLevel));
             noisegen.SetFrequency(cavesFreq);
             float caves = caveStrength * cavesAmp * (noisegen.GetPerlin(x, y));
 
-            float final = baseTerrain + hills - caves;
+            float final = baseTerrain + hills - caves; // caves;
             debugBuffer.SetValue(baseTerrain, bufferIndex);
 
             if (final >= 1) {
-                return 1;
+
+                foregroundTile = (ushort)Random.Range(1,3);
+
             } else {
-                return 0;
+                foregroundTile = 0;
+            }
+
+            float background = baseTerrain + hills;
+            if (background >= 1) {
+                backgroundTile = 1;
+            } else {
+                backgroundTile = 0;
             }
         }
     }
