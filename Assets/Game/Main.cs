@@ -26,19 +26,19 @@ namespace AmarokGames.GridGame {
         private PlayerCharacter playerCharacter;
 
         private LayerConfig layers;
-        LayerId solidLayerIndex;
-        LayerId tileForegroundLayerIndex;
-        LayerId tileBackgroundLayerIndex;
-        LayerId terrainGenDebugLayer;
+        LayerId solidLayerBool;
+        LayerId tileForegroundLayerUShort;
+        LayerId tileBackgroundLayerUShort;
+        LayerId terrainGenDebugLayerFloat;
 
         public void Start() {
             tileRegistry = new TileRegistry();
 
             layers = new LayerConfig()
-                .AddLayer("solid", BufferType.Boolean, out solidLayerIndex)
-                .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerIndex)
-                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerIndex)
-                .AddLayer("terrainGenDebugLayer", BufferType.Float, out terrainGenDebugLayer);
+                .AddLayer("solid", BufferType.Boolean, out solidLayerBool)
+                .AddLayer("tileforeground", BufferType.UShort, out tileForegroundLayerUShort)
+                .AddLayer("tilebackground", BufferType.UShort, out tileBackgroundLayerUShort)
+                .AddLayer("terrainGenDebugLayer", BufferType.Float, out terrainGenDebugLayerFloat);
 
             RegisterTiles(tileRegistry);
             CreateWorld(0);
@@ -85,7 +85,8 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateWorld(int seed) {
-            world = World.CreateWorld("world", 0, worldSize, worldChunkSize, layers, new WorldGenerator());
+            WorldGenerator worldGen = new WorldGenerator(solidLayerBool, tileForegroundLayerUShort, tileBackgroundLayerUShort, terrainGenDebugLayerFloat);
+            world = World.CreateWorld("world", 0, worldSize, worldChunkSize, layers, worldGen);
             world.WorldGenerator.Init(world);
         }
 
@@ -97,7 +98,7 @@ namespace AmarokGames.GridGame {
                 Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
-                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, solidLayerIndex);
+                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, solidLayerBool);
                 gameSystems.Add(solidRenderer);
                 solidRenderer.Enabled = false;
             }
@@ -106,16 +107,23 @@ namespace AmarokGames.GridGame {
                 Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
-                BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, terrainGenDebugLayer);
+                BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, terrainGenDebugLayerFloat);
                 gameSystems.Add(sys);
                 sys.Enabled = false;
             }
 
             {
                 // Tile Renderer
-                Shader shader = Shader.Find("Unlit/Transparent Cutout");
-                Material mat = new Material(shader);
-                mat.mainTexture = tileRegistry.GetAtlas().GetTexture();
+                Shader shader = Shader.Find("Sprites/Default");
+                Texture2D textureAtlas = tileRegistry.GetAtlas().GetTexture();
+
+                Material foregroundMaterial = new Material(shader);
+                foregroundMaterial.mainTexture = textureAtlas;
+                foregroundMaterial.color = new Color(1, 1, 1, 1);
+
+                Material backgroundMaterial = new Material(shader);
+                backgroundMaterial.mainTexture = textureAtlas;
+                backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
 
                 IList<Tile> tiles = tileRegistry.GetTiles();
                 int tileCount = tiles.Count;
@@ -132,7 +140,8 @@ namespace AmarokGames.GridGame {
                     tileData[i] = d;
                 }
 
-                gameSystems.Add(GridTileRenderSystem.Create(tileData, mat, new Grids.Data.LayerId(1)));
+                gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, tileForegroundLayerUShort));
+                gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, tileBackgroundLayerUShort));
             }
         }
 
@@ -171,10 +180,10 @@ namespace AmarokGames.GridGame {
         }
 
         private void PlaceTile(Grid2D grid, Int2 gridCoord, ushort tileValue) {
-            grid.SetCellValue(gridCoord, tileForegroundLayerIndex, tileValue);
+            grid.SetCellValue(gridCoord, tileForegroundLayerUShort, tileValue);
 
             bool solid = tileRegistry.GetTiles()[tileValue].CollisionSolid;
-            grid.SetCellValue(gridCoord, solidLayerIndex, solid);
+            grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
     }
 

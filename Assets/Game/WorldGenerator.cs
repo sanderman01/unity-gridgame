@@ -8,7 +8,16 @@ namespace AmarokGames.GridGame {
 
     public class WorldGenerator {
 
-        public WorldGenerator() {
+        private LayerId solidLayer;
+        private LayerId tileForegroundLayer;
+        private LayerId tileBackgroundLayer;
+        private LayerId debugLayer;
+
+        public WorldGenerator(LayerId solidLayer, LayerId tileForegroundLayer, LayerId tileBackgroundLayer, LayerId debugLayer) {
+            this.solidLayer = solidLayer;
+            this.tileForegroundLayer = tileForegroundLayer;
+            this.tileBackgroundLayer = tileBackgroundLayer;
+            this.debugLayer = debugLayer;
         }
 
         public void Init(World world) {
@@ -47,25 +56,25 @@ namespace AmarokGames.GridGame {
             FastNoise noise = new FastNoise(world.Seed);
 
             LayerConfig layers = world.Layers;
-            LayerId solidLayerIndex = world.Layers.GetLayer(0).id;
-            LayerId tileForegroundLayerIndex = world.Layers.GetLayer(1).id;
-            LayerId debugLayer = new LayerId(3);
 
             ChunkData chunk = grid.CreateChunk(chunkCoord);
 
             // Fill chunk buffers
-            BitBuffer solidBuffer = (BitBuffer)chunk.GetBuffer(solidLayerIndex);
-            UShortBuffer foregroundBuffer = (UShortBuffer)chunk.GetBuffer(tileForegroundLayerIndex);
+            BitBuffer solidBuffer = (BitBuffer)chunk.GetBuffer(solidLayer);
+            UShortBuffer foregroundBuffer = (UShortBuffer)chunk.GetBuffer(tileForegroundLayer);
+            UShortBuffer backgroundBuffer = (UShortBuffer)chunk.GetBuffer(tileBackgroundLayer);
             FloatBuffer debugBuffer = (FloatBuffer)chunk.GetBuffer(debugLayer);
             for (int i = 0; i < solidBuffer.Length; ++i) {
                 // Calculate value based on gridCoord
                 Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
                 ushort foregroundTileValue = GenerateTile(noise, gridCoord, debugBuffer, i);
+                ushort backgroundTileValue = foregroundTileValue;
 
                 bool solid = foregroundTileValue != 0;
                 solidBuffer.SetValue(solid, i);
 
                 foregroundBuffer.SetValue(foregroundTileValue, i);
+                backgroundBuffer.SetValue(backgroundTileValue, i);
             }
         }
 
