@@ -18,6 +18,18 @@ namespace AmarokGames.GridGame {
         }
 
         [SerializeField]
+        private int zoomLevel = 4;
+        public int ZoomLevel {
+            get { return zoomLevel; }
+            set {
+                const int minZoom = 1;
+                const int maxZoom = 10;
+                zoomLevel = Math.Min(Math.Max(minZoom, value), maxZoom);
+                pixelsPerMeter = zoomLevel * zoomLevel;
+            }
+        }
+
+        [SerializeField]
         private int pixelsPerMeter = 16; // Eg. setting this to 32 means that an area of 1 meter squared will occupy 32x32 of screen real estate.
 
         private Camera cam;
@@ -38,6 +50,14 @@ namespace AmarokGames.GridGame {
                 v = Snap(v, pixelsPerMeter);
                 transform.position = v + (0.1f/pixelsPerMeter) * new Vector3(1,1,0);
             }
+
+            // Scrollwheel zoom
+            Vector2 scrollDelta = Input.mouseScrollDelta;
+            if(scrollDelta.y > 0) {
+                ZoomIn();
+            } else if(scrollDelta.y < 0) {
+                ZoomOut();
+            }
         }
 
         private static Vector3 Snap(Vector3 v, int pixelsPerMeter) {
@@ -50,6 +70,16 @@ namespace AmarokGames.GridGame {
 
         private static float Snap(float x, int pixelsPerMeter) {
             return Mathf.Round(x * pixelsPerMeter) / pixelsPerMeter;
+        }
+
+        [ContextMenu("ZoomIn")]
+        public void ZoomIn() {
+            ZoomLevel++;
+        }
+
+        [ContextMenu("ZoomOut")]
+        public void ZoomOut() {
+            ZoomLevel--;
         }
     }
 }
