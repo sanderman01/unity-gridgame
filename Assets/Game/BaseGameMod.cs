@@ -40,49 +40,49 @@ namespace AmarokGames.GridGame {
             empty.CollisionSolid = false;
             empty.BatchedRendering = false;
             empty.HumanName = "Empty";
-            Texture2D emptyTex = Resources.Load<Texture2D>("tile-empty");
+            Texture2D emptyTex = Resources.Load<Texture2D>("Tiles/tile-empty");
 
             Tile stone = new Tile();
             stone.CollisionSolid = true;
             stone.BatchedRendering = true;
             stone.HumanName = "Stone";
-            Texture2D stoneTex = Resources.Load<Texture2D>("tile-stone");
+            Texture2D stoneTex = Resources.Load<Texture2D>("Tiles/tile-stone");
 
             Tile concrete = new Tile();
             concrete.CollisionSolid = true;
             concrete.BatchedRendering = true;
             concrete.HumanName = "Concrete";
-            Texture2D concreteTex = Resources.Load<Texture2D>("tile-concrete");
+            Texture2D concreteTex = Resources.Load<Texture2D>("Tiles/tile-concrete");
 
             Tile dirt = new Tile();
             dirt.CollisionSolid = true;
             dirt.BatchedRendering = true;
             dirt.HumanName = "Dirt";
-            Texture2D dirtTex = Resources.Load<Texture2D>("tile-dirt");
+            Texture2D dirtTex = Resources.Load<Texture2D>("Tiles/tile-dirt");
 
             Tile grass = new Tile();
             grass.CollisionSolid = true;
             grass.BatchedRendering = true;
             grass.HumanName = "Grass";
-            Texture2D grassTex = Resources.Load<Texture2D>("tile-grass");
+            Texture2D grassTex = Resources.Load<Texture2D>("Tiles/tile-grass");
 
             Tile gravel = new Tile();
             gravel.CollisionSolid = true;
             gravel.BatchedRendering = true;
             gravel.HumanName = "Gravel";
-            Texture2D gravelTex = Resources.Load<Texture2D>("tile-gravel");
+            Texture2D gravelTex = Resources.Load<Texture2D>("Tiles/tile-gravel");
 
             Tile sand = new Tile();
             sand.CollisionSolid = true;
             sand.BatchedRendering = true;
             sand.HumanName = "Sand";
-            Texture2D sandTex = Resources.Load<Texture2D>("tile-sand");
+            Texture2D sandTex = Resources.Load<Texture2D>("Tiles/tile-sand");
 
             Tile wood = new Tile();
             wood.CollisionSolid = true;
             wood.BatchedRendering = true;
             wood.HumanName = "Wood";
-            Texture2D woodTex = Resources.Load<Texture2D>("tile-wood");
+            Texture2D woodTex = Resources.Load<Texture2D>("Tiles/tile-wood");
 
             tileRegistry.RegisterTile("vanilla", "empty", empty, emptyTex);
             tileRegistry.RegisterTile("vanilla", "stone", stone, stoneTex);
