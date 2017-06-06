@@ -1,4 +1,6 @@
-﻿using AmarokGames.Grids.Data;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -52,9 +54,44 @@ namespace AmarokGames.GridGame {
             concrete.HumanName = "Concrete";
             Texture2D concreteTex = Resources.Load<Texture2D>("tile-concrete");
 
+            Tile dirt = new Tile();
+            dirt.CollisionSolid = true;
+            dirt.BatchedRendering = true;
+            dirt.HumanName = "Dirt";
+            Texture2D dirtTex = Resources.Load<Texture2D>("tile-dirt");
+
+            Tile grass = new Tile();
+            grass.CollisionSolid = true;
+            grass.BatchedRendering = true;
+            grass.HumanName = "Grass";
+            Texture2D grassTex = Resources.Load<Texture2D>("tile-grass");
+
+            Tile gravel = new Tile();
+            gravel.CollisionSolid = true;
+            gravel.BatchedRendering = true;
+            gravel.HumanName = "Gravel";
+            Texture2D gravelTex = Resources.Load<Texture2D>("tile-gravel");
+
+            Tile sand = new Tile();
+            sand.CollisionSolid = true;
+            sand.BatchedRendering = true;
+            sand.HumanName = "Sand";
+            Texture2D sandTex = Resources.Load<Texture2D>("tile-sand");
+
+            Tile wood = new Tile();
+            wood.CollisionSolid = true;
+            wood.BatchedRendering = true;
+            wood.HumanName = "Wood";
+            Texture2D woodTex = Resources.Load<Texture2D>("tile-wood");
+
             tileRegistry.RegisterTile("vanilla", "empty", empty, emptyTex);
             tileRegistry.RegisterTile("vanilla", "stone", stone, stoneTex);
             tileRegistry.RegisterTile("vanilla", "concrete", concrete, concreteTex);
+            tileRegistry.RegisterTile("vanilla", "dirt", dirt, dirtTex);
+            tileRegistry.RegisterTile("vanilla", "grass", grass, grassTex);
+            tileRegistry.RegisterTile("vanilla", "gravel", gravel, gravelTex);
+            tileRegistry.RegisterTile("vanilla", "sand", sand, sandTex);
+            tileRegistry.RegisterTile("vanilla", "wood", wood, woodTex);
         }
 
         private void RegisterGameSystems(TileRegistry tileRegistry, List<IGameSystem> gameSystems) {

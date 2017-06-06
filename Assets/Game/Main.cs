@@ -80,7 +80,7 @@ namespace AmarokGames.GridGame {
                 PlaceTile(mouseWorldPos, 0);
             }
             else if(Input.GetMouseButton(buttonRight)) {
-                PlaceTile(mouseWorldPos, 1);
+                PlaceTile(mouseWorldPos, 7);
             }
         }
 
