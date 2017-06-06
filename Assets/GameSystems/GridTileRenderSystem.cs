@@ -49,7 +49,7 @@ namespace AmarokGames.Grids {
             chunkMeshes.Clear();
         }
 
-        public static GridTileRenderSystem Create(TileRenderData[] tileData, Material material, LayerId layerId, float zPos = 1) {
+        public static GridTileRenderSystem Create(TileRenderData[] tileData, Material material, LayerId layerId, float zPos) {
             GridTileRenderSystem sys = Create<GridTileRenderSystem>();
             sys.tileData = tileData;
             sys.material = material;
