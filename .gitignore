@@ -28,3 +28,9 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# Art source files
+*.xcf
+*.xcf.meta
+*.psd
+*.psd.meta
