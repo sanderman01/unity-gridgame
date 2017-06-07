@@ -136,10 +136,20 @@ namespace AmarokGames.GridGame {
                     TileRenderData d = new TileRenderData();
                     d.draw = tile.BatchedRendering;
                     d.zLayer = (ushort)i;
-                    d.variants = new TileVariant[1];
-                    d.variants[0] = new TileVariant(
-                        new Vector2(tile.SpriteUV.x, tile.SpriteUV.y),
-                        new Vector2(tile.SpriteUV.xMax, tile.SpriteUV.yMax));
+
+                    // Calculate the number of tile variants in the sprite from the demensions ratio.
+                    float ratio = tile.SpriteUV.width / tile.SpriteUV.height;
+                    int nVariants = Mathf.RoundToInt(ratio * (3f/4f));
+
+                    d.variants = new TileVariant[nVariants];
+
+                    float variantWidth = (tile.SpriteUV.width / nVariants);
+                    for(int variantIndex = 0; variantIndex < nVariants; variantIndex++) 
+                    {
+                        d.variants[variantIndex] = new TileVariant(
+                            new Vector2(tile.SpriteUV.x + variantWidth * variantIndex, tile.SpriteUV.y),
+                            new Vector2(tile.SpriteUV.x + variantWidth * (variantIndex + 1), tile.SpriteUV.yMax));
+                    }
                     tileData[i] = d;
                 }
 

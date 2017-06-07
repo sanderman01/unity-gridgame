@@ -201,7 +201,7 @@ namespace AmarokGames.Grids {
 
                     // get tile values from buffer and determine if we should draw the tile
                     ushort current = b[y + 1, x + 1];
-                    int variant = 0; // TODO Tile variants
+                    int variant = GetPseudoRandomInt(x, y) % tileRenderData[current].variants.Length;
 
                     // TODO Draw borders...
                     ushort bottomleft = b[y + 0, x + 0];
@@ -226,8 +226,8 @@ namespace AmarokGames.Grids {
                         float zDepth = zOffsetGlobal + zOffset * zLayer;
                         {
                             Vector3 v = new Vector3(gridCoord.x, gridCoord.y, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[0].uvMiddle.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[0].uvMiddle.uv11;
+                            Vector2 uv00 = tileRenderData[current].variants[variant].uvMiddle.uv00;
+                            Vector2 uv11 = tileRenderData[current].variants[variant].uvMiddle.uv11;
                             AddQuad(v, Vector2.one, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
@@ -459,6 +459,11 @@ namespace AmarokGames.Grids {
             triangles.Add(vertexCount + 0);
 
             vertexCount += 4;
+        }
+
+        private static int GetPseudoRandomInt(int x, int y) {
+            int result = x ^ y ^ 2147483647;
+            return result;
         }
     }
 }
