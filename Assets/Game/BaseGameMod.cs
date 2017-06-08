@@ -158,6 +158,12 @@ namespace AmarokGames.GridGame {
 
                 gameSystems.Add(GridCollisionSystem.Create(new Grids.Data.LayerId(0)));
             }
+
+            // Player system
+            {
+                PlayerSystem sys = PlayerSystem.Create();
+                gameSystems.Add(sys);
+            }
         }
     }
 }

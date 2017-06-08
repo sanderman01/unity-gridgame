@@ -18,9 +18,6 @@ namespace AmarokGames.GridGame {
 
         private List<IGameSystem> gameSystems = new List<IGameSystem>();
 
-        private Player player;
-        private PlayerCharacter playerCharacter;
-
         private LayerConfig layers;
         LayerId solidLayerBool;
         LayerId tileForegroundLayerUShort;
@@ -46,15 +43,6 @@ namespace AmarokGames.GridGame {
 
             baseGameMod.PostInit(tileRegistry, gameSystems);
 
-            // Add Player
-            player = new Player();
-            PlayerCharacter characterPrefab = Resources.Load<PlayerCharacter>("PlayerCharacter");
-            playerCharacter = Instantiate(characterPrefab);
-            UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
-            playerCharacter.Possess(player);
-
-            Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
-
             CreateWorld(0);
         }
 
@@ -68,8 +56,6 @@ namespace AmarokGames.GridGame {
             foreach (IGameSystem system in gameSystems) {
                 if (system.Enabled) system.UpdateWorld(world, Time.deltaTime);
             }
-
-            player.Update();
 
             const int buttonLeft = 0;
             const int buttonRight = 1;
