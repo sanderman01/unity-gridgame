@@ -17,7 +17,7 @@ namespace AmarokGames.GridGame {
             PlayerCharacter characterPrefab = Resources.Load<PlayerCharacter>("PlayerCharacter");
             PlayerCharacter playerCharacter = Instantiate(characterPrefab);
             UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
-            playerCharacter.Possess(player);
+            player.Possess(playerCharacter);
             sys.players.Add(player);
 
             Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
@@ -29,15 +29,19 @@ namespace AmarokGames.GridGame {
         }
 
         public override void UpdateWorld(World world, float deltaTime) {
-            foreach(Player p in players) {
+            foreach (Player p in players) {
                 p.Update();
             }
         }
 
         protected override void Disable() {
+            foreach (Player p in players) {
+                if(p != null) p.Character.enabled = false;
+            }
         }
 
         protected override void Enable() {
+            foreach (Player p in players) { p.Character.enabled = true; }
         }
     }
 }

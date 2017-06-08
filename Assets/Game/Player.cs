@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Player {
 
+    private PlayerCharacter playerCharacter;
+    public PlayerCharacter Character { get { return playerCharacter; } }
+
     private const KeyCode KeyLeft = KeyCode.A;
     private const KeyCode KeyRight = KeyCode.D;
     private const KeyCode KeyUp = KeyCode.W;
@@ -22,5 +25,16 @@ public class Player {
         Up = Input.GetKey(KeyUp);
         Down = Input.GetKey(KeyDown);
         Jump = Input.GetKey(KeyJump);
-	}
+    }
+
+    public void Possess(PlayerCharacter playerCharacter) {
+        if (this.playerCharacter != null) {
+            this.playerCharacter.player = null;
+        }
+
+        if (playerCharacter != null) {
+            playerCharacter.player = this;
+        }
+        this.playerCharacter = playerCharacter;
+    }
 }

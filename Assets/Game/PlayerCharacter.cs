@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour {
 
-    private Player controller;
+    internal Player player;
     private new Rigidbody2D rigidbody;
 
     [SerializeField]
@@ -23,10 +23,6 @@ public class PlayerCharacter : MonoBehaviour {
     private float stepAssistHeight;
     private float previousFrameHorizontalVelocity;
 
-    public void Possess(Player player) {
-        controller = player;
-    }
-
     void Awake() {
         rigidbody = GetComponent<Rigidbody2D>();
     }
@@ -40,26 +36,26 @@ public class PlayerCharacter : MonoBehaviour {
         const float dragAcceleration = 5f;
         const float jumpVelocity = 30f;
 
-        if (controller.Right && velocity.x < walkingSpeed) {
+        if (player.Right && velocity.x < walkingSpeed) {
             // Move right
             velocity.x += walkingAcceleration * Time.deltaTime;
         }
 
-        if (controller.Left && velocity.x > -walkingSpeed) {
+        if (player.Left && velocity.x > -walkingSpeed) {
             // Move left
             velocity.x -= walkingAcceleration * Time.deltaTime;
         }
 
-        if(!(controller.Left || controller.Right)) {
+        if(!(player.Left || player.Right)) {
             float drag = dragAcceleration * Time.deltaTime * velocity.x;
             velocity.x -= drag;
         }
 
-        if (controller.Jump && grounded) {
+        if (player.Jump && grounded) {
             velocity.y += jumpVelocity;
             grounded = false;
         }
-        if (controller.Jump && !grounded) {
+        if (player.Jump && !grounded) {
             // Jetpack
             const float jetpackMaxVerticalSpeed = 10;
             if (velocity.y < jetpackMaxVerticalSpeed) {
