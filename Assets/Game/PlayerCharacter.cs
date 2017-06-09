@@ -31,31 +31,31 @@ public class PlayerCharacter : MonoBehaviour {
         collider = GetComponent<Collider2D>();
     }
 
-    void Update() {
+    void FixedUpdate() {
 
-        const float walkingSpeed = 50f;
+        const float maxWalkingSpeed = 15f;
         const float walkingAcceleration = 50f;
         const float gravityAcceleration = 50;
         const float jetpackAcceleration = 50f;
         const float dragAcceleration = 10f;
         const float jumpVelocity = 10f;
 
-        if (player.Right && rigidbody.velocity.x < walkingSpeed) {
+        if (player.Right && rigidbody.velocity.x < maxWalkingSpeed) {
             // Move right
             Vector2 vel = rigidbody.velocity;
-            vel.x += walkingAcceleration * Time.deltaTime;
+            vel.x += walkingAcceleration * Time.fixedDeltaTime;
             rigidbody.velocity = vel;
         }
 
-        if (player.Left && rigidbody.velocity.x > -walkingSpeed) {
+        if (player.Left && rigidbody.velocity.x > -maxWalkingSpeed) {
             // Move left
             Vector2 vel = rigidbody.velocity;
-            vel.x -= walkingAcceleration * Time.deltaTime;
+            vel.x -= walkingAcceleration * Time.fixedDeltaTime;
             rigidbody.velocity = vel;
         }
 
         if(!(player.Left || player.Right)) {
-            float drag = dragAcceleration * Time.deltaTime * rigidbody.velocity.x;
+            float drag = dragAcceleration * Time.fixedDeltaTime * rigidbody.velocity.x;
             Vector2 vel = rigidbody.velocity;
             vel.x -= drag;
             rigidbody.velocity = vel;
@@ -78,11 +78,11 @@ public class PlayerCharacter : MonoBehaviour {
         } else if (!grounded) {
             // Get pulled down by gravity
             Vector2 vel = rigidbody.velocity;
-            vel.y -= gravityAcceleration * Time.deltaTime;
+            vel.y -= gravityAcceleration * Time.fixedDeltaTime;
             rigidbody.velocity = vel;
         }
 
-        rigidbody.MovePosition(rigidbody.position + rigidbody.velocity * Time.deltaTime);
+        rigidbody.MovePosition(rigidbody.position + rigidbody.velocity * Time.fixedDeltaTime);
 
         // Apply the step-assist by moving the character to same y-value as the highest contact point.
         Vector2 position = transform.position;
