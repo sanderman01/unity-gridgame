@@ -36,7 +36,7 @@ namespace AmarokGames.GridGame {
 
         protected override void Disable() {
             foreach (Player p in players) {
-                if(p != null) p.Character.enabled = false;
+                if(p.Character != null) p.Character.enabled = false;
             }
         }
 
