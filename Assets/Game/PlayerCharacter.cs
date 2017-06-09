@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using System;
 using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour {
@@ -23,8 +24,11 @@ public class PlayerCharacter : MonoBehaviour {
     private float stepAssistHeight;
     private float previousFrameHorizontalVelocity;
 
+    new private Collider2D collider;
+
     void Awake() {
         rigidbody = GetComponent<Rigidbody2D>();
+        collider = GetComponent<Collider2D>();
     }
 
     void Update() {
@@ -77,6 +81,21 @@ public class PlayerCharacter : MonoBehaviour {
         }
         applyStepAssistNextFrame = false;
         stepAssistHeight = transform.position.y;
+
+        DoGroundedRaycasts();
+    }
+
+    private void DoGroundedRaycasts() {
+        Bounds bounds = collider.bounds;
+        Vector2 bottomLeft = new Vector2(bounds.min.x, bounds.min.y - 0.01f);
+        Vector2 bottomRight = new Vector2(bounds.max.x, bounds.min.y - 0.01f);
+        Vector2 rayCastDir = Vector2.down;
+        float raycastLength = 0.1f;
+
+        bool leftHit = Physics2D.Raycast(bottomLeft, rayCastDir, raycastLength);
+        bool rightHit = Physics2D.Raycast(bottomRight, rayCastDir, raycastLength);
+
+        grounded = leftHit || rightHit;
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
@@ -90,7 +109,6 @@ public class PlayerCharacter : MonoBehaviour {
     }
 
     void OnCollisionExit2D(Collision2D collision) {
-        grounded = false;
     }
 
 
