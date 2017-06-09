@@ -4,6 +4,7 @@ using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.GridGame {
 
@@ -19,10 +20,6 @@ namespace AmarokGames.GridGame {
         private List<IGameSystem> gameSystems = new List<IGameSystem>();
 
         private LayerConfig layers;
-        LayerId solidLayerBool;
-        LayerId tileForegroundLayerUShort;
-        LayerId tileBackgroundLayerUShort;
-        LayerId terrainGenDebugLayerFloat;
 
         BaseGameMod baseGameMod;
 
@@ -33,11 +30,6 @@ namespace AmarokGames.GridGame {
 
             baseGameMod = new BaseGameMod();
             baseGameMod.Init(ref layers, tileRegistry, gameSystems);
-
-            solidLayerBool = baseGameMod.solidLayerBool;
-            tileForegroundLayerUShort = baseGameMod.tileForegroundLayerUShort;
-            tileBackgroundLayerUShort = baseGameMod.tileBackgroundLayerUShort;
-            terrainGenDebugLayerFloat = baseGameMod.terrainGenDebugLayerFloat;
 
             tileRegistry.Finalise();
 
@@ -56,41 +48,7 @@ namespace AmarokGames.GridGame {
             foreach (IGameSystem system in gameSystems) {
                 if (system.Enabled) system.UpdateWorld(world, Time.deltaTime);
             }
-
-            const int buttonLeft = 0;
-            const int buttonRight = 1;
-            Vector2 mousePos = Input.mousePosition;
-            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-
-            if(Input.GetMouseButton(buttonLeft)) {
-                PlaceTile(mouseWorldPos, 0);
-            }
-            else if(Input.GetMouseButton(buttonRight)) {
-                PlaceTile(mouseWorldPos, 7);
-            }
-        }
-
-        private void PlaceTile(Vector2 worldPos, ushort tileValue) {
-
-            // find the first grid that overlaps with this world position.
-            foreach (Grid2D grid in world.Grids) {
-                Bounds bounds = grid.GetBounds();
-                if(bounds.Contains(worldPos)) {
-                    // Found a valid grid
-                    Vector2 localPos = grid.gameObject.transform.worldToLocalMatrix * worldPos;
-                    Int2 gridCoord = new Int2(localPos.x, localPos.y);
-                    PlaceTile(grid, gridCoord, tileValue);
-                }
-            }
-        }
-
-        private void PlaceTile(Grid2D grid, Int2 gridCoord, ushort tileValue) {
-            grid.SetCellValue(gridCoord, tileForegroundLayerUShort, tileValue);
-
-            bool solid = tileRegistry.GetTile(tileValue).CollisionSolid;
-            grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
     }
-
 }
 

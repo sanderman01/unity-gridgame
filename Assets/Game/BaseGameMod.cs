@@ -143,19 +143,34 @@ namespace AmarokGames.GridGame {
                     d.variants = new TileVariant[nVariants];
 
                     float variantWidth = (tile.SpriteUV.width / nVariants);
+                    Rect[] iconUVs = new Rect[nVariants];
                     for(int variantIndex = 0; variantIndex < nVariants; variantIndex++) 
                     {
-                        d.variants[variantIndex] = new TileVariant(
+                        TileVariant variant = new TileVariant(
                             new Vector2(tile.SpriteUV.x + variantWidth * variantIndex, tile.SpriteUV.y),
                             new Vector2(tile.SpriteUV.x + variantWidth * (variantIndex + 1), tile.SpriteUV.yMax));
+                        d.variants[variantIndex] = variant;
+
+                        Rect iconUV = new Rect();
+                        iconUV.xMin = variant.uvLeft.uv00.x;
+                        iconUV.yMin = variant.uvBottom.uv00.y;
+                        iconUV.xMax = variant.uvRight.uv11.x;
+                        iconUV.yMax = variant.uvTop.uv11.y;
+                        iconUVs[variantIndex] = iconUV;
                     }
                     tileData[i] = d;
+                    tile.IconUV = iconUVs;
                 }
 
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, tileForegroundLayerUShort, 0));
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, tileBackgroundLayerUShort, 1));
 
                 gameSystems.Add(GridCollisionSystem.Create(new Grids.Data.LayerId(0)));
+
+                WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, solidLayerBool, tileForegroundLayerUShort, tileBackgroundLayerUShort);
+                gameSystems.Add(worldMgr);
+                GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr);
+                gameSystems.Add(gridEditor);
             }
 
             // Player system

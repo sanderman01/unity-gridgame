@@ -12,5 +12,10 @@ namespace AmarokGames.GridGame {
 
         public virtual bool BatchedRendering { get; set; }
         public Rect SpriteUV { get; set; }
+
+        /// <summary>
+        /// Contains UVs for all variants of this tile.
+        /// </summary>
+        public Rect[] IconUV { get; set; }
     }
 }
