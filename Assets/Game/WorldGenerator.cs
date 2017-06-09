@@ -13,11 +13,22 @@ namespace AmarokGames.GridGame {
         private LayerId tileBackgroundLayer;
         private LayerId debugLayer;
 
-        public WorldGenerator(LayerId solidLayer, LayerId tileForegroundLayer, LayerId tileBackgroundLayer, LayerId debugLayer) {
+        private Tile tileEmpty;
+        private Tile tileStone;
+        private Tile tileDirt;
+        private Tile tileGrass;
+
+        public WorldGenerator(LayerId solidLayer, LayerId tileForegroundLayer, LayerId tileBackgroundLayer, LayerId debugLayer,
+            Tile tileEmpty, Tile tileStone, Tile tileDirt, Tile tileGrass) {
             this.solidLayer = solidLayer;
             this.tileForegroundLayer = tileForegroundLayer;
             this.tileBackgroundLayer = tileBackgroundLayer;
             this.debugLayer = debugLayer;
+
+            this.tileEmpty = tileEmpty;
+            this.tileStone = tileStone;
+            this.tileDirt = tileDirt;
+            this.tileGrass = tileGrass;
         }
 
         public void Init(World world) {
@@ -64,6 +75,8 @@ namespace AmarokGames.GridGame {
             UShortBuffer foregroundBuffer = (UShortBuffer)chunk.GetBuffer(tileForegroundLayer);
             UShortBuffer backgroundBuffer = (UShortBuffer)chunk.GetBuffer(tileBackgroundLayer);
             FloatBuffer debugBuffer = (FloatBuffer)chunk.GetBuffer(debugLayer);
+
+            // Generate base terrain
             for (int i = 0; i < solidBuffer.Length; ++i) {
                 // Calculate value based on gridCoord
                 Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
@@ -76,6 +89,47 @@ namespace AmarokGames.GridGame {
 
                 foregroundBuffer.SetValue(foregroundTileValue, i);
                 backgroundBuffer.SetValue(backgroundTileValue, i);
+            }
+
+            Random.InitState(world.Seed);
+
+            GenerateGrass(chunkCoord, chunkHeight, chunkWidth, solidBuffer, foregroundBuffer, backgroundBuffer);
+
+        }
+
+        /// <summary>
+        /// Iterates from top to bottom in every column until it finds the first solid tile, then it starts replacing tiles with grass.
+        /// </summary>
+        private void GenerateGrass(Int2 chunkCoord, int chunkHeight, int chunkWidth, BitBuffer solidBuffer, UShortBuffer foregroundBuffer, UShortBuffer backgroundBuffer) {
+            // Generate grass and dirt
+            if (chunkCoord.y == 1 || chunkCoord.y == 2) {
+                // Iterate over columns in the chunk
+                for (int x = 0; x < chunkWidth; x++) {
+                    // Iterate from top to bottom
+                    int grassTilesBudget = 0;
+                    int dirtTilesBudget = 0;
+                    for (int y = chunkHeight - 1; y >= 0; y--) {
+                        Int2 localCoord = new Int2(x, y);
+                        int bufferIndex = Grid2D.GetCellIndex(localCoord, chunkWidth, chunkHeight);
+                        bool solidTile = solidBuffer.GetValue(bufferIndex);
+
+                        if (y == chunkHeight - 1 && !solidTile) {
+                            grassTilesBudget = Random.Range(1, 3);
+                            dirtTilesBudget = Random.Range(10, 20);
+                        }
+
+                        if (solidTile && grassTilesBudget > 0) {
+                            foregroundBuffer.SetValue(tileGrass.TileID, bufferIndex);
+                            backgroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
+                            grassTilesBudget--;
+                        } else if (solidTile && dirtTilesBudget > 0) {
+                            foregroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
+                            backgroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
+                            dirtTilesBudget--;
+                        }
+
+                    }
+                }
             }
         }
 
@@ -114,16 +168,14 @@ namespace AmarokGames.GridGame {
             debugBuffer.SetValue(baseTerrain, bufferIndex);
 
             if (final >= 1) {
-
-                foregroundTile = (ushort)Random.Range(1,3);
-
+                foregroundTile = tileStone.TileID;
             } else {
                 foregroundTile = 0;
             }
 
             float background = baseTerrain + hills;
             if (background >= 1) {
-                backgroundTile = 1;
+                backgroundTile = tileStone.TileID;
             } else {
                 backgroundTile = 0;
             }

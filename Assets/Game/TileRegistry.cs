@@ -22,6 +22,7 @@ namespace AmarokGames.GridGame {
 
         public int RegisterTile(string mod, string name, Tile tile, Texture2D texture) {
             int tileIndex = tilesByIndex.Count;
+            tile.TileID = (ushort)tileIndex;
             tilesByIndex.Add(tile);
 
             mod = mod.ToLowerInvariant();

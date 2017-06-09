@@ -8,6 +8,8 @@ namespace AmarokGames.GridGame {
     public class Tile {
         public virtual string HumanName { get; set; }
 
+        public ushort TileID { get; set; }
+
         public virtual bool CollisionSolid { get; set; }
 
         public virtual bool BatchedRendering { get; set; }
