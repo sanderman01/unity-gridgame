@@ -128,11 +128,10 @@ namespace AmarokGames.GridGame {
                 backgroundMaterial.mainTexture = textureAtlas;
                 backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
 
-                IList<Tile> tiles = tileRegistry.GetTiles();
-                int tileCount = tiles.Count;
+                int tileCount = tileRegistry.GetTileCount();
                 TileRenderData[] tileData = new TileRenderData[tileCount];
                 for (int i = 0; i < tileCount; ++i) {
-                    Tile tile = tiles[i];
+                    Tile tile = tileRegistry.GetTile(i);
                     TileRenderData d = new TileRenderData();
                     d.draw = tile.BatchedRendering;
                     d.zLayer = (ushort)i;

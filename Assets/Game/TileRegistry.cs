@@ -52,8 +52,16 @@ namespace AmarokGames.GridGame {
             return atlas;
         }
 
-        public IList<Tile> GetTiles() {
-            return tilesByIndex;
+        public Tile GetTile(int tileId) {
+            return tilesByIndex[tileId];
+        }
+
+        public Tile GetTile(string tileName) {
+            return tilesByName[tileName];
+        }
+
+        public int GetTileCount() {
+            return tilesByIndex.Count;
         }
     }
 }

@@ -87,7 +87,7 @@ namespace AmarokGames.GridGame {
         private void PlaceTile(Grid2D grid, Int2 gridCoord, ushort tileValue) {
             grid.SetCellValue(gridCoord, tileForegroundLayerUShort, tileValue);
 
-            bool solid = tileRegistry.GetTiles()[tileValue].CollisionSolid;
+            bool solid = tileRegistry.GetTile(tileValue).CollisionSolid;
             grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
     }
