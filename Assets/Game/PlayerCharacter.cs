@@ -11,7 +11,7 @@ public class PlayerCharacter : MonoBehaviour {
     [SerializeField]
     private bool grounded;
     [SerializeField]
-    private Vector2 velocity;
+    private bool allowJetpack = true;
 
     [SerializeField]
     private bool showCollisionGizmos;
@@ -37,47 +37,61 @@ public class PlayerCharacter : MonoBehaviour {
         const float walkingAcceleration = 50f;
         const float gravityAcceleration = 50;
         const float jetpackAcceleration = 50f;
-        const float dragAcceleration = 5f;
-        const float jumpVelocity = 30f;
+        const float dragAcceleration = 10f;
+        const float jumpVelocity = 10f;
 
-        if (player.Right && velocity.x < walkingSpeed) {
+        if (player.Right && rigidbody.velocity.x < walkingSpeed) {
             // Move right
-            velocity.x += walkingAcceleration * Time.deltaTime;
+            Vector2 vel = rigidbody.velocity;
+            vel.x += walkingAcceleration * Time.deltaTime;
+            rigidbody.velocity = vel;
         }
 
-        if (player.Left && velocity.x > -walkingSpeed) {
+        if (player.Left && rigidbody.velocity.x > -walkingSpeed) {
             // Move left
-            velocity.x -= walkingAcceleration * Time.deltaTime;
+            Vector2 vel = rigidbody.velocity;
+            vel.x -= walkingAcceleration * Time.deltaTime;
+            rigidbody.velocity = vel;
         }
 
         if(!(player.Left || player.Right)) {
-            float drag = dragAcceleration * Time.deltaTime * velocity.x;
-            velocity.x -= drag;
+            float drag = dragAcceleration * Time.deltaTime * rigidbody.velocity.x;
+            Vector2 vel = rigidbody.velocity;
+            vel.x -= drag;
+            rigidbody.velocity = vel;
         }
 
         if (player.Jump && grounded) {
-            velocity.y += jumpVelocity;
+            Vector2 vel = rigidbody.velocity;
+            vel.y += jumpVelocity;
+            rigidbody.velocity = vel;
             grounded = false;
         }
-        if (player.Jump && !grounded) {
+        if (allowJetpack && player.Jump && !grounded) {
             // Jetpack
             const float jetpackMaxVerticalSpeed = 10;
-            if (velocity.y < jetpackMaxVerticalSpeed) {
-                velocity.y = Mathf.Min(velocity.y + jetpackAcceleration, jetpackMaxVerticalSpeed);
+            Vector3 vel = rigidbody.velocity;
+            if (vel.y < jetpackMaxVerticalSpeed) {
+                vel.y = Mathf.Min(rigidbody.velocity.y + jetpackAcceleration, jetpackMaxVerticalSpeed);
+                rigidbody.velocity = vel;
             }
         } else if (!grounded) {
             // Get pulled down by gravity
-            velocity.y -= gravityAcceleration * Time.deltaTime;
+            Vector2 vel = rigidbody.velocity;
+            vel.y -= gravityAcceleration * Time.deltaTime;
+            rigidbody.velocity = vel;
         }
 
-        rigidbody.MovePosition(rigidbody.position + velocity * Time.deltaTime);
+        rigidbody.MovePosition(rigidbody.position + rigidbody.velocity * Time.deltaTime);
 
         // Apply the step-assist by moving the character to same y-value as the highest contact point.
         Vector2 position = transform.position;
         if (applyStepAssistNextFrame && stepAssistHeight < position.y + 1.1f) {
             position.y = stepAssistHeight;
             transform.position = position;
-            velocity.x = previousFrameHorizontalVelocity;
+            Vector2 vel = rigidbody.velocity;
+            vel.x = previousFrameHorizontalVelocity;
+            rigidbody.velocity = vel;
         }
         applyStepAssistNextFrame = false;
         stepAssistHeight = transform.position.y;
@@ -87,8 +101,8 @@ public class PlayerCharacter : MonoBehaviour {
 
     private void DoGroundedRaycasts() {
         Bounds bounds = collider.bounds;
-        Vector2 bottomLeft = new Vector2(bounds.min.x, bounds.min.y - 0.01f);
-        Vector2 bottomRight = new Vector2(bounds.max.x, bounds.min.y - 0.01f);
+        Vector2 bottomLeft = new Vector2(bounds.min.x - 0.1f, bounds.min.y - 0.01f);
+        Vector2 bottomRight = new Vector2(bounds.max.x + 0.1f, bounds.min.y - 0.01f);
         Vector2 rayCastDir = Vector2.down;
         float raycastLength = 0.1f;
 
@@ -113,15 +127,15 @@ public class PlayerCharacter : MonoBehaviour {
 
 
     void HandleCollision(Collision2D collision) {
-        Vector3 oldVelocity = velocity;
+        Vector3 oldVelocity = rigidbody.velocity;
         Collider2D[] overlapping = new Collider2D[1];
         if (collision.collider.OverlapCollider(new ContactFilter2D(), overlapping) > 0) {
             Vector3 collisionNormal = collision.contacts[0].normal;
             float separation = collision.contacts[0].separation;
 
-            // Kill velocity in the direction of the collision.
-            if (Vector2.Dot(collisionNormal, velocity) < 0)
-                velocity = Vector3.ProjectOnPlane(velocity, collisionNormal);
+            // Kill rigidbody.velocity in the direction of the collision.
+            if (Vector2.Dot(collisionNormal, rigidbody.velocity) < 0)
+                rigidbody.velocity = Vector3.ProjectOnPlane(rigidbody.velocity, collisionNormal);
 
             // Reduce overlap
             if (separation < -0.1f) {
