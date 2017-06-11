@@ -1,11 +1,13 @@
-﻿using UnityEngine;
+﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+
+using UnityEngine;
 
 namespace AmarokGames.GridGame {
     class GridEditorSystem : GameSystemBase, IGameSystem {
 
         private TileRegistry tileRegistry;
         private WorldManagementSystem worldMgr;
-        private int tileSelection = 1;
+        private uint tileSelection = 1;
 
         public static GridEditorSystem Create(TileRegistry tileRegistry, WorldManagementSystem worldMgr) {
             GridEditorSystem sys = GridEditorSystem.Create<GridEditorSystem>();
@@ -24,9 +26,9 @@ namespace AmarokGames.GridGame {
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
             if (Input.GetMouseButton(buttonLeft)) {
-                worldMgr.PlaceTile(world, mouseWorldPos, 0);
+                worldMgr.PlaceTile(world, mouseWorldPos, 0, 0);
             } else if (Input.GetMouseButton(buttonRight)) {
-                worldMgr.PlaceTile(world, mouseWorldPos, (ushort)tileSelection);
+                worldMgr.PlaceTile(world, mouseWorldPos, tileSelection, 0);
             }
         }
 
@@ -53,7 +55,7 @@ namespace AmarokGames.GridGame {
 
                 if (click) {
                     Debug.Log("Selected tile: " + i);
-                    tileSelection = i;
+                    tileSelection = (uint)i;
                 }
             }
         }

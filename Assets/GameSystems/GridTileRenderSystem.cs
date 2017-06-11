@@ -171,10 +171,10 @@ namespace AmarokGames.Grids {
             // Copy data to a local buffer for easier access.
             // Because tiles encroach on their neighbours, we need both the data for the current chunk, and the borders of any neighbouring chunks.
             // For this reason, we'll also shift all the cells in the current chunk by a (1,1) offset
-            ushort[,] b = new ushort[chunkHeight + 2, chunkWidth + 2];
+            uint[,] b = new uint[chunkHeight + 2, chunkWidth + 2];
 
             // copy data from the main chunk buffer to the local buffer
-            UShortBuffer mainbuf = (UShortBuffer)chunk.GetBuffer(layerId);
+            BufferUnsignedInt32 mainbuf = (BufferUnsignedInt32)chunk.GetBuffer(layerId);
             for(int y = 0; y < chunkHeight; y++) {
                 for(int x = 0; x < chunkWidth; x++) {
                     int cellindex = Grid2D.GetCellIndex(new Int2(x, y), chunkWidth);
@@ -187,7 +187,7 @@ namespace AmarokGames.Grids {
                 for (int x = -1; x < chunkWidth + 1; x++) {
                     if (y == -1 || y == chunkWidth || x == -1 || x == chunkWidth) {
                         Int2 coord = new Int2(chunkCoord.x * chunkWidth + x, chunkCoord.y * chunkHeight + y);
-                        b[y + 1, x + 1] = grid.GetUShort(coord, layerId);
+                        b[y + 1, x + 1] = (uint)grid.GetUnsignedInt(coord, layerId);
                     }
                 }
             }
@@ -200,239 +200,258 @@ namespace AmarokGames.Grids {
                     Int2 gridCoord = new Int2(x, y);
 
                     // get tile values from buffer and determine if we should draw the tile
-                    ushort current = b[y + 1, x + 1];
+                    TileStateId current = (TileStateId)b[y + 1, x + 1];
+                    TileStateId bottomleft = (TileStateId)b[y + 0, x + 0];
+                    TileStateId bottom = (TileStateId)b[y + 0, x + 1];
+                    TileStateId bottomright = (TileStateId)b[y + 0, x + 2];
+                    TileStateId left = (TileStateId)b[y + 1, x + 0];
+                    TileStateId right = (TileStateId)b[y + 1, x + 2];
+                    TileStateId topleft = (TileStateId)b[y + 2, x + 0];
+                    TileStateId top = (TileStateId)b[y + 2, x + 1];
+                    TileStateId topright = (TileStateId)b[y + 2, x + 2];
 
-                    ushort bottomleft = b[y + 0, x + 0];
-                    ushort bottom = b[y + 0, x + 1];
-                    ushort bottomright = b[y + 0, x + 2];
-                    ushort left = b[y + 1, x + 0];
-                    ushort right = b[y + 1, x + 2];
-                    ushort topleft = b[y + 2, x + 0];
-                    ushort top = b[y + 2, x + 1];
-                    ushort topright = b[y + 2, x + 2];
+                    uint currentTileId = current.TileId;
+                    uint bottomleftTileId = bottomleft.TileId;
+                    uint bottomTileId = bottom.TileId;
+                    uint bottomrightTileId = bottomright.TileId;
+                    uint leftTileId = left.TileId;
+                    uint rightTileId = right.TileId;
+                    uint topleftTileId = topleft.TileId;
+                    uint topTileId = top.TileId;
+                    uint toprightTileId = topright.TileId;
 
+                    // These will eventually be used to render a different variation based on a tile's meta value
+                    //uint currentMeta = current.Meta;
+                    //uint bottomleftMeta = bottomleft.Meta;
+                    //uint bottomMeta = bottom.Meta;
+                    //uint bottomrightMeta = bottomright.Meta;
+                    //uint leftMeta = left.Meta;
+                    //uint rightMeta = right.Meta;
+                    //uint topleftMeta = topleft.Meta;
+                    //uint topMeta = top.Meta;
+                    //uint toprightMeta = topright.Meta;
 
                     // standard quad sizes
                     Vector2 high = new Vector2(0.5f, 1);
                     Vector2 wide = new Vector2(1, 0.5f);
                     Vector2 square = new Vector2(0.5f, 0.5f);
 
-                    if (tileRenderData[current].draw) {
+                    if (tileRenderData[currentTileId].draw) {
 
                         // Draw the middle of the tile. The middle will always be drawn.
-                        int zLayer = tileRenderData[current].zLayer;
+                        int zLayer = tileRenderData[currentTileId].zLayer;
                         float zDepth = zOffsetGlobal + zOffset * zLayer;
                         {
-                            int variant = GetPseudoRandomInt(x, y) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x, y) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x, gridCoord.y, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvMiddle.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvMiddle.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvMiddle.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvMiddle.uv11;
                             AddQuad(v, Vector2.one, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw outside borders
                         // Draw right border
-                        bool renderRight = right != current && topright != current && bottomright != current && zLayer > tileRenderData[right].zLayer;
+                        bool renderRight = rightTileId != currentTileId && toprightTileId != currentTileId && bottomrightTileId != currentTileId && zLayer > tileRenderData[rightTileId].zLayer;
                         if (renderRight) {
-                            int variant = GetPseudoRandomInt(x + 1, y) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x + 1, y) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvRight.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvRight.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvRight.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvRight.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw left border
-                        bool renderLeft = left != current && topleft != current && bottomleft != current && zLayer > tileRenderData[left].zLayer;
+                        bool renderLeft = leftTileId != currentTileId && topleftTileId != currentTileId && bottomleftTileId != currentTileId && zLayer > tileRenderData[leftTileId].zLayer;
                         if (renderLeft) {
                             int randomValue = GetPseudoRandomInt(x - 1, y);
-                            int variant = randomValue % tileRenderData[current].variants.Length;
+                            int variant = randomValue % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvLeft.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvLeft.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvLeft.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvLeft.uv11;
                             AddQuad(v, high, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw top border
-                        bool renderTop = top != current && topleft != current && topright != current && zLayer > tileRenderData[top].zLayer;
+                        bool renderTop = topTileId != currentTileId && topleftTileId != currentTileId && toprightTileId != currentTileId && zLayer > tileRenderData[topTileId].zLayer;
                         if (renderTop) {
-                            int variant = GetPseudoRandomInt(x, y + 1) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x, y + 1) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y + 1.0f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvTop.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvTop.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvTop.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvTop.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom border
-                        bool renderBottom = bottom != current && bottomleft != current && bottomright != current && zLayer > tileRenderData[bottom].zLayer;
+                        bool renderBottom = bottomTileId != currentTileId && bottomleftTileId != currentTileId && bottomrightTileId != currentTileId && zLayer > tileRenderData[bottomTileId].zLayer;
                         if (renderBottom) {
-                            int variant = GetPseudoRandomInt(x, y - 1) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x, y - 1) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x + 0, gridCoord.y - 0.5f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvBottom.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvBottom.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvBottom.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvBottom.uv11;
                             AddQuad(v, wide, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw outside corners
                         // Draw top left outside corner
-                        bool renderTopLeft = left != current && top != current && topleft != current && zLayer > tileRenderData[topleft].zLayer;
+                        bool renderTopLeft = leftTileId != currentTileId && topTileId != currentTileId && topleftTileId != currentTileId && zLayer > tileRenderData[topleftTileId].zLayer;
                         if (renderTopLeft) {
-                            int variant = GetPseudoRandomInt(x - 1, y + 1) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x - 1, y + 1) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y + 1.0f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvOutsideTopLeft.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvOutsideTopLeft.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvOutsideTopLeft.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvOutsideTopLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw top right outside corner
-                        bool renderTopRight = right != current && top != current && topright != current && zLayer > tileRenderData[topright].zLayer;
+                        bool renderTopRight = rightTileId != currentTileId && topTileId != currentTileId && toprightTileId != currentTileId && zLayer > tileRenderData[toprightTileId].zLayer;
                         if (renderTopRight) {
-                            int variant = GetPseudoRandomInt(x + 1, y + 1) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x + 1, y + 1) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y + 1.0f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvOutsideTopRight.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvOutsideTopRight.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvOutsideTopRight.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvOutsideTopRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom left outside corner
-                        bool renderBottomLeft = left != current && bottom != current && bottomleft != current && zLayer > tileRenderData[bottomleft].zLayer;
+                        bool renderBottomLeft = leftTileId != currentTileId && bottomTileId != currentTileId && bottomleftTileId != currentTileId && zLayer > tileRenderData[bottomleftTileId].zLayer;
                         if (renderBottomLeft) {
-                            int variant = GetPseudoRandomInt(x, y - 1) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x, y - 1) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x - 0.5f, gridCoord.y - 0.5f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvOutsideBottomLeft.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvOutsideBottomLeft.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvOutsideBottomLeft.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvOutsideBottomLeft.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
 
                         // Draw bottom right outside corner
-                        bool renderBottomRight = right != current && bottom != current && bottomright != current && zLayer > tileRenderData[bottomright].zLayer;
+                        bool renderBottomRight = rightTileId != currentTileId && bottomTileId != currentTileId && bottomrightTileId != currentTileId && zLayer > tileRenderData[bottomrightTileId].zLayer;
                         if (renderBottomRight) {
-                            int variant = GetPseudoRandomInt(x + 1, y) % tileRenderData[current].variants.Length;
+                            int variant = GetPseudoRandomInt(x + 1, y) % tileRenderData[currentTileId].variants.Length;
                             Vector3 v = new Vector3(gridCoord.x + 1.0f, gridCoord.y - 0.5f, zDepth);
-                            Vector2 uv00 = tileRenderData[current].variants[variant].uvOutsideBottomRight.uv00;
-                            Vector2 uv11 = tileRenderData[current].variants[variant].uvOutsideBottomRight.uv11;
+                            Vector2 uv00 = tileRenderData[currentTileId].variants[variant].uvOutsideBottomRight.uv00;
+                            Vector2 uv11 = tileRenderData[currentTileId].variants[variant].uvOutsideBottomRight.uv11;
                             AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                         }
                     }
 
                     // Draw inside corners
-                    bool renderBottomLeftInside  = tileRenderData[left].draw && left > current && bottom == left && bottom != current;
-                    bool renderBottomRightInside = tileRenderData[right].draw && right > current && bottom == right && bottom != current;
-                    bool renderTopLeftInside     = tileRenderData[left].draw && left > current && top == left && top != current;
-                    bool renderTopRightInside    = tileRenderData[right].draw && right > current && top == right && top != current;
+                    bool renderBottomLeftInside  = tileRenderData[leftTileId].draw && leftTileId > currentTileId && bottomTileId == leftTileId && bottomTileId != currentTileId;
+                    bool renderBottomRightInside = tileRenderData[rightTileId].draw && rightTileId > currentTileId && bottomTileId == rightTileId && bottomTileId != currentTileId;
+                    bool renderTopLeftInside     = tileRenderData[leftTileId].draw && leftTileId > currentTileId && topTileId == leftTileId && topTileId != currentTileId;
+                    bool renderTopRightInside    = tileRenderData[rightTileId].draw && rightTileId > currentTileId && topTileId == rightTileId && topTileId != currentTileId;
 
-                    bool renderRight1 = renderTopLeftInside && bottom != left;
-                    bool renderTop1 = renderBottomRightInside && bottom != left;
+                    bool renderRight1 = renderTopLeftInside && bottomTileId != leftTileId;
+                    bool renderTop1 = renderBottomRightInside && bottomTileId != leftTileId;
 
-                    bool renderLeft1 = renderTopRightInside && bottom != right;
-                    bool renderTop2 = renderBottomLeftInside && bottom != right;
+                    bool renderLeft1 = renderTopRightInside && bottomTileId != rightTileId;
+                    bool renderTop2 = renderBottomLeftInside && bottomTileId != rightTileId;
 
-                    bool renderRight2 = renderBottomLeftInside && top != left;
-                    bool renderBottom1 = renderTopRightInside && top != left;
+                    bool renderRight2 = renderBottomLeftInside && topTileId != leftTileId;
+                    bool renderBottom1 = renderTopRightInside && topTileId != leftTileId;
 
-                    bool renderLeft2 = renderBottomRightInside && top != right;
-                    bool renderBottom2 = renderTopLeftInside && top != right;
+                    bool renderLeft2 = renderBottomRightInside && topTileId != rightTileId;
+                    bool renderBottom2 = renderTopLeftInside && topTileId != rightTileId;
 
                     // Draw bottom left inside corner
                     if (renderBottomLeftInside) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[left].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[leftTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[leftTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[left].variants[variant].uvInsideBottomLeft.uv00;
-                        Vector2 uv11 = tileRenderData[left].variants[variant].uvInsideBottomLeft.uv11;
+                        Vector2 uv00 = tileRenderData[leftTileId].variants[variant].uvInsideBottomLeft.uv00;
+                        Vector2 uv11 = tileRenderData[leftTileId].variants[variant].uvInsideBottomLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight1) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[left].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[leftTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[leftTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[left].variants[variant].uvRight1.uv00;
-                        Vector2 uv11 = tileRenderData[left].variants[variant].uvRight1.uv11;
+                        Vector2 uv00 = tileRenderData[leftTileId].variants[variant].uvRight1.uv00;
+                        Vector2 uv11 = tileRenderData[leftTileId].variants[variant].uvRight1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop1) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[bottom].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[bottomTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottomTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[bottom].variants[variant].uvTop1.uv00;
-                        Vector2 uv11 = tileRenderData[bottom].variants[variant].uvTop1.uv11;
+                        Vector2 uv00 = tileRenderData[bottomTileId].variants[variant].uvTop1.uv00;
+                        Vector2 uv11 = tileRenderData[bottomTileId].variants[variant].uvTop1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
 
                     // Draw bottom right inside corner
                     if (renderBottomRightInside) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[right].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[rightTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottomTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[right].variants[variant].uvInsideBottomRight.uv00;
-                        Vector2 uv11 = tileRenderData[right].variants[variant].uvInsideBottomRight.uv11;
+                        Vector2 uv00 = tileRenderData[rightTileId].variants[variant].uvInsideBottomRight.uv00;
+                        Vector2 uv11 = tileRenderData[rightTileId].variants[variant].uvInsideBottomRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderTop2) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[bottom].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottom].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[bottomTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[bottomTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[bottom].variants[variant].uvTop2.uv00;
-                        Vector2 uv11 = tileRenderData[bottom].variants[variant].uvTop2.uv11;
+                        Vector2 uv00 = tileRenderData[bottomTileId].variants[variant].uvTop2.uv00;
+                        Vector2 uv11 = tileRenderData[bottomTileId].variants[variant].uvTop2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft1) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[right].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[rightTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[rightTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.0f, zDepth);
-                        Vector2 uv00 = tileRenderData[right].variants[variant].uvLeft1.uv00;
-                        Vector2 uv11 = tileRenderData[right].variants[variant].uvLeft1.uv11;
+                        Vector2 uv00 = tileRenderData[rightTileId].variants[variant].uvLeft1.uv00;
+                        Vector2 uv11 = tileRenderData[rightTileId].variants[variant].uvLeft1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
 
                     // Draw top left inside corner
                     if (renderTopLeftInside) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[left].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[leftTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[leftTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[left].variants[variant].uvInsideTopLeft.uv00;
-                        Vector2 uv11 = tileRenderData[left].variants[variant].uvInsideTopLeft.uv11;
+                        Vector2 uv00 = tileRenderData[leftTileId].variants[variant].uvInsideTopLeft.uv00;
+                        Vector2 uv11 = tileRenderData[leftTileId].variants[variant].uvInsideTopLeft.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderRight2) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[left].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[left].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[leftTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[leftTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[left].variants[variant].uvRight2.uv00;
-                        Vector2 uv11 = tileRenderData[left].variants[variant].uvRight2.uv11;
+                        Vector2 uv00 = tileRenderData[leftTileId].variants[variant].uvRight2.uv00;
+                        Vector2 uv11 = tileRenderData[leftTileId].variants[variant].uvRight2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom1) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[top].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[top].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[topTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[topTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.0f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[top].variants[variant].uvBottom1.uv00;
-                        Vector2 uv11 = tileRenderData[top].variants[variant].uvBottom1.uv11;
+                        Vector2 uv00 = tileRenderData[topTileId].variants[variant].uvBottom1.uv00;
+                        Vector2 uv11 = tileRenderData[topTileId].variants[variant].uvBottom1.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
 
                     // draw top right inside corner
                     if (renderTopRightInside) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[right].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[rightTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[rightTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[right].variants[variant].uvInsideTopRight.uv00;
-                        Vector2 uv11 = tileRenderData[right].variants[variant].uvInsideTopRight.uv11;
+                        Vector2 uv00 = tileRenderData[rightTileId].variants[variant].uvInsideTopRight.uv00;
+                        Vector2 uv11 = tileRenderData[rightTileId].variants[variant].uvInsideTopRight.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderLeft2) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[right].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[right].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[rightTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[rightTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[right].variants[variant].uvLeft2.uv00;
-                        Vector2 uv11 = tileRenderData[right].variants[variant].uvLeft2.uv11;
+                        Vector2 uv00 = tileRenderData[rightTileId].variants[variant].uvLeft2.uv00;
+                        Vector2 uv11 = tileRenderData[rightTileId].variants[variant].uvLeft2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                     if (renderBottom2) {
-                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[top].variants.Length;
-                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[top].zLayer;
+                        int variant = GetPseudoRandomInt(x, y) % tileRenderData[topTileId].variants.Length;
+                        float zDepth = zOffsetGlobal + zOffset * tileRenderData[topTileId].zLayer;
                         Vector3 v = new Vector3(gridCoord.x + 0.5f, gridCoord.y + 0.5f, zDepth);
-                        Vector2 uv00 = tileRenderData[top].variants[variant].uvBottom2.uv00;
-                        Vector2 uv11 = tileRenderData[top].variants[variant].uvBottom2.uv11;
+                        Vector2 uv00 = tileRenderData[topTileId].variants[variant].uvBottom2.uv00;
+                        Vector2 uv11 = tileRenderData[topTileId].variants[variant].uvBottom2.uv11;
                         AddQuad(v, square, uv00, uv11, ref vertexCount, vertices, uvs, normals, triangles);
                     }
                 }

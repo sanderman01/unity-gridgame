@@ -12,13 +12,13 @@ namespace AmarokGames.GridGame {
 
         List<Tile> tilesByIndex;
         Dictionary<string, Tile> tilesByName;
-        Dictionary<Tile, int> tileToIdNumeric;
+        Dictionary<Tile, uint> tileToIdNumeric;
         Dictionary<Tile, string> tileToIdName;
         
         public TileRegistry() {
             tilesByIndex = new List<Tile>();
             tilesByName = new Dictionary<string, Tile>();
-            tileToIdNumeric = new Dictionary<Tile, int>();
+            tileToIdNumeric = new Dictionary<Tile, uint>();
             tileToIdName = new Dictionary<Tile, string>();
 
             atlas = new DynamicTextureAtlas();
@@ -27,7 +27,7 @@ namespace AmarokGames.GridGame {
         public int RegisterTile(string uniqueModIdName, string uniqueTileIdName, Tile tile, Texture2D texture) {
             int tileIndex = tilesByIndex.Count;
             tilesByIndex.Add(tile);
-            tileToIdNumeric.Add(tile, tileIndex);
+            tileToIdNumeric.Add(tile, (uint)tileIndex);
 
             uniqueModIdName = uniqueModIdName.ToLowerInvariant();
             uniqueTileIdName = uniqueTileIdName.ToLowerInvariant();
@@ -71,7 +71,7 @@ namespace AmarokGames.GridGame {
             return tileToIdName[tile];
         }
 
-        public int GetTileId(Tile tile) {
+        public uint GetTileId(Tile tile) {
             return tileToIdNumeric[tile];
         }
 

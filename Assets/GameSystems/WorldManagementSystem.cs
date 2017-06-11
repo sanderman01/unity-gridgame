@@ -7,20 +7,20 @@ namespace AmarokGames.GridGame {
 
         private TileRegistry tileRegistry;
         private LayerId solidLayerBool;
-        private LayerId tileForegroundLayerUShort;
-        private LayerId tileBackgroundLayerUShort;
+        private LayerId tileForegroundLayerUInt;
+        private LayerId tileBackgroundLayerUInt;
 
         public static WorldManagementSystem Create(
             TileRegistry tileRegistry,
             LayerId solidLayerBool,
-            LayerId tileForegroundLayerUShort, 
-            LayerId tileBackgroundLayerUShort) 
+            LayerId tileForegroundLayerUInt, 
+            LayerId tileBackgroundLayerUInt) 
         {
             WorldManagementSystem sys = WorldManagementSystem.Create<WorldManagementSystem>();
             sys.tileRegistry = tileRegistry;
             sys.solidLayerBool = solidLayerBool;
-            sys.tileForegroundLayerUShort = tileForegroundLayerUShort;
-            sys.tileBackgroundLayerUShort = tileBackgroundLayerUShort;
+            sys.tileForegroundLayerUInt = tileForegroundLayerUInt;
+            sys.tileBackgroundLayerUInt = tileBackgroundLayerUInt;
             return sys;
         }
 
@@ -36,7 +36,7 @@ namespace AmarokGames.GridGame {
         protected override void Enable() {
         }
 
-        public void PlaceTile(World world, Vector2 worldPos, ushort tileValue) {
+        public void PlaceTile(World world, Vector2 worldPos, uint tileValue, uint meta) {
 
             // find the first grid that overlaps with this world position.
             foreach (Grid2D grid in world.Grids) {
@@ -45,15 +45,16 @@ namespace AmarokGames.GridGame {
                     // Found a valid grid
                     Vector2 localPos = grid.gameObject.transform.worldToLocalMatrix * worldPos;
                     Int2 gridCoord = new Int2(localPos.x, localPos.y);
-                    PlaceTile(grid, gridCoord, tileValue);
+                    PlaceTile(grid, gridCoord, tileValue, meta);
                 }
             }
         }
 
-        public void PlaceTile(Grid2D grid, Int2 gridCoord, ushort tileValue) {
-            grid.SetCellValue(gridCoord, tileForegroundLayerUShort, tileValue);
+        public void PlaceTile(Grid2D grid, Int2 gridCoord, uint tileTypeId, uint tileMetaData) {
+            uint bufferValue = (uint)new TileStateId(tileTypeId, tileMetaData);
+            grid.SetCellValue(gridCoord, tileForegroundLayerUInt, bufferValue);
 
-            bool solid = tileRegistry.GetTileById(tileValue).CollisionSolid;
+            bool solid = tileRegistry.GetTileById((int)tileTypeId).CollisionSolid;
             grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
     }

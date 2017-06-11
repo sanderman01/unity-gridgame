@@ -247,13 +247,12 @@ namespace AmarokGames.Grids {
             return new Bounds(center, size);
         }
 
-        // Temporarily use this until we figure out a better approach to accessing data across chunk boundaries
-        public ushort GetUShort(Int2 gridCoord, LayerId layerId) {
+        public uint GetUnsignedInt(Int2 gridCoord, LayerId layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
             ChunkData chunk;
             if (TryGetChunkData(chunkCoord, out chunk)) {
                 int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
-                UShortBuffer buffer = (UShortBuffer)chunk.GetBuffer(layerId);
+                BufferUnsignedInt32 buffer = (BufferUnsignedInt32)chunk.GetBuffer(layerId);
                 return buffer.GetValue(index);
             } else {
                 return 0;

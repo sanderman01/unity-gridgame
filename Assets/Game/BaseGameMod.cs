@@ -13,8 +13,8 @@ namespace AmarokGames.GridGame {
         public const string CoreGameModId = "CoreGame";
 
         public LayerId SolidLayerBool { get; private set; }
-        public LayerId TileForegroundLayerUShort { get; private set; }
-        public LayerId TileBackgroundLayerUShort { get; private set; }
+        public LayerId TileForegroundLayerUInt { get; private set; }
+        public LayerId TileBackgroundLayerUInt { get; private set; }
         public LayerId TerrainGenDebugLayerFloat { get; private set; }
 
         public Tile TileEmpty { get; private set; }
@@ -25,8 +25,8 @@ namespace AmarokGames.GridGame {
         public void Init(ref LayerConfig layers, TileRegistry tileRegistry, List<IGameSystem> gameSystems) {
 
             SolidLayerBool = layers.AddLayer("solid", BufferType.Boolean);
-            TileForegroundLayerUShort = layers.AddLayer("tileforeground", BufferType.UShort);
-            TileBackgroundLayerUShort = layers.AddLayer("tilebackground", BufferType.UShort);
+            TileForegroundLayerUInt = layers.AddLayer("tileforeground", BufferType.UnsignedInt32);
+            TileBackgroundLayerUInt = layers.AddLayer("tilebackground", BufferType.UnsignedInt32);
             TerrainGenDebugLayerFloat = layers.AddLayer("terrainGenDebugLayer", BufferType.Float);
 
             RegisterTiles(tileRegistry);
@@ -163,12 +163,12 @@ namespace AmarokGames.GridGame {
                     tile.IconUV = iconUVs;
                 }
 
-                gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUShort, 0));
-                gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUShort, 1));
+                gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
+                gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUInt, 1));
 
-                gameSystems.Add(GridCollisionSystem.Create(new Grids.Data.LayerId(0)));
+                gameSystems.Add(GridCollisionSystem.Create(SolidLayerBool));
 
-                WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUShort, TileBackgroundLayerUShort);
+                WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
                 gameSystems.Add(worldMgr);
                 GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr);
                 gameSystems.Add(gridEditor);
@@ -182,7 +182,7 @@ namespace AmarokGames.GridGame {
         }
 
         public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {
-            WorldGenerator worldGen = new WorldGenerator(SolidLayerBool, TileForegroundLayerUShort, TileBackgroundLayerUShort, TerrainGenDebugLayerFloat, 
+            WorldGenerator worldGen = new WorldGenerator(SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt, TerrainGenDebugLayerFloat, 
                 tileReg.GetTileId(TileEmpty), tileReg.GetTileId(TileStone), tileReg.GetTileId(TileDirt), tileReg.GetTileId(TileGrass)
                 );
             return worldGen;

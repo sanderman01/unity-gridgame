@@ -13,13 +13,13 @@ namespace AmarokGames.GridGame {
         private LayerId tileBackgroundLayer;
         private LayerId debugLayer;
 
-        private int tileEmpty;
-        private int tileStone;
-        private int tileDirt;
-        private int tileGrass;
+        private uint tileEmpty;
+        private uint tileStone;
+        private uint tileDirt;
+        private uint tileGrass;
 
         public WorldGenerator(LayerId solidLayer, LayerId tileForegroundLayer, LayerId tileBackgroundLayer, LayerId debugLayer,
-            int tileEmpty, int tileStone, int tileDirt, int tileGrass) {
+            uint tileEmpty, uint tileStone, uint tileDirt, uint tileGrass) {
             this.solidLayer = solidLayer;
             this.tileForegroundLayer = tileForegroundLayer;
             this.tileBackgroundLayer = tileBackgroundLayer;
@@ -72,23 +72,23 @@ namespace AmarokGames.GridGame {
 
             // Fill chunk buffers
             BitBuffer solidBuffer = (BitBuffer)chunk.GetBuffer(solidLayer);
-            UShortBuffer foregroundBuffer = (UShortBuffer)chunk.GetBuffer(tileForegroundLayer);
-            UShortBuffer backgroundBuffer = (UShortBuffer)chunk.GetBuffer(tileBackgroundLayer);
+            BufferUnsignedInt32 foregroundBuffer = (BufferUnsignedInt32)chunk.GetBuffer(tileForegroundLayer);
+            BufferUnsignedInt32 backgroundBuffer = (BufferUnsignedInt32)chunk.GetBuffer(tileBackgroundLayer);
             FloatBuffer debugBuffer = (FloatBuffer)chunk.GetBuffer(debugLayer);
 
             // Generate base terrain
             for (int i = 0; i < solidBuffer.Length; ++i) {
                 // Calculate value based on gridCoord
                 Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
-                ushort foregroundTileValue;
-                ushort backgroundTileValue;
+                uint foregroundTileValue;
+                uint backgroundTileValue;
                 GenerateTile(noise, gridCoord, debugBuffer, i, out foregroundTileValue, out backgroundTileValue);
 
                 bool solid = foregroundTileValue != 0;
                 solidBuffer.SetValue(solid, i);
 
-                foregroundBuffer.SetValue(foregroundTileValue, i);
-                backgroundBuffer.SetValue(backgroundTileValue, i);
+                foregroundBuffer.SetValue(i, (uint)new TileStateId(foregroundTileValue, 0));
+                backgroundBuffer.SetValue(i, (uint)new TileStateId(backgroundTileValue, 0));
             }
 
             Random.InitState(world.Seed);
@@ -100,7 +100,7 @@ namespace AmarokGames.GridGame {
         /// <summary>
         /// Iterates from top to bottom in every column until it finds the first solid tile, then it starts replacing tiles with grass.
         /// </summary>
-        private void GenerateGrass(Int2 chunkCoord, int chunkHeight, int chunkWidth, BitBuffer solidBuffer, UShortBuffer foregroundBuffer, UShortBuffer backgroundBuffer) {
+        private void GenerateGrass(Int2 chunkCoord, int chunkHeight, int chunkWidth, BitBuffer solidBuffer, BufferUnsignedInt32 foregroundBuffer, BufferUnsignedInt32 backgroundBuffer) {
             // Generate grass and dirt
             if (chunkCoord.y == 1 || chunkCoord.y == 2) {
                 // Iterate over columns in the chunk
@@ -119,12 +119,12 @@ namespace AmarokGames.GridGame {
                         }
 
                         if (solidTile && grassTilesBudget > 0) {
-                            foregroundBuffer.SetValue((ushort)tileGrass, bufferIndex);
-                            backgroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
+                            foregroundBuffer.SetValue(bufferIndex, (uint)new TileStateId(tileGrass, 0));
+                            backgroundBuffer.SetValue(bufferIndex, (uint)new TileStateId(tileDirt, 0));
                             grassTilesBudget--;
                         } else if (solidTile && dirtTilesBudget > 0) {
-                            foregroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
-                            backgroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
+                            foregroundBuffer.SetValue(bufferIndex, (uint)new TileStateId(tileDirt, 0));
+                            backgroundBuffer.SetValue(bufferIndex, (uint)new TileStateId(tileDirt, 0));
                             dirtTilesBudget--;
                         }
 
@@ -138,8 +138,8 @@ namespace AmarokGames.GridGame {
             Int2 gridCoordinate,
             FloatBuffer debugBuffer,
             int bufferIndex,
-            out ushort foregroundTile,
-            out ushort backgroundTile
+            out uint foregroundTile,
+            out uint backgroundTile
             ) 
         {
 
@@ -168,16 +168,16 @@ namespace AmarokGames.GridGame {
             debugBuffer.SetValue(baseTerrain, bufferIndex);
 
             if (final >= 1) {
-                foregroundTile = (ushort)tileStone;
+                foregroundTile = tileStone;
             } else {
                 foregroundTile = 0;
             }
 
             float background = baseTerrain + hills;
             if (background >= 1) {
-                backgroundTile = (ushort)tileStone;
+                backgroundTile = tileStone;
             } else {
-                backgroundTile = 0;
+                backgroundTile = tileEmpty;
             }
         }
     }

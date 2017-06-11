@@ -27,7 +27,11 @@ public class BufferUnsignedInt32 : IDataBuffer {
         }
     }
 
-    public object GetValue(int index) {
+    object IDataBuffer.GetValue(int index) {
+        return buffer[index];
+    }
+
+    public uint GetValue(int index) {
         return buffer[index];
     }
 
@@ -41,5 +45,9 @@ public class BufferUnsignedInt32 : IDataBuffer {
         } else {
             throw new System.ArgumentException(string.Format("Tried to pass a value that is of type {0} instead of type uint.", value.GetType()), "value");
         }
+    }
+
+    public void SetValue(int index, uint value) {
+        buffer[index] = value;
     }
 }
