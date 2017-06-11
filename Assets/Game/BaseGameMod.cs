@@ -10,6 +10,8 @@ namespace AmarokGames.GridGame {
 
     public class BaseGameMod {
 
+        public const string CoreGameModId = "CoreGame";
+
         public LayerId SolidLayerBool { get; private set; }
         public LayerId TileForegroundLayerUShort { get; private set; }
         public LayerId TileBackgroundLayerUShort { get; private set; }
@@ -83,14 +85,14 @@ namespace AmarokGames.GridGame {
             wood.HumanName = "Wood";
             Texture2D woodTex = Resources.Load<Texture2D>("Tiles/tile-wood");
 
-            tileRegistry.RegisterTile("vanilla", "empty", TileEmpty, emptyTex);
-            tileRegistry.RegisterTile("vanilla", "stone", TileStone, stoneTex);
-            tileRegistry.RegisterTile("vanilla", "concrete", concrete, concreteTex);
-            tileRegistry.RegisterTile("vanilla", "dirt", TileDirt, dirtTex);
-            tileRegistry.RegisterTile("vanilla", "grass", TileGrass, grassTex);
-            tileRegistry.RegisterTile("vanilla", "gravel", gravel, gravelTex);
-            tileRegistry.RegisterTile("vanilla", "sand", sand, sandTex);
-            tileRegistry.RegisterTile("vanilla", "wood", wood, woodTex);
+            tileRegistry.RegisterTile(CoreGameModId, "empty", TileEmpty, emptyTex);
+            tileRegistry.RegisterTile(CoreGameModId, "stone", TileStone, stoneTex);
+            tileRegistry.RegisterTile(CoreGameModId, "concrete", concrete, concreteTex);
+            tileRegistry.RegisterTile(CoreGameModId, "dirt", TileDirt, dirtTex);
+            tileRegistry.RegisterTile(CoreGameModId, "grass", TileGrass, grassTex);
+            tileRegistry.RegisterTile(CoreGameModId, "gravel", gravel, gravelTex);
+            tileRegistry.RegisterTile(CoreGameModId, "sand", sand, sandTex);
+            tileRegistry.RegisterTile(CoreGameModId, "wood", wood, woodTex);
         }
 
         private void RegisterGameSystems(TileRegistry tileRegistry, List<IGameSystem> gameSystems) {
@@ -130,7 +132,7 @@ namespace AmarokGames.GridGame {
                 int tileCount = tileRegistry.GetTileCount();
                 TileRenderData[] tileData = new TileRenderData[tileCount];
                 for (int i = 0; i < tileCount; ++i) {
-                    Tile tile = tileRegistry.GetTile(i);
+                    Tile tile = tileRegistry.GetTileById(i);
                     TileRenderData d = new TileRenderData();
                     d.draw = tile.BatchedRendering;
                     d.zLayer = (ushort)i;
@@ -179,9 +181,9 @@ namespace AmarokGames.GridGame {
             }
         }
 
-        public WorldGenerator GetWorldGenerator() {
+        public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {
             WorldGenerator worldGen = new WorldGenerator(SolidLayerBool, TileForegroundLayerUShort, TileBackgroundLayerUShort, TerrainGenDebugLayerFloat, 
-                TileEmpty, TileStone, TileDirt, TileGrass
+                tileReg.GetTileId(TileEmpty), tileReg.GetTileId(TileStone), tileReg.GetTileId(TileDirt), tileReg.GetTileId(TileGrass)
                 );
             return worldGen;
         }

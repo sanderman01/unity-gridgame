@@ -47,7 +47,7 @@ namespace AmarokGames.GridGame {
             for (int i = 1; i < tileRegistry.GetTileCount(); i++) {
                 Rect iconPosition = new Rect(startOffset, iconSize);
                 iconPosition.x += (iconSize.x + margin) * (i - 1);
-                Tile tile = tileRegistry.GetTile(i);
+                Tile tile = tileRegistry.GetTileById(i);
                 Rect iconUV = tile.IconUV[0];
                 bool click = IconButton(iconPosition, tileRegistry.GetAtlas().GetTexture(), iconUV);
 

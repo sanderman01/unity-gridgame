@@ -13,13 +13,13 @@ namespace AmarokGames.GridGame {
         private LayerId tileBackgroundLayer;
         private LayerId debugLayer;
 
-        private Tile tileEmpty;
-        private Tile tileStone;
-        private Tile tileDirt;
-        private Tile tileGrass;
+        private int tileEmpty;
+        private int tileStone;
+        private int tileDirt;
+        private int tileGrass;
 
         public WorldGenerator(LayerId solidLayer, LayerId tileForegroundLayer, LayerId tileBackgroundLayer, LayerId debugLayer,
-            Tile tileEmpty, Tile tileStone, Tile tileDirt, Tile tileGrass) {
+            int tileEmpty, int tileStone, int tileDirt, int tileGrass) {
             this.solidLayer = solidLayer;
             this.tileForegroundLayer = tileForegroundLayer;
             this.tileBackgroundLayer = tileBackgroundLayer;
@@ -119,12 +119,12 @@ namespace AmarokGames.GridGame {
                         }
 
                         if (solidTile && grassTilesBudget > 0) {
-                            foregroundBuffer.SetValue(tileGrass.TileID, bufferIndex);
-                            backgroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
+                            foregroundBuffer.SetValue((ushort)tileGrass, bufferIndex);
+                            backgroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
                             grassTilesBudget--;
                         } else if (solidTile && dirtTilesBudget > 0) {
-                            foregroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
-                            backgroundBuffer.SetValue(tileDirt.TileID, bufferIndex);
+                            foregroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
+                            backgroundBuffer.SetValue((ushort)tileDirt, bufferIndex);
                             dirtTilesBudget--;
                         }
 
@@ -168,14 +168,14 @@ namespace AmarokGames.GridGame {
             debugBuffer.SetValue(baseTerrain, bufferIndex);
 
             if (final >= 1) {
-                foregroundTile = tileStone.TileID;
+                foregroundTile = (ushort)tileStone;
             } else {
                 foregroundTile = 0;
             }
 
             float background = baseTerrain + hills;
             if (background >= 1) {
-                backgroundTile = tileStone.TileID;
+                backgroundTile = (ushort)tileStone;
             } else {
                 backgroundTile = 0;
             }
