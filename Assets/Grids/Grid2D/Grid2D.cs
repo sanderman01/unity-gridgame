@@ -156,9 +156,9 @@ namespace AmarokGames.Grids {
         /// </summary>
         public Bounds GetBounds() {
             Bounds gridBounds = new Bounds();
-            foreach(Int2 chunkCoord in chunkObjects.Keys) {
-                Bounds chunkBounds = CalculateChunkAABB(chunkCoord);
-                gridBounds.Encapsulate(chunkBounds);
+            foreach(Grid2DChunk chunk in chunkObjects.Values) {
+                Rect chunkBounds = chunk.Bounds2D;
+                gridBounds.Encapsulate(new Bounds(chunkBounds.center, chunkBounds.size));
             }
             return gridBounds;
         }
@@ -223,29 +223,29 @@ namespace AmarokGames.Grids {
             return result;
         }
 
-        /// <summary>
-        /// Calculates Axis-Aligned Bounding Box in world space for the specified chunk.
-        /// </summary>
-        public Bounds CalculateChunkAABB(Int2 chunkCoord) {
-            Vector3 pos = transform.position;
-            Matrix4x4 m = transform.localToWorldMatrix;
-            Vector2 p1 = m * new Vector2(chunkCoord.x * chunkWidth, chunkCoord.y * chunkHeight);
-            Vector2 p2 = m * new Vector2(chunkCoord.x * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
-            Vector2 p3 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
-            Vector2 p4 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, chunkCoord.y * chunkHeight);
+        ///// <summary>
+        ///// Calculates Axis-Aligned Bounding Box in world space for the specified chunk.
+        ///// </summary>
+        //public Bounds CalculateChunkAABB(Int2 chunkCoord) {
+        //    Vector3 pos = transform.position;
+        //    Matrix4x4 m = transform.localToWorldMatrix;
+        //    Vector2 p1 = m * new Vector2(chunkCoord.x * chunkWidth, chunkCoord.y * chunkHeight);
+        //    Vector2 p2 = m * new Vector2(chunkCoord.x * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
+        //    Vector2 p3 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, (chunkCoord.y + 1) * chunkHeight);
+        //    Vector2 p4 = m * new Vector2((chunkCoord.x + 1) * chunkWidth, chunkCoord.y * chunkHeight);
 
-            float[] x = { p1.x, p2.x, p3.x, p4.x };
-            float[] y = { p1.y, p2.y, p3.y, p4.y };
+        //    float[] x = { p1.x, p2.x, p3.x, p4.x };
+        //    float[] y = { p1.y, p2.y, p3.y, p4.y };
 
-            float minX = Mathf.Min(x);
-            float minY = Mathf.Min(y);
-            float maxX = Mathf.Max(x);
-            float maxY = Mathf.Max(y);
+        //    float minX = Mathf.Min(x);
+        //    float minY = Mathf.Min(y);
+        //    float maxX = Mathf.Max(x);
+        //    float maxY = Mathf.Max(y);
 
-            Vector3 size = new Vector3(maxX - minX, maxY - minY, 10);
-            Vector3 center = new Vector3(minX + pos.x, minY + pos.y) + 0.5f * size;
-            return new Bounds(center, size);
-        }
+        //    Vector3 size = new Vector3(maxX - minX, maxY - minY, 10);
+        //    Vector3 center = new Vector3(minX + pos.x, minY + pos.y) + 0.5f * size;
+        //    return new Bounds(center, size);
+        //}
 
         public uint GetUnsignedInt(Int2 gridCoord, LayerId layerId) {
             Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
@@ -302,16 +302,10 @@ namespace AmarokGames.Grids {
 
         // Get all chunks that are currently visible in the camera. This assumes a non-rotating orthographic camera.
         public IEnumerable<Int2> GetChunksWithinCameraBounds(Camera cam) {
-
-            // Calculate camera bounds
-            float orthoSize = cam.orthographicSize;
-            float ratio = 2f * (float)Screen.width / (float)Screen.height;
-            Vector3 size = new Vector3(orthoSize * ratio, cam.orthographicSize * 2f, 1000);
-            Vector3 center = cam.transform.position;
-            Bounds bounds = new Bounds(center, size);
+            Rect bounds = cam.OrthoBounds2D();
 
             // Filter all chunks that intersect with camera bounds
-            IEnumerable<Int2> result = chunkObjects.Keys.Where(coord => { return bounds.Intersects(this.CalculateChunkAABB(coord)); });
+            IEnumerable<Int2> result = chunkObjects.Values.Where(chunk => { return bounds.Overlaps(chunk.Bounds2D); }).Select(chunk => chunk.ChunkCoord);
             return result;
         }
 
@@ -340,10 +334,14 @@ namespace AmarokGames.Grids {
         }
 
         private void DrawChunkAABBGizmo(Int2 chunkCoord) {
-            Gizmos.matrix = Matrix4x4.identity;
-            Gizmos.color = Color.red;
-            Bounds bounds = CalculateChunkAABB(chunkCoord);
-            Gizmos.DrawWireCube(bounds.center, bounds.size);
+            Grid2DChunk chunk;
+            if(TryGetChunkObject(chunkCoord, out chunk)) {
+                Gizmos.matrix = Matrix4x4.identity;
+                Gizmos.color = Color.red;
+                Rect bounds = chunk.Bounds2D;
+                Gizmos.DrawWireCube(bounds.center, bounds.size);
+            }
+
         }
 
         #endregion

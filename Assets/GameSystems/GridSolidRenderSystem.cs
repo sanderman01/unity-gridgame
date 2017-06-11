@@ -49,16 +49,16 @@ namespace AmarokGames.Grids {
             int chunkWidth = grid.ChunkWidth;
             int chunkHeight = grid.ChunkHeight;
             IEnumerable<Int2> chunks = grid.GetAllChunks();
-            Bounds bounds = Camera.main.CalcOrthographicCameraBounds();
+            Rect bounds = Camera.main.OrthoBounds2D();
 
             vertices.Clear();
             normals.Clear();
             triangles.Clear();
 
             foreach (Int2 chunkCoord in chunks) {
-                ChunkData chunk;
-                if (grid.TryGetChunkData(chunkCoord, out chunk) && bounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
-                    BitBuffer buffer = (BitBuffer)chunk.GetBuffer(solidLayer);
+                Grid2DChunk chunk;
+                if (grid.TryGetChunkObject(chunkCoord, out chunk) && bounds.Overlaps(chunk.Bounds2D)) {
+                    BitBuffer buffer = (BitBuffer)chunk.Data.GetBuffer(solidLayer);
                     BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
                 }
             }

@@ -70,7 +70,7 @@ namespace AmarokGames.Grids {
             int chunkHeight = grid.ChunkHeight;
 
             var chunks = grid.GetAllChunks();
-            Bounds bounds = Camera.main.CalcOrthographicCameraBounds();
+            Rect bounds = Camera.main.OrthoBounds2D();
 
             foreach (Int2 chunkCoord in chunks) {
                 UpdateChunk(bounds, world.WorldId, grid, chunkCoord);
@@ -81,17 +81,17 @@ namespace AmarokGames.Grids {
             throw new System.NotImplementedException();
         }
 
-        private void UpdateChunk(Bounds cameraBounds, int worldId, Grid2D grid, Int2 chunkCoord) {
+        private void UpdateChunk(Rect cameraBounds, int worldId, Grid2D grid, Int2 chunkCoord) {
 
             UnityEngine.Profiling.Profiler.BeginSample("UpdateChunk");
 
             // skip chunk if it doesn't exist.
-            ChunkData chunk;
-            if (grid.TryGetChunkData(chunkCoord, out chunk)) {
+            Grid2DChunk chunk;
+            if (grid.TryGetChunkObject(chunkCoord, out chunk)) {
 
-                if (cameraBounds.Intersects(grid.CalculateChunkAABB(chunkCoord))) {
+                if (cameraBounds.Overlaps(chunk.Bounds2D)) {
                     // The chunk is currently visible. Refresh the mesh if needed.
-                    RefreshChunk(worldId, grid, chunk, chunkCoord);
+                    RefreshChunk(worldId, grid, chunk.Data, chunkCoord);
                 } else {
                     // The chunk is currently not visible. We should clean up the mesh so we don't waste memory.
                     CleanChunk(worldId, grid.GridId, chunkCoord);
