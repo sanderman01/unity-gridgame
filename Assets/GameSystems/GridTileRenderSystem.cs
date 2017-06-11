@@ -83,6 +83,8 @@ namespace AmarokGames.Grids {
 
         private void UpdateChunk(Bounds cameraBounds, int worldId, Grid2D grid, Int2 chunkCoord) {
 
+            UnityEngine.Profiling.Profiler.BeginSample("UpdateChunk");
+
             // skip chunk if it doesn't exist.
             ChunkData chunk;
             if (grid.TryGetChunkData(chunkCoord, out chunk)) {
@@ -96,6 +98,8 @@ namespace AmarokGames.Grids {
                 }
 
             }
+
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         private void CleanChunk(int worldId, int gridId, Int2 chunkCoord) {
@@ -108,6 +112,7 @@ namespace AmarokGames.Grids {
         }
 
         private void RefreshChunk(int worldId, Grid2D grid, ChunkData chunk, Int2 chunkCoord) {
+            UnityEngine.Profiling.Profiler.BeginSample("RefreshChunk");
             Mesh mesh = null;
             ChunkMeshRenderer chunkMeshRenderer;
 
@@ -120,6 +125,7 @@ namespace AmarokGames.Grids {
 
                 // Check that the game object is still valid.
                 if(chunkObject == null) {
+                    UnityEngine.Profiling.Profiler.EndSample();
                     return;
                 }
 
@@ -133,6 +139,7 @@ namespace AmarokGames.Grids {
                 if(chunkMeshRenderer == null) {
                     chunkMeshes.Remove(key);
                     RefreshChunk(worldId, grid, chunk, chunkCoord);
+                    UnityEngine.Profiling.Profiler.EndSample();
                     return;
                 }
 
@@ -141,6 +148,7 @@ namespace AmarokGames.Grids {
                 // check if we need to update it
                 if (chunk.LastModified < chunkMeshRenderer.LastModified) {
                     // We are up to date, no need to update the mesh.
+                    UnityEngine.Profiling.Profiler.EndSample();
                     return;
                 }
             }
@@ -160,6 +168,7 @@ namespace AmarokGames.Grids {
             mesh.SetTriangles(triangles, 0);
             mesh.UploadMeshData(false);
             chunkMeshRenderer.MarkModified(Time.frameCount);
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         private static void BuildChunkGeometry(Grid2D grid, LayerId layerId, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles, float zOffsetGlobal) {

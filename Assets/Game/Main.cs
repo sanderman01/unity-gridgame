@@ -46,7 +46,11 @@ namespace AmarokGames.GridGame {
 
         void Update() {
             foreach (IGameSystem system in gameSystems) {
-                if (system.Enabled) system.UpdateWorld(world, Time.deltaTime);
+                if (system.Enabled) {
+                    UnityEngine.Profiling.Profiler.BeginSample(system.GetType().Name + ".UpdateWorld");
+                    system.UpdateWorld(world, Time.deltaTime);
+                    UnityEngine.Profiling.Profiler.EndSample();
+                }
             }
         }
     }
