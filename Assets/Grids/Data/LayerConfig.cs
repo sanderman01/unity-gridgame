@@ -6,8 +6,6 @@ namespace AmarokGames.Grids.Data {
 
     /// <summary>
     /// Identifier used to access chunk datalayer buffers.
-    /// For every layer added using LayerConfig.AddLayer, a LayerId is returned in an out parameter, 
-    /// which can be used to access the layer buffer in the future.
     /// </summary>
     public struct LayerId {
         public readonly int id;
@@ -48,12 +46,11 @@ namespace AmarokGames.Grids.Data {
         /// <summary>
         /// Returns a new LayerConfig object which includes all previously added and the newly added layer.
         /// </summary>
-        public LayerConfig AddLayer(string name, BufferType type, out LayerId id) {
-            id = new LayerId(this.definedLayers.Count);
+        public LayerId AddLayer(string name, BufferType type) {
+            LayerId id = new LayerId(definedLayers.Count);
             LayerDefinition newLayer = new LayerDefinition(id, name, type);
-            List<LayerDefinition> newList = new List<LayerDefinition>(this.definedLayers);
-            newList.Add(newLayer);
-            return new LayerConfig(newList);
+            definedLayers.Add(newLayer);
+            return id;
         }
 
         /// <summary>
@@ -70,12 +67,10 @@ namespace AmarokGames.Grids.Data {
         }
 
         /// <summary>
-        /// Get the layer definition at the specified index.
+        /// Get the layer definition for the specified id.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public LayerDefinition GetLayer(int i) {
-            return definedLayers[i];
+        public LayerDefinition this[LayerId id] {
+            get { return definedLayers[id.id]; }
         }
 
         public object Clone() {

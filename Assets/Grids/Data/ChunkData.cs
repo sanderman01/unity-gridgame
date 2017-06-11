@@ -16,7 +16,7 @@ namespace AmarokGames.Grids.Data {
 
             for (int i = 0; i < layerConfig.Count; ++i) {
                 // Create buffer based on type enum value
-                BufferType bufferType = layerConfig.GetLayer(i).bufferType;
+                BufferType bufferType = layerConfig[new LayerId(i)].bufferType;
                 this.buffers[i] = CreateBuffer(bufferType, bufferSize);
             }
         }
