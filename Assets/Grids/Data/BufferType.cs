@@ -2,10 +2,11 @@
 
 namespace AmarokGames.Grids.Data {
 
-    public enum BufferType {
+    public enum BufferType : byte {
         Boolean = 0,
         Byte = 1,
         UShort = 2,
-        Float = 3
+        UnsignedInt32 = 3,
+        Float = 4
     }
 }
