@@ -1,6 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame.Items {
 
     public class ItemTile : Item {
 

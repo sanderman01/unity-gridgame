@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame.Items;
 using System.Collections.Generic;
 
 namespace AmarokGames.GridGame {
