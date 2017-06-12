@@ -102,7 +102,7 @@ namespace AmarokGames.GridGame {
                 ItemTile item = tileToItem[tile];
                 item.IconTexture = atlasTex;
                 TileVariant[] tileVariants = GetTileVariants(tile.SpriteUV);
-                tile.IconUV = item.IconUV = GetTileVariantIcons(tileVariants);
+                item.IconUV = item.IconUV = GetTileVariantIcons(tileVariants);
             }
         }
 

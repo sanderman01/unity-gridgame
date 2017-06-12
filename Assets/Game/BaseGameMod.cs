@@ -140,7 +140,6 @@ namespace AmarokGames.GridGame {
                     renderData.variants = TileRegistry.GetTileVariants(tile.SpriteUV);
 
                     tileData[i] = renderData;
-                    tile.IconUV = TileRegistry.GetTileVariantIcons(renderData.variants);
                 }
 
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));

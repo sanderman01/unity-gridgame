@@ -9,7 +9,6 @@ namespace AmarokGames.GridGame {
         public ItemTile(Tile tile) {
             this.Tile = tile;
             this.HumanName = tile.HumanName;
-            this.IconUV = tile.IconUV;
         }
 
         public override SimpleSprite GetIcon(uint quantity, uint meta) {
