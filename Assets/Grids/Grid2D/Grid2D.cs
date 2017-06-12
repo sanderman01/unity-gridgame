@@ -55,13 +55,13 @@ namespace AmarokGames.Grids {
             this.gridType = type;
 
             // Set rigidbody settings according to gridType
-            Rigidbody2D rigidbody = gameObject.AddComponent<Rigidbody2D>();
+            
             switch(gridType) {
                 case GridType.Static:
-                    rigidbody.isKinematic = true;
-                    rigidbody.simulated = true;
+                    // Static grids should not have rigidbodies. This would cause physics performance issues.
                     break;
                 case GridType.Dynamic:
+                    Rigidbody2D rigidbody = gameObject.AddComponent<Rigidbody2D>();
                     rigidbody.isKinematic = false;
                     rigidbody.simulated = true;
                     break;
