@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame.Inventory;
 using AmarokGames.GridGame.Items;
 using System;
 using UnityEngine;
@@ -65,7 +66,7 @@ namespace AmarokGames.GridGame {
                 GUI.EndGroup();
             }
             {
-                IItemSlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
                 ItemStack stack = mouseSlot.GetStack();
                 if (stack != null) {
                     Vector2 size = new Vector2(64, 64);
@@ -79,7 +80,7 @@ namespace AmarokGames.GridGame {
                 // Throwing stacks
                 Vector2 mousePos = Event.current.mousePosition;
                 if (Event.current.clickCount == 1 && !(inventoryRegion.Contains(mousePos) || hotbarRegion.Contains(mousePos))) {
-                    IItemSlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                    IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
                     ItemStack stack = mouseSlot.GetStack();
                     if (stack != null) {
                         // We can't throw items into the world yet. But we can remove it from the slot.
@@ -103,8 +104,8 @@ namespace AmarokGames.GridGame {
 
                     bool click = ItemStackButton(iconPosition, stack);
                     if (click) {
-                        IItemSlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
-                        ItemSlotGeneric.SwapStacks(mouseSlot, inv.GetSlot(i));
+                        IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                        InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
                     }
                 }
             }
@@ -124,8 +125,8 @@ namespace AmarokGames.GridGame {
 
                     bool click = ItemStackButton(iconPosition, stack);
                     if (click) {
-                        IItemSlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
-                        ItemSlotGeneric.SwapStacks(mouseSlot, inv.GetSlot(i));
+                        IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                        InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
                     }
                 }
             }

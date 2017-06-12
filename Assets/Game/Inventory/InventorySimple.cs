@@ -5,9 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame.Inventory {
 
-    public class InventoryGeneric : IInventory, IEnumerable<ItemStack> {
+    public class InventorySimple : IInventory, IEnumerable<ItemStack> {
 
         private List<ItemStack> contents;
 
@@ -18,12 +18,12 @@ namespace AmarokGames.GridGame {
 
         public int Count { get { return contents.Count; } }
 
-        public InventoryGeneric(int size) {
+        public InventorySimple(int size) {
             contents = new List<ItemStack>(new ItemStack[size]);
         }
         
-        public IItemSlot GetSlot(int index) {
-            ItemSlotGeneric slot = new ItemSlotGeneric(this, index);
+        public IInventorySlot GetSlot(int index) {
+            InventorySlot slot = new InventorySlot(this, index);
             return slot;
         }
 

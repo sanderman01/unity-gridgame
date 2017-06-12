@@ -3,7 +3,7 @@
 using AmarokGames.GridGame.Items;
 using System.Collections.Generic;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame.Inventory {
 
     public interface IInventory {
 
@@ -11,6 +11,6 @@ namespace AmarokGames.GridGame {
 
         int Count { get; }
 
-        IItemSlot GetSlot(int index);
+        IInventorySlot GetSlot(int index);
     }
 }

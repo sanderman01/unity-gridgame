@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame.Inventory;
 using UnityEngine;
 
 namespace AmarokGames.GridGame {
@@ -7,10 +8,10 @@ namespace AmarokGames.GridGame {
     public class Player {
 
         public const int MainInventorySize = 30;
-        public readonly InventoryGeneric MainInventory = new InventoryGeneric(MainInventorySize);
+        public readonly InventorySimple MainInventory = new InventorySimple(MainInventorySize);
         public const int HotbarSize = 10;
-        public readonly InventoryGeneric HotbarInventory = new InventoryGeneric(HotbarSize);
-        public readonly InventoryGeneric MouseHeldInventory = new InventoryGeneric(1);
+        public readonly InventorySimple HotbarInventory = new InventorySimple(HotbarSize);
+        public readonly InventorySimple MouseHeldInventory = new InventorySimple(1);
 
         private PlayerCharacter playerCharacter;
         public PlayerCharacter Character { get { return playerCharacter; } }

@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using AmarokGames.GridGame.Inventory;
 using AmarokGames.GridGame.Items;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace AmarokGames.GridGame {
                 Tile tile = registry.GetTileById(i);
                 Item item = registry.GetItem(tile);
                 ItemStack stack = new ItemStack(item, 1, 0);
-                IItemSlot slot = hotbar.GetSlot(i);
+                IInventorySlot slot = hotbar.GetSlot(i);
                 slot.PutStack(stack);
             }
 
@@ -40,7 +41,7 @@ namespace AmarokGames.GridGame {
                 Tile tile = registry.GetTileById(1);
                 Item item = registry.GetItem(tile);
                 ItemStack stack = new ItemStack(item, 24, 0);
-                IItemSlot slot = maininv.GetSlot(i);
+                IInventorySlot slot = maininv.GetSlot(i);
                 slot.PutStack(stack);
             }
 
@@ -49,7 +50,7 @@ namespace AmarokGames.GridGame {
                 Tile tile = registry.GetTileById(1);
                 Item item = registry.GetItem(tile);
                 ItemStack stack = new ItemStack(item, 24, 0);
-                IItemSlot slot = mouseInv.GetSlot(0);
+                IInventorySlot slot = mouseInv.GetSlot(0);
                 slot.PutStack(stack);
             }
 

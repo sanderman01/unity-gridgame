@@ -2,9 +2,9 @@
 
 using AmarokGames.GridGame.Items;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame.Inventory {
 
-    public interface IItemSlot {
+    public interface IInventorySlot {
 
         bool IsAllowedInSlot(ItemStack stack);
         bool CanTakeFromSlot { get; }

@@ -2,13 +2,13 @@
 
 using AmarokGames.GridGame.Items;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame.Inventory {
 
-    public class ItemSlotGeneric : IItemSlot {
+    public class InventorySlot : IInventorySlot {
         private int index;
         private IInventory inventory;
 
-        public ItemSlotGeneric(InventoryGeneric inventory, int index) {
+        public InventorySlot(InventorySimple inventory, int index) {
             this.inventory = inventory;
             this.index = index;
         }
@@ -46,7 +46,7 @@ namespace AmarokGames.GridGame {
             }
         }
 
-        public static void SwapStacks(IItemSlot slotA, IItemSlot slotB) {
+        public static void SwapStacks(IInventorySlot slotA, IInventorySlot slotB) {
             ItemStack stackA = slotA.TakeStack();
             ItemStack stackB = slotB.TakeStack();
 
