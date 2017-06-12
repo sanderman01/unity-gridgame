@@ -144,20 +144,18 @@ namespace AmarokGames.GridGame {
 
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUInt, 1));
-
-                gameSystems.Add(GridCollisionSystem.Create(SolidLayerBool));
-
-                WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
-                gameSystems.Add(worldMgr);
-                GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr);
-                gameSystems.Add(gridEditor);
             }
 
-            // Player system
-            {
-                PlayerSystem sys = PlayerSystem.Create();
-                gameSystems.Add(sys);
-            }
+            gameSystems.Add(GridCollisionSystem.Create(SolidLayerBool));
+
+            WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
+            gameSystems.Add(worldMgr);
+
+            PlayerSystem playerSys = PlayerSystem.Create(tileRegistry);
+            gameSystems.Add(playerSys);
+
+            GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
+            gameSystems.Add(gridEditor);
         }
 
         public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {

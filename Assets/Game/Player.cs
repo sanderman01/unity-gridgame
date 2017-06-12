@@ -6,6 +6,12 @@ namespace AmarokGames.GridGame {
 
     public class Player {
 
+        public const int MainInventorySize = 30;
+        public readonly InventoryGeneric MainInventory = new InventoryGeneric(MainInventorySize);
+        public const int HotbarSize = 10;
+        public readonly InventoryGeneric HotbarInventory = new InventoryGeneric(HotbarSize);
+        public readonly InventoryGeneric MouseHeldInventory = new InventoryGeneric(1);
+
         private PlayerCharacter playerCharacter;
         public PlayerCharacter Character { get { return playerCharacter; } }
 

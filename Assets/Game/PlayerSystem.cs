@@ -7,21 +7,34 @@ namespace AmarokGames.GridGame {
 
     public class PlayerSystem : GameSystemBase, IGameSystem {
 
+        public Player LocalPlayer { get; private set; }
+
         private List<Player> players = new List<Player>();
 
-        public static PlayerSystem Create() {
+        public static PlayerSystem Create(TileRegistry registry) {
             PlayerSystem sys = Create<PlayerSystem>();
 
             // Add Player
             Player player = new Player();
+
             PlayerCharacter characterPrefab = Resources.Load<PlayerCharacter>("PlayerCharacter");
             PlayerCharacter playerCharacter = Instantiate(characterPrefab);
             UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
             player.Possess(playerCharacter);
+            sys.LocalPlayer = player;
             sys.players.Add(player);
 
-            Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
+            // Populate inventory with Itemstacks for testing.
+            IInventory inv = player.HotbarInventory;
+            for(int i = 0; i < inv.Count && i < registry.GetTileCount(); i++) {
+                Tile tile = registry.GetTileById(i);
+                Item item = registry.GetItem(tile);
+                ItemStack stack = new ItemStack(item, 24, 0);
+                IItemSlot slot = inv.GetSlot(i);
+                slot.PutStack(stack);
+            }
 
+            Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
             return sys;
         }
 
