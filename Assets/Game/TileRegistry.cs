@@ -3,6 +3,7 @@
 using AmarokGames.Grids;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.GridGame {
 
@@ -40,6 +41,10 @@ namespace AmarokGames.GridGame {
             itemToTile = new Dictionary<ItemTile, Tile>();
 
             atlas = new DynamicTextureAtlas();
+        }
+
+        public ItemTile GetItem(Tile tile) {
+            return tileToItem[tile];
         }
 
         public int RegisterTile(string uniqueModIdName, string uniqueTileIdName, Tile tile, Texture2D texture) {

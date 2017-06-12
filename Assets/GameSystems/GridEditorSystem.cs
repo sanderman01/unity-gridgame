@@ -1,5 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AmarokGames.GridGame {
@@ -9,11 +10,25 @@ namespace AmarokGames.GridGame {
         private WorldManagementSystem worldMgr;
         private uint tileSelection = 1;
 
+        private List<ItemStack> items;
+
         public static GridEditorSystem Create(TileRegistry tileRegistry, WorldManagementSystem worldMgr) {
             GridEditorSystem sys = GridEditorSystem.Create<GridEditorSystem>();
             sys.tileRegistry = tileRegistry;
             sys.worldMgr = worldMgr;
+            sys.items = PopulateItems(tileRegistry);
             return sys;
+        }
+
+        private static List<ItemStack> PopulateItems(TileRegistry registry) {
+            List<ItemStack> stacks = new List<ItemStack>();
+            for(int i = 0; i < registry.GetTileCount(); i++) {
+                Tile tile = registry.GetTileById(i);
+                ItemTile item = registry.GetItem(tile);
+                ItemStack stack = new ItemStack(item, 1, 0);
+                stacks.Add(stack);
+            }
+            return stacks;
         }
 
         public override void TickWorld(World world, int tickRate) {
@@ -46,17 +61,20 @@ namespace AmarokGames.GridGame {
             Vector2 iconSize = new Vector2(64, 64);
             float margin = 5;
 
-            for (int i = 1; i < tileRegistry.GetTileCount(); i++) {
+            for (int i = 1; i < items.Count; i++) {
                 Rect iconPosition = new Rect(startOffset, iconSize);
                 iconPosition.x += (iconSize.x + margin) * (i - 1);
-                Tile tile = tileRegistry.GetTileById(i);
-                Rect iconUV = tile.IconUV[0];
-                bool click = IconButton(iconPosition, tileRegistry.GetAtlas().GetTexture(), iconUV);
-
+                ItemStack stack = items[i];
+                SimpleSprite icon = stack.Icon;
+                bool click = IconButton(iconPosition, icon.texture, icon.uv);
                 if (click) {
                     Debug.Log("Selected tile: " + i);
                     tileSelection = (uint)i;
                 }
+
+                Rect labelPos = iconPosition;
+                labelPos.y -= 0;
+                GUI.Label(labelPos, stack.Item.HumanName);
             }
         }
 
