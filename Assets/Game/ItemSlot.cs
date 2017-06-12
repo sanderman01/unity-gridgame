@@ -34,12 +34,22 @@ namespace AmarokGames.GridGame {
         public ItemStack TakeStack() {
             if (GetStack() == null) {
                 throw new System.Exception("Tried to use TakeStack but there was no stack in the slot!");
-            } else if(CanTakeFromSlot) {
+            } else if(!CanTakeFromSlot) {
                 throw new System.Exception("Tried to use TakeStack but this slot does not allow taking from the slot!");
             }
             else {
-                return inventory[index];
+                ItemStack stack = inventory[index];
+                inventory[index] = null;
+                return stack;
             }
+        }
+
+        public static void SwapStacks(IItemSlot slotA, IItemSlot slotB) {
+            ItemStack stackA = slotA.TakeStack();
+            ItemStack stackB = slotB.TakeStack();
+
+            slotA.PutStack(stackB);
+            slotB.PutStack(stackA);
         }
     }
 }

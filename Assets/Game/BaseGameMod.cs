@@ -156,6 +156,9 @@ namespace AmarokGames.GridGame {
 
             GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
             gameSystems.Add(gridEditor);
+
+            PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys.LocalPlayer);
+            gameSystems.Add(inventoryUI);
         }
 
         public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {

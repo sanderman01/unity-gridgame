@@ -25,12 +25,30 @@ namespace AmarokGames.GridGame {
             sys.players.Add(player);
 
             // Populate inventory with Itemstacks for testing.
-            IInventory inv = player.HotbarInventory;
-            for(int i = 0; i < inv.Count && i < registry.GetTileCount(); i++) {
+            IInventory hotbar = player.HotbarInventory;
+            for(int i = 0; i < hotbar.Count && i < registry.GetTileCount(); i++) {
                 Tile tile = registry.GetTileById(i);
                 Item item = registry.GetItem(tile);
+                ItemStack stack = new ItemStack(item, 1, 0);
+                IItemSlot slot = hotbar.GetSlot(i);
+                slot.PutStack(stack);
+            }
+
+            IInventory maininv = player.MainInventory;
+            for (int i = 0; i < maininv.Count; i++) {
+                Tile tile = registry.GetTileById(1);
+                Item item = registry.GetItem(tile);
                 ItemStack stack = new ItemStack(item, 24, 0);
-                IItemSlot slot = inv.GetSlot(i);
+                IItemSlot slot = maininv.GetSlot(i);
+                slot.PutStack(stack);
+            }
+
+            IInventory mouseInv = player.MouseHeldInventory;
+            {
+                Tile tile = registry.GetTileById(1);
+                Item item = registry.GetItem(tile);
+                ItemStack stack = new ItemStack(item, 24, 0);
+                IItemSlot slot = mouseInv.GetSlot(0);
                 slot.PutStack(stack);
             }
 
