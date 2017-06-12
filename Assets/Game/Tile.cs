@@ -16,6 +16,7 @@ namespace AmarokGames.GridGame {
         /// <summary>
         /// Contains UVs for all variants of this tile.
         /// </summary>
+        [Obsolete]
         public Rect[] IconUV { get; set; }
     }
 }

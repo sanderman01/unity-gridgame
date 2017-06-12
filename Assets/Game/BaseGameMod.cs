@@ -133,34 +133,14 @@ namespace AmarokGames.GridGame {
                 TileRenderData[] tileData = new TileRenderData[tileCount];
                 for (int i = 0; i < tileCount; ++i) {
                     Tile tile = tileRegistry.GetTileById(i);
-                    TileRenderData d = new TileRenderData();
-                    d.draw = tile.BatchedRendering;
-                    d.zLayer = (ushort)i;
 
-                    // Calculate the number of tile variants in the sprite from the demensions ratio.
-                    float ratio = tile.SpriteUV.width / tile.SpriteUV.height;
-                    int nVariants = Mathf.RoundToInt(ratio * (3f/4f));
+                    TileRenderData renderData = new TileRenderData();
+                    renderData.draw = tile.BatchedRendering;
+                    renderData.zLayer = (ushort)i;
+                    renderData.variants = TileRegistry.GetTileVariants(tile.SpriteUV);
 
-                    d.variants = new TileVariant[nVariants];
-
-                    float variantWidth = (tile.SpriteUV.width / nVariants);
-                    Rect[] iconUVs = new Rect[nVariants];
-                    for(int variantIndex = 0; variantIndex < nVariants; variantIndex++) 
-                    {
-                        TileVariant variant = new TileVariant(
-                            new Vector2(tile.SpriteUV.x + variantWidth * variantIndex, tile.SpriteUV.y),
-                            new Vector2(tile.SpriteUV.x + variantWidth * (variantIndex + 1), tile.SpriteUV.yMax));
-                        d.variants[variantIndex] = variant;
-
-                        Rect iconUV = new Rect();
-                        iconUV.xMin = variant.uvLeft.uv00.x;
-                        iconUV.yMin = variant.uvBottom.uv00.y;
-                        iconUV.xMax = variant.uvRight.uv11.x;
-                        iconUV.yMax = variant.uvTop.uv11.y;
-                        iconUVs[variantIndex] = iconUV;
-                    }
-                    tileData[i] = d;
-                    tile.IconUV = iconUVs;
+                    tileData[i] = renderData;
+                    tile.IconUV = TileRegistry.GetTileVariantIcons(renderData.variants);
                 }
 
                 gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
