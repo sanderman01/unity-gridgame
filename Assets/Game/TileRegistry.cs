@@ -152,11 +152,15 @@ namespace AmarokGames.GridGame {
             Rect[] iconUVs = new Rect[variants.Length];
             for (int i = 0; i < variants.Length; i++) {
                 TileVariant variant = variants[i];
+                Vector2 bottomLeft = variant.uvOutsideBottomLeft.uv00;
+                Vector2 topRight = variant.uvOutsideTopRight.uv11;
+                // Use a margin to prevent possible pixel bleeding on the edges of the icon.
+                Vector2 margin = (1/1024f) * (topRight - bottomLeft);
                 Rect iconUV = new Rect();
-                iconUV.xMin = variant.uvLeft.uv00.x;
-                iconUV.yMin = variant.uvBottom.uv00.y;
-                iconUV.xMax = variant.uvRight.uv11.x;
-                iconUV.yMax = variant.uvTop.uv11.y;
+                iconUV.xMin = bottomLeft.x + margin.x;
+                iconUV.yMin = bottomLeft.y + margin.y;
+                iconUV.xMax = topRight.x - margin.x;
+                iconUV.yMax = topRight.y - margin.y;
                 iconUVs[i] = iconUV;
             }
             return iconUVs;
