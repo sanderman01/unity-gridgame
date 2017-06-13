@@ -6,6 +6,8 @@ namespace AmarokGames.GridGame.Items {
 
     public class ItemStack {
 
+        public static readonly ItemStack Empty = new ItemStack(null, 1, 0);
+
         public Item Item { get; set; }
 
         private uint quantity;

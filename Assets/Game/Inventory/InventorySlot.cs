@@ -24,7 +24,7 @@ namespace AmarokGames.GridGame.Inventory {
         }
 
         public void PutStack(ItemStack stack) {
-            if(GetStack() != null) {
+            if(GetStack() != ItemStack.Empty) {
                 throw new System.Exception("Tried to use PutStack but there was already a stack in the slot!");
             } else if(!IsAllowedInSlot(stack)) {
                 throw new System.Exception("Tried to use PutStack but the itemstack was not allowed in the slot!");
@@ -34,14 +34,12 @@ namespace AmarokGames.GridGame.Inventory {
         }
 
         public ItemStack TakeStack() {
-            if (GetStack() == null) {
-                throw new System.Exception("Tried to use TakeStack but there was no stack in the slot!");
-            } else if(!CanTakeFromSlot) {
+            if(!CanTakeFromSlot) {
                 throw new System.Exception("Tried to use TakeStack but this slot does not allow taking from the slot!");
             }
             else {
                 ItemStack stack = inventory[index];
-                inventory[index] = null;
+                inventory[index] = ItemStack.Empty;
                 return stack;
             }
         }

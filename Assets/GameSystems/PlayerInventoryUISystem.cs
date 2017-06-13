@@ -68,7 +68,7 @@ namespace AmarokGames.GridGame {
             {
                 IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
                 ItemStack stack = mouseSlot.GetStack();
-                if (stack != null) {
+                if (stack != ItemStack.Empty) {
                     Vector2 size = new Vector2(64, 64);
                     Vector2 mousePos = Event.current.mousePosition;
                     Rect pos = new Rect(mousePos, size);
@@ -82,7 +82,7 @@ namespace AmarokGames.GridGame {
                 if (Event.current.clickCount == 1 && !(inventoryRegion.Contains(mousePos) || hotbarRegion.Contains(mousePos))) {
                     IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
                     ItemStack stack = mouseSlot.GetStack();
-                    if (stack != null) {
+                    if (stack != ItemStack.Empty) {
                         // We can't throw items into the world yet. But we can remove it from the slot.
                         mouseSlot.TakeStack();
                     }
@@ -100,13 +100,11 @@ namespace AmarokGames.GridGame {
                 iconPosition.y = offset.y + row * (iconSize.y + margin);
                 GUI.Box(iconPosition, "");
                 ItemStack stack = inv[i];
-                if (stack != null) {
 
-                    bool click = ItemStackButton(iconPosition, stack);
-                    if (click) {
-                        IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
-                        InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
-                    }
+                bool click = ItemStackButton(iconPosition, stack);
+                if (click) {
+                    IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                    InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
                 }
             }
         }
@@ -121,13 +119,11 @@ namespace AmarokGames.GridGame {
                 iconPosition.y = offset.y + row * (iconSize.y + margin);
                 GUI.Box(iconPosition, "");
                 ItemStack stack = inv[i];
-                if (stack != null) {
 
-                    bool click = ItemStackButton(iconPosition, stack);
-                    if (click) {
-                        IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
-                        InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
-                    }
+                bool click = ItemStackButton(iconPosition, stack);
+                if (click) {
+                    IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
+                    InventorySlot.SwapStacks(mouseSlot, inv.GetSlot(i));
                 }
             }
         }
@@ -141,10 +137,11 @@ namespace AmarokGames.GridGame {
         }
 
         private static void DrawItemStack(Rect position, ItemStack stack) {
-            GUI.DrawTextureWithTexCoords(position, stack.Icon.texture, stack.Icon.uv);
-
-            Rect labelPos = position;
-            GUI.Label(labelPos, stack.QuantityString);
+            if (stack != ItemStack.Empty) {
+                GUI.DrawTextureWithTexCoords(position, stack.Icon.texture, stack.Icon.uv);
+                Rect labelPos = position;
+                GUI.Label(labelPos, stack.QuantityString);
+            }
         }
     }
 }

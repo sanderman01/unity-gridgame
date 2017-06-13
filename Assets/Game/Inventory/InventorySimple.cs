@@ -4,6 +4,7 @@ using AmarokGames.GridGame.Items;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AmarokGames.GridGame.Inventory {
 
@@ -19,7 +20,7 @@ namespace AmarokGames.GridGame.Inventory {
         public int Count { get { return contents.Count; } }
 
         public InventorySimple(int size) {
-            contents = new List<ItemStack>(new ItemStack[size]);
+            contents = new List<ItemStack>(Enumerable.Repeat<ItemStack>(ItemStack.Empty, size));
         }
         
         public IInventorySlot GetSlot(int index) {

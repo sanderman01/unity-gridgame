@@ -154,8 +154,8 @@ namespace AmarokGames.GridGame {
             PlayerSystem playerSys = PlayerSystem.Create(tileRegistry);
             gameSystems.Add(playerSys);
 
-            GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
-            gameSystems.Add(gridEditor);
+            //GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
+            //gameSystems.Add(gridEditor);
 
             PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys.LocalPlayer);
             gameSystems.Add(inventoryUI);
