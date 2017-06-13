@@ -32,8 +32,8 @@ namespace AmarokGames.GridGame {
         const int ncolumns = 10;
         const int nrows = 3;
         const float margin = 5;
-        Vector2 iconSize = new Vector2(64, 64);
-        Vector2 offset = new Vector2(margin, 30);
+        Vector2 iconSize = new Vector2(32, 32);
+        Vector2 offset = new Vector2(margin, margin);
 
         Rect inventoryRegion;
         Rect hotbarRegion;
@@ -47,6 +47,7 @@ namespace AmarokGames.GridGame {
                 Vector2 center = inventoryRegion.center;
                 center = 0.5f * new Vector2(Screen.width, Screen.height);
                 inventoryRegion.center = center;
+                inventoryRegion.y = Screen.height - 5 * (iconSize.y + margin);
                 GUI.BeginGroup(inventoryRegion, GUI.skin.box);
                 OnInventoryGUI(inventoryRegion);
                 GUI.EndGroup();
@@ -69,9 +70,8 @@ namespace AmarokGames.GridGame {
                 IInventorySlot mouseSlot = localPlayer.MouseHeldInventory.GetSlot(0);
                 ItemStack stack = mouseSlot.GetStack();
                 if (stack != ItemStack.Empty) {
-                    Vector2 size = new Vector2(64, 64);
                     Vector2 mousePos = Event.current.mousePosition;
-                    Rect pos = new Rect(mousePos, size);
+                    Rect pos = new Rect(mousePos, iconSize);
                     DrawItemStack(pos, stack);
                 }
             }
