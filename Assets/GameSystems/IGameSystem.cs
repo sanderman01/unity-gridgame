@@ -24,6 +24,6 @@ namespace AmarokGames.GridGame {
         /// </summary>
         void UpdateWorld(World world, float deltaTime);
 
-
+        void OnWorldCreated(World world, TileRegistry registry);
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using AmarokGames.Grids;
+using AmarokGames.GridGame.Items;
 
 namespace AmarokGames.GridGame {
 
@@ -22,7 +23,9 @@ namespace AmarokGames.GridGame {
         public Tile TileDirt { get; private set; }
         public Tile TileGrass { get; private set; }
 
-        public void Init(ref LayerConfig layers, TileRegistry tileRegistry, List<IGameSystem> gameSystems) {
+        public Item ItemPickaxe { get; private set; }
+
+        public void Init(Main game, ref LayerConfig layers, TileRegistry tileRegistry) {
 
             SolidLayerBool = layers.AddLayer("solid", BufferType.Boolean);
             TileForegroundLayerUInt = layers.AddLayer("tileforeground", BufferType.UnsignedInt32);
@@ -32,8 +35,10 @@ namespace AmarokGames.GridGame {
             RegisterTiles(tileRegistry);
         }
 
-        public void PostInit(TileRegistry tileRegistry, List<IGameSystem> gameSystems) {
-            RegisterGameSystems(tileRegistry, gameSystems);
+        public void PostInit(Main game, TileRegistry tileRegistry) {
+            RegisterGameSystems(tileRegistry, game);
+
+            foreach (Item item in tileRegistry.GetItems()) item.PostInit(game);
         }
 
         private void RegisterTiles(TileRegistry tileRegistry) {
@@ -93,16 +98,21 @@ namespace AmarokGames.GridGame {
             tileRegistry.RegisterTile(CoreGameModId, "gravel", gravel, gravelTex);
             tileRegistry.RegisterTile(CoreGameModId, "sand", sand, sandTex);
             tileRegistry.RegisterTile(CoreGameModId, "wood", wood, woodTex);
+
+            ItemPickaxe = new ItemPickaxe();
+            ItemPickaxe.HumanName = "Pickaxe";
+            Texture2D pickaxeTex = Resources.Load<Texture2D>("Items/item-pickaxe");
+            tileRegistry.RegisterItem(CoreGameModId, "pickaxe", ItemPickaxe, pickaxeTex);
         }
 
-        private void RegisterGameSystems(TileRegistry tileRegistry, List<IGameSystem> gameSystems) {
+        private void RegisterGameSystems(TileRegistry tileRegistry, Main game) {
             {
                 // Solid Renderer
                 Shader shader = Shader.Find("Sprites/Default");
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
                 GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, SolidLayerBool);
-                gameSystems.Add(solidRenderer);
+                game.AddSystem(solidRenderer);
                 solidRenderer.Enabled = false;
             }
 
@@ -111,7 +121,7 @@ namespace AmarokGames.GridGame {
                 Material mat = new Material(shader);
                 mat.color = new Color(1, 1, 1, 0.5f);
                 BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, TerrainGenDebugLayerFloat);
-                gameSystems.Add(sys);
+                game.AddSystem(sys);
                 sys.Enabled = false;
             }
 
@@ -142,23 +152,24 @@ namespace AmarokGames.GridGame {
                     tileData[i] = renderData;
                 }
 
-                gameSystems.Add(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
-                gameSystems.Add(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUInt, 1));
+                game.AddSystem(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
+                game.AddSystem(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUInt, 1));
             }
 
-            gameSystems.Add(GridCollisionSystem.Create(SolidLayerBool));
+            game.AddSystem(GridCollisionSystem.Create(SolidLayerBool));
 
             WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
-            gameSystems.Add(worldMgr);
+            game.AddSystem(worldMgr);
 
-            PlayerSystem playerSys = PlayerSystem.Create(tileRegistry);
-            gameSystems.Add(playerSys);
+            ItemStack[] playerStartEq = new ItemStack[] { new ItemStack(ItemPickaxe, 1, 0) };
+            PlayerSystem playerSys = PlayerSystem.Create(game, tileRegistry, playerStartEq);
+            game.AddSystem(playerSys);
 
             //GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
             //gameSystems.Add(gridEditor);
 
-            PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys.LocalPlayer);
-            gameSystems.Add(inventoryUI);
+            PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys);
+            game.AddSystem(inventoryUI);
         }
 
         public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {

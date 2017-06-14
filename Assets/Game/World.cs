@@ -4,6 +4,7 @@ using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.GridGame {
 
@@ -30,6 +31,19 @@ namespace AmarokGames.GridGame {
             world.Layers = layers;
             world.WorldGenerator = worldGenerator;
             return world;
+        }
+
+        public Grid2D GetGrid(Vector2 worldPos) {
+            // TODO Fix this to more accurately return the right grid.
+            // Prioritize dynamic grids before static grids
+            // Prioritize grids which have a chunk that contains this worldPos in its bounds.
+            // Prioritize grids that have a chunk containing a filled tile on the worldPos.
+            foreach(Grid2D grid in Grids) {
+                if(grid.GetBounds2D().Contains(worldPos)) {
+                    return grid;
+                }
+            }
+            return null;
         }
 
         public Grid2D CreateGrid(string name, Grid2D.GridType gridType) {

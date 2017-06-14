@@ -13,8 +13,12 @@ namespace AmarokGames.GridGame {
         public readonly InventorySimple HotbarInventory = new InventorySimple(HotbarSize);
         public readonly InventorySimple MouseHeldInventory = new InventorySimple(1);
 
+        public int HotbarSelection { get; set; }
+
         private PlayerCharacter playerCharacter;
         public PlayerCharacter Character { get { return playerCharacter; } }
+
+        public World CurrentWorld { get; set; }
 
         private const KeyCode KeyLeft = KeyCode.A;
         private const KeyCode KeyRight = KeyCode.D;

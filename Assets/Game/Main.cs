@@ -5,6 +5,7 @@ using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 namespace AmarokGames.GridGame {
 
@@ -16,8 +17,10 @@ namespace AmarokGames.GridGame {
 
         private TileRegistry tileRegistry;
         private World world;
+        public World World;
 
         private List<IGameSystem> gameSystems = new List<IGameSystem>();
+        private Dictionary<Type, List<IGameSystem>> gameSystemsByType = new Dictionary<Type, List<IGameSystem>>();
 
         private LayerConfig layers;
 
@@ -29,11 +32,11 @@ namespace AmarokGames.GridGame {
             tileRegistry = new TileRegistry();
 
             baseGameMod = new BaseGameMod();
-            baseGameMod.Init(ref layers, tileRegistry, gameSystems);
+            baseGameMod.Init(this, ref layers, tileRegistry);
 
             tileRegistry.Finalise();
 
-            baseGameMod.PostInit(tileRegistry, gameSystems);
+            baseGameMod.PostInit(this, tileRegistry);
 
             CreateWorld(0);
         }
@@ -42,6 +45,8 @@ namespace AmarokGames.GridGame {
             WorldGenerator worldGen = baseGameMod.GetWorldGenerator(tileRegistry);
             world = World.CreateWorld("world", 0, worldSize, worldChunkSize, layers, worldGen);
             world.WorldGenerator.Init(world);
+
+            foreach (IGameSystem system in gameSystems) system.OnWorldCreated(world, tileRegistry);
         }
 
         void Update() {
@@ -52,6 +57,25 @@ namespace AmarokGames.GridGame {
                     UnityEngine.Profiling.Profiler.EndSample();
                 }
             }
+        }
+
+        public IEnumerable<IGameSystem> GetSystems() {
+            return gameSystems;
+        }
+
+        public IGameSystem GetSystem(Type type) {
+            return gameSystemsByType[type].First();
+        }
+
+        public void AddSystem(IGameSystem system) {
+            gameSystems.Add(system);
+            Type type = system.GetType();
+            List<IGameSystem> list;
+            if(!gameSystemsByType.TryGetValue(type, out list)) {
+                list = new List<IGameSystem>();
+                gameSystemsByType.Add(type, list);
+            }
+            list.Add(system);
         }
     }
 }

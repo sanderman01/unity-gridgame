@@ -12,10 +12,15 @@ namespace AmarokGames.GridGame {
         public Player LocalPlayer { get; private set; }
 
         private List<Player> players = new List<Player>();
+        private ItemStack[] playerStartEquipment;
 
-        public static PlayerSystem Create(TileRegistry registry) {
+        public static PlayerSystem Create(Main game, TileRegistry registry, ItemStack[] playerStartEquipment) {
             PlayerSystem sys = Create<PlayerSystem>();
+            sys.playerStartEquipment = playerStartEquipment;
+            return sys;
+        }
 
+        public override void OnWorldCreated(World world, TileRegistry registry) {
             // Add Player
             Player player = new Player();
 
@@ -23,12 +28,14 @@ namespace AmarokGames.GridGame {
             PlayerCharacter playerCharacter = Instantiate(characterPrefab);
             UnityEngine.Assertions.Assert.IsNotNull(playerCharacter, "character is null!");
             player.Possess(playerCharacter);
-            sys.LocalPlayer = player;
-            sys.players.Add(player);
+            LocalPlayer = player;
+            players.Add(player);
+
+            LocalPlayer.CurrentWorld = world;
 
             // Populate inventory with Itemstacks for testing.
             IInventory hotbar = player.HotbarInventory;
-            for(int i = 0; i < hotbar.Count && i < registry.GetTileCount(); i++) {
+            for (int i = 0; i < hotbar.Count && i < registry.GetTileCount(); i++) {
                 Tile tile = registry.GetTileById(i);
                 Item item = registry.GetItem(tile);
                 ItemStack stack = new ItemStack(item, 1, 0);
@@ -54,8 +61,12 @@ namespace AmarokGames.GridGame {
                 slot.PutStack(stack);
             }
 
+            // Add player starting equipment
+            for (int i = 0; i < playerStartEquipment.Length; i++) {
+                hotbar[i] = playerStartEquipment[i];
+            }
+
             Camera.main.GetComponent<Camera2D>().Target = playerCharacter.transform;
-            return sys;
         }
 
         public override void TickWorld(World world, int tickRate) {

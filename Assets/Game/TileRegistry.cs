@@ -26,6 +26,8 @@ namespace AmarokGames.GridGame {
         Dictionary<Tile, ItemTile> tileToItem;
         Dictionary<ItemTile, Tile> itemToTile;
 
+        Dictionary<Item, int> itemToAtlasIndex;
+
 
         public TileRegistry() {
             tilesByIndex = new List<Tile>();
@@ -42,6 +44,13 @@ namespace AmarokGames.GridGame {
             itemToTile = new Dictionary<ItemTile, Tile>();
 
             atlas = new DynamicTextureAtlas();
+            itemAtlas = new DynamicTextureAtlas();
+
+            itemToAtlasIndex = new Dictionary<Item, int>();
+        }
+
+        public IEnumerable<Item> GetItems() {
+            return itemsByIndex;
         }
 
         public ItemTile GetItem(Tile tile) {
@@ -69,7 +78,7 @@ namespace AmarokGames.GridGame {
             return tileIndex;
         }
 
-        public int RegisterItem(string uniqueModIdName, string uniqueItemIdName, ItemTile item, Tile tile) {
+        private int RegisterItem(string uniqueModIdName, string uniqueItemIdName, ItemTile item, Tile tile) {
             int itemIndex = itemsByIndex.Count;
             itemsByIndex.Add(item);
             itemToIdNumeric.Add(item, (uint)itemIndex);
@@ -82,6 +91,23 @@ namespace AmarokGames.GridGame {
 
             itemToTile.Add(item, tile);
             tileToItem.Add(tile, item);
+
+            return itemIndex;
+        }
+
+        public int RegisterItem(string uniqueModIdName, string uniqueItemIdName, Item item, Texture2D iconTexture) {
+            int itemIndex = itemsByIndex.Count;
+            itemsByIndex.Add(item);
+            itemToIdNumeric.Add(item, (uint)itemIndex);
+
+            uniqueModIdName = uniqueItemIdName.ToLowerInvariant();
+            uniqueItemIdName = uniqueItemIdName.ToLowerInvariant();
+            string registeredName = string.Format("{0}.{1}", uniqueModIdName, uniqueItemIdName);
+            itemsByName.Add(registeredName, item);
+            itemToIdName.Add(item, registeredName);
+
+            int tileAtlasIndex = itemAtlas.AddTexture(iconTexture);
+            itemToAtlasIndex.Add(item, tileAtlasIndex);
 
             return itemIndex;
         }
@@ -104,6 +130,18 @@ namespace AmarokGames.GridGame {
                 item.IconTexture = atlasTex;
                 TileVariant[] tileVariants = GetTileVariants(tile.SpriteUV);
                 item.IconUV = GetTileVariantIcons(tileVariants);
+            }
+
+            itemAtlas.Finalise();
+            Texture2D itemAtlasTex = itemAtlas.GetTexture();
+            itemAtlasTex.filterMode = FilterMode.Point;
+
+            // For every item that uses the itemAtlas, set the spriteUV
+            foreach (Item item in itemToAtlasIndex.Keys) {
+                int atlasIndex = itemToAtlasIndex[item];
+                Rect itemSprite = itemAtlas.GetSprite(atlasIndex);
+                item.IconUV = new Rect[] { itemSprite };
+                item.IconTexture = itemAtlasTex;
             }
         }
 

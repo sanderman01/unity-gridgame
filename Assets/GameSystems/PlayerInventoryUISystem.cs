@@ -9,11 +9,11 @@ namespace AmarokGames.GridGame {
 
     public class PlayerInventoryUISystem : GameSystemBase {
 
-        private Player localPlayer;
+        PlayerSystem playerSystem;
 
-        public static PlayerInventoryUISystem Create(Player localPlayer) {
+        public static PlayerInventoryUISystem Create(PlayerSystem playerSystem) {
             PlayerInventoryUISystem sys = GameSystemBase.Create<PlayerInventoryUISystem>();
-            sys.localPlayer = localPlayer;
+            sys.playerSystem = playerSystem;
             return sys;
         }
 
@@ -39,6 +39,9 @@ namespace AmarokGames.GridGame {
         Rect hotbarRegion;
 
         void OnGUI() {
+
+            Player localPlayer = playerSystem.LocalPlayer;
+
             // Main inventory window
             {
                 float windowWidth = offset.x + ncolumns * (iconSize.x + margin);
@@ -88,9 +91,38 @@ namespace AmarokGames.GridGame {
                     }
                 }
             }
+
+            // Select item on hotbar.
+            if(Event.current.isKey 
+                && KeyCode.Alpha0 <= Event.current.keyCode 
+                && Event.current.keyCode <= KeyCode.Alpha9) {
+                KeyCode key = Event.current.keyCode;
+                int newSelection = (key == KeyCode.Alpha0) ? 9 : (int)key - (int)KeyCode.Alpha0 - 1;
+                localPlayer.HotbarSelection = newSelection;
+                Debug.Log("hotbarselection" + newSelection);
+            }
+
+            // Handle held tools
+            ItemStack heldStack = localPlayer.HotbarInventory[localPlayer.HotbarSelection];
+            ItemTool tool = heldStack.Item as ItemTool;
+            if(tool != null) {
+                // Render tool
+                tool.OnGUIRenderHeldTool(localPlayer, heldStack);
+
+                // Execute tool related actions
+                Event e = Event.current;
+                if(e.isMouse && !inventoryRegion.Contains(e.mousePosition) && !hotbarRegion.Contains(e.mousePosition)) {
+                    Vector2 mouseScreenPos = Input.mousePosition;
+                    Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
+                    if (e.type == EventType.MouseDown) tool.MouseDown(localPlayer, e.button, mouseScreenPos, mouseWorldPos);
+                    else if (e.type == EventType.MouseUp) tool.MouseUp(localPlayer, e.button, mouseScreenPos, mouseWorldPos);
+                }
+            }
         }
 
         private void OnInventoryGUI(Rect containerPos) {
+            Player localPlayer = playerSystem.LocalPlayer;
             IInventory inv = localPlayer.MainInventory;
             for (int i = 0; i < inv.Count; i++) {
                 Rect iconPosition = new Rect(offset, iconSize);
@@ -110,6 +142,7 @@ namespace AmarokGames.GridGame {
         }
 
         private void OnHotbarGUI(Rect containerPos) {
+            Player localPlayer = playerSystem.LocalPlayer;
             IInventory inv = localPlayer.HotbarInventory;
             for (int i = 0; i < inv.Count; i++) {
                 Rect iconPosition = new Rect(offset, iconSize);

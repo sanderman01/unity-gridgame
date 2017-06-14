@@ -1,9 +1,10 @@
-﻿using AmarokGames.Grids;
+﻿using System;
+using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using UnityEngine;
 
 namespace AmarokGames.GridGame {
-    class WorldManagementSystem : GameSystemBase, IGameSystem {
+    public class WorldManagementSystem : GameSystemBase, IGameSystem {
 
         private TileRegistry tileRegistry;
         private LayerId solidLayerBool;
@@ -22,6 +23,27 @@ namespace AmarokGames.GridGame {
             sys.tileForegroundLayerUInt = tileForegroundLayerUInt;
             sys.tileBackgroundLayerUInt = tileBackgroundLayerUInt;
             return sys;
+        }
+
+        public void StopBreakingTile(Player player, Vector2 worldPos) {
+            //Grid2D grid = player.CurrentWorld.GetGrid(worldPos);
+        }
+
+        public void StartBreakingTile(Player player, Vector2 worldPos) {
+            Grid2D grid = player.CurrentWorld.GetGrid(worldPos);
+            if(grid != null) {
+                Int2 gridCoord = grid.GetGridCoord(worldPos);
+                TileStateId tileStateId = (TileStateId)(uint)grid.GetCellValue(gridCoord, tileForegroundLayerUInt);
+                if (tileStateId.TileId == 0) {
+                    // Empty tile. Don't do anything
+                } else {
+                    // Non-empty tile. Break it.
+                    TileStateId emptyTile = new TileStateId(0, 0);
+                    grid.SetCellValue<uint>(gridCoord, tileForegroundLayerUInt, (uint)emptyTile);
+                    grid.SetCellValue<bool>(gridCoord, solidLayerBool, false);
+                    Debug.Log("not empty");
+                }
+            }
         }
 
         public override void TickWorld(World world, int tickRate) {
@@ -57,5 +79,7 @@ namespace AmarokGames.GridGame {
             bool solid = tileRegistry.GetTileById((int)tileTypeId).CollisionSolid;
             grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
+
+
     }
 }

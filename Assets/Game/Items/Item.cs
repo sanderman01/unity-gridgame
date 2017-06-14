@@ -15,5 +15,7 @@ namespace AmarokGames.GridGame.Items {
         public virtual SimpleSprite GetIcon(uint quantity, uint meta) {
             return new SimpleSprite(IconUV[meta], IconTexture);
         }
+
+        public virtual void PostInit(Main game) { }
     }
 }

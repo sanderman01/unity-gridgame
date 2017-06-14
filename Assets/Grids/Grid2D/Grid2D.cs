@@ -4,6 +4,7 @@ using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 
 namespace AmarokGames.Grids {
 
@@ -37,6 +38,12 @@ namespace AmarokGames.Grids {
         private GridType gridType;
         private LayerConfig layers;
         private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
+
+        public Int2 GetGridCoord(Vector2 worldPos) {
+            Vector2 localPos = transform.worldToLocalMatrix * worldPos;
+            Debug.Log(localPos);
+            return new Int2(Mathf.FloorToInt(localPos.x), Mathf.FloorToInt(localPos.y));
+        }
 
         [SerializeField]
         private bool drawChunkBoundsGizmo = false;
@@ -154,11 +161,24 @@ namespace AmarokGames.Grids {
         /// <summary>
         /// Returns the axis aligned boundary containing all the currently loaded chunks in this grid.
         /// </summary>
+        [Obsolete]
         public Bounds GetBounds() {
             Bounds gridBounds = new Bounds();
             foreach(Grid2DChunk chunk in chunkObjects.Values) {
                 Rect chunkBounds = chunk.Bounds2D;
                 gridBounds.Encapsulate(new Bounds(chunkBounds.center, chunkBounds.size));
+            }
+            return gridBounds;
+        }
+
+        public Rect GetBounds2D() {
+            Rect gridBounds = new Rect();
+            foreach (Grid2DChunk chunk in chunkObjects.Values) {
+                Rect chunkBounds = chunk.Bounds2D;
+                gridBounds.xMin = Mathf.Min(gridBounds.xMin, chunkBounds.xMin);
+                gridBounds.xMax = Mathf.Max(gridBounds.xMax, chunkBounds.xMax);
+                gridBounds.yMin = Mathf.Min(gridBounds.yMin, chunkBounds.yMin);
+                gridBounds.yMax = Mathf.Max(gridBounds.yMax, chunkBounds.yMax);
             }
             return gridBounds;
         }

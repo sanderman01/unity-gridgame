@@ -22,5 +22,7 @@ namespace AmarokGames.GridGame {
 
         public abstract void TickWorld(World world, int tickRate);
         public abstract void UpdateWorld(World world, float deltaTime);
-    }
+
+        public virtual void OnWorldCreated(World world, TileRegistry registry) { }
+        }
 }
