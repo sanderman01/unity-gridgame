@@ -33,6 +33,10 @@ namespace AmarokGames.GridGame {
             return world;
         }
 
+        public Grid2D GetGrid(int id) {
+            return Grids[id];
+        }
+
         public Grid2D GetGrid(Vector2 worldPos) {
             // TODO Fix this to more accurately return the right grid.
             // Prioritize dynamic grids before static grids

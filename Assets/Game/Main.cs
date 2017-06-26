@@ -26,6 +26,8 @@ namespace AmarokGames.GridGame {
 
         BaseGameMod baseGameMod;
 
+        private float lastTick;
+
         public void Start() {
 
             layers = new LayerConfig();
@@ -55,6 +57,18 @@ namespace AmarokGames.GridGame {
                     UnityEngine.Profiling.Profiler.BeginSample(system.GetType().Name + ".UpdateWorld");
                     system.UpdateWorld(world, Time.deltaTime);
                     UnityEngine.Profiling.Profiler.EndSample();
+                }
+            }
+
+            const int tickRate = 20;
+            const float targetTickTime = 1f / tickRate;
+            if (Time.time - lastTick > targetTickTime) {
+                foreach (IGameSystem system in gameSystems) {
+                    if (system.Enabled) {
+                        UnityEngine.Profiling.Profiler.BeginSample(system.GetType().Name + ".TickWorld");
+                        system.TickWorld(world, tickRate);
+                        UnityEngine.Profiling.Profiler.EndSample();
+                    }
                 }
             }
         }

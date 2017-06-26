@@ -38,6 +38,33 @@ namespace AmarokGames.GridGame {
         Rect inventoryRegion;
         Rect hotbarRegion;
 
+        void Update() {
+            Player localPlayer = playerSystem.LocalPlayer;
+            Vector2 mouseScreenPos = Input.mousePosition;
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
+            // Handle held tools
+            ItemStack heldStack = localPlayer.HotbarInventory[localPlayer.HotbarSelection];
+            Item item = heldStack.Item;
+            if (item != null) {
+                // Update the item
+                item.Update(localPlayer, heldStack);
+
+                // Execute mouse based tool related actions
+                for(int button = 0; button < 3; button++) {
+                    if (Input.GetMouseButtonDown(button)) {
+                        item.MouseDown(localPlayer, heldStack, button, mouseScreenPos, mouseWorldPos);
+                    }
+                    else if (Input.GetMouseButtonUp(button)) {
+                        item.MouseUp(localPlayer, heldStack, button, mouseScreenPos, mouseWorldPos);
+                    }
+                    else if (Input.GetMouseButton(button)) {
+                        item.MousePressed(localPlayer, heldStack, button, mouseScreenPos, mouseWorldPos);
+                    }
+                }
+            }
+        }
+
         void OnGUI() {
 
             Player localPlayer = playerSystem.LocalPlayer;
@@ -93,8 +120,8 @@ namespace AmarokGames.GridGame {
             }
 
             // Select item on hotbar.
-            if(Event.current.isKey 
-                && KeyCode.Alpha0 <= Event.current.keyCode 
+            if (Event.current.isKey
+                && KeyCode.Alpha0 <= Event.current.keyCode
                 && Event.current.keyCode <= KeyCode.Alpha9) {
                 KeyCode key = Event.current.keyCode;
                 int newSelection = (key == KeyCode.Alpha0) ? 9 : (int)key - (int)KeyCode.Alpha0 - 1;
@@ -104,20 +131,10 @@ namespace AmarokGames.GridGame {
 
             // Handle held tools
             ItemStack heldStack = localPlayer.HotbarInventory[localPlayer.HotbarSelection];
-            ItemTool tool = heldStack.Item as ItemTool;
-            if(tool != null) {
+            Item item = heldStack.Item;
+            if (item != null) {
                 // Render tool
-                tool.OnGUIRenderHeldTool(localPlayer, heldStack);
-
-                // Execute tool related actions
-                Event e = Event.current;
-                if(e.isMouse && !inventoryRegion.Contains(e.mousePosition) && !hotbarRegion.Contains(e.mousePosition)) {
-                    Vector2 mouseScreenPos = Input.mousePosition;
-                    Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-
-                    if (e.type == EventType.MouseDown) tool.MouseDown(localPlayer, e.button, mouseScreenPos, mouseWorldPos);
-                    else if (e.type == EventType.MouseUp) tool.MouseUp(localPlayer, e.button, mouseScreenPos, mouseWorldPos);
-                }
+                item.OnGUIRenderHeldItem(localPlayer, heldStack);
             }
         }
 

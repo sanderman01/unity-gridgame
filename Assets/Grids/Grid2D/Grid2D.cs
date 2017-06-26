@@ -41,7 +41,6 @@ namespace AmarokGames.Grids {
 
         public Int2 GetGridCoord(Vector2 worldPos) {
             Vector2 localPos = transform.worldToLocalMatrix * worldPos;
-            Debug.Log(localPos);
             return new Int2(Mathf.FloorToInt(localPos.x), Mathf.FloorToInt(localPos.y));
         }
 

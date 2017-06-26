@@ -9,18 +9,29 @@ namespace AmarokGames.GridGame.Items {
 
         WorldManagementSystem worldMgr;
 
+        public int TileDamage { get; set; }
+
         public override void PostInit(Main game) {
             this.worldMgr = (WorldManagementSystem)game.GetSystem(typeof(WorldManagementSystem));
         }
 
-        public override void MouseDown(Player player, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
-            Debug.Log("MouseDown");
-            worldMgr.StartBreakingTile(player, worldPos);
+        public override void MouseDown(Player player, ItemStack stack, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
+            //Debug.Log("MouseDown");
         }
 
-        public override void MouseUp(Player player, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
-            Debug.Log("MouseUp");
-            worldMgr.StopBreakingTile(player, worldPos);
+        public override void MousePressed(Player player, ItemStack stack, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
+            //Debug.Log("MousePressed");
+            Grid2D grid = player.CurrentWorld.GetGrid(worldPos);
+            if(grid != null) {
+                Int2 gridCoord = grid.GetGridCoord(worldPos);
+                if(worldMgr.HasTile(grid, gridCoord)) {
+                    worldMgr.BreakTileOverTime(player, player.CurrentWorld, player.CurrentWorld.GetGrid(worldPos), gridCoord, worldPos);
+                }
+            }
+        }
+
+        public override void MouseUp(Player player, ItemStack stack, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
+            //Debug.Log("MouseUp");
         }
     }
 }
