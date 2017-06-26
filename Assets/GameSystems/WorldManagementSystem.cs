@@ -34,11 +34,6 @@ namespace AmarokGames.GridGame {
             }
         }
 
-        public bool HasTile(Grid2D grid, Int2 gridCoord) {
-            TileStateId tileState = (TileStateId)(uint)grid.GetCellValue(gridCoord, tileForegroundLayerUInt);
-            return tileState.TileId != 0;
-        }
-
         public static WorldManagementSystem Create(
             TileRegistry tileRegistry,
             LayerId solidLayerBool,
@@ -123,6 +118,11 @@ namespace AmarokGames.GridGame {
         }
 
         protected override void Enable() {
+        }
+
+        public bool HasTile(Grid2D grid, Int2 gridCoord) {
+            TileStateId tileState = (TileStateId)(uint)grid.GetCellValue(gridCoord, tileForegroundLayerUInt);
+            return tileState.TileId != 0;
         }
 
         public void PlaceTile(World world, Vector2 worldPos, uint tileValue, uint meta) {
