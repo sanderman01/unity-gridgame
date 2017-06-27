@@ -15,7 +15,7 @@ namespace AmarokGames.GridGame {
         [SerializeField]
         private Int2 worldChunkSize = new Int2(64, 64);
 
-        private TileRegistry tileRegistry;
+        private GameRegistry gameRegistry;
         private World world;
         public World World;
 
@@ -31,24 +31,24 @@ namespace AmarokGames.GridGame {
         public void Start() {
 
             layers = new LayerConfig();
-            tileRegistry = new TileRegistry();
+            gameRegistry = new GameRegistry();
 
             baseGameMod = new BaseGameMod();
-            baseGameMod.Init(this, ref layers, tileRegistry);
+            baseGameMod.Init(this, ref layers, gameRegistry);
 
-            tileRegistry.Finalise();
+            gameRegistry.Finalise();
 
-            baseGameMod.PostInit(this, tileRegistry);
+            baseGameMod.PostInit(this, gameRegistry);
 
             CreateWorld(0);
         }
 
         private void CreateWorld(int seed) {
-            WorldGenerator worldGen = baseGameMod.GetWorldGenerator(tileRegistry);
+            WorldGenerator worldGen = baseGameMod.GetWorldGenerator(gameRegistry);
             world = World.CreateWorld("world", 0, worldSize, worldChunkSize, layers, worldGen);
             world.WorldGenerator.Init(world);
 
-            foreach (IGameSystem system in gameSystems) system.OnWorldCreated(world, tileRegistry);
+            foreach (IGameSystem system in gameSystems) system.OnWorldCreated(world, gameRegistry);
         }
 
         void Update() {

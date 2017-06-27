@@ -14,13 +14,13 @@ namespace AmarokGames.GridGame {
         private List<Player> players = new List<Player>();
         private ItemStack[] playerStartEquipment;
 
-        public static PlayerSystem Create(Main game, TileRegistry registry, ItemStack[] playerStartEquipment) {
+        public static PlayerSystem Create(Main game, GameRegistry registry, ItemStack[] playerStartEquipment) {
             PlayerSystem sys = Create<PlayerSystem>();
             sys.playerStartEquipment = playerStartEquipment;
             return sys;
         }
 
-        public override void OnWorldCreated(World world, TileRegistry registry) {
+        public override void OnWorldCreated(World world, GameRegistry registry) {
             // Add Player
             Player player = new Player();
 

@@ -8,7 +8,7 @@ using AmarokGames.GridGame.Items;
 
 namespace AmarokGames.GridGame {
 
-    public class TileRegistry {
+    public class GameRegistry {
 
         DynamicTextureAtlas atlas;
         DynamicTextureAtlas itemAtlas;
@@ -29,7 +29,7 @@ namespace AmarokGames.GridGame {
         Dictionary<Item, int> itemToAtlasIndex;
 
 
-        public TileRegistry() {
+        public GameRegistry() {
             tilesByIndex = new List<Tile>();
             tilesByName = new Dictionary<string, Tile>();
             tileToIdNumeric = new Dictionary<Tile, uint>();

@@ -8,7 +8,7 @@ namespace AmarokGames.GridGame {
 
     public class WorldManagementSystem : GameSystemBase, IGameSystem {
 
-        private TileRegistry tileRegistry;
+        private GameRegistry gameRegistry;
         private LayerId solidLayerBool;
         private LayerId tileForegroundLayerUInt;
         private LayerId tileBackgroundLayerUInt;
@@ -35,13 +35,13 @@ namespace AmarokGames.GridGame {
         }
 
         public static WorldManagementSystem Create(
-            TileRegistry tileRegistry,
+            GameRegistry gameRegistry,
             LayerId solidLayerBool,
             LayerId tileForegroundLayerUInt, 
             LayerId tileBackgroundLayerUInt) 
         {
             WorldManagementSystem sys = WorldManagementSystem.Create<WorldManagementSystem>();
-            sys.tileRegistry = tileRegistry;
+            sys.gameRegistry = gameRegistry;
             sys.solidLayerBool = solidLayerBool;
             sys.tileForegroundLayerUInt = tileForegroundLayerUInt;
             sys.tileBackgroundLayerUInt = tileBackgroundLayerUInt;
@@ -143,7 +143,7 @@ namespace AmarokGames.GridGame {
             uint bufferValue = (uint)new TileStateId(tileTypeId, tileMetaData);
             grid.SetCellValue(gridCoord, tileForegroundLayerUInt, bufferValue);
 
-            bool solid = tileRegistry.GetTileById((int)tileTypeId).CollisionSolid;
+            bool solid = gameRegistry.GetTileById((int)tileTypeId).CollisionSolid;
             grid.SetCellValue(gridCoord, solidLayerBool, solid);
         }
 

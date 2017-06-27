@@ -25,23 +25,23 @@ namespace AmarokGames.GridGame {
 
         public Item ItemPickaxe { get; private set; }
 
-        public void Init(Main game, ref LayerConfig layers, TileRegistry tileRegistry) {
+        public void Init(Main game, ref LayerConfig layers, GameRegistry gameRegistry) {
 
             SolidLayerBool = layers.AddLayer("solid", BufferType.Boolean);
             TileForegroundLayerUInt = layers.AddLayer("tileforeground", BufferType.UnsignedInt32);
             TileBackgroundLayerUInt = layers.AddLayer("tilebackground", BufferType.UnsignedInt32);
             TerrainGenDebugLayerFloat = layers.AddLayer("terrainGenDebugLayer", BufferType.Float);
 
-            RegisterTiles(tileRegistry);
+            RegisterTiles(gameRegistry);
         }
 
-        public void PostInit(Main game, TileRegistry tileRegistry) {
-            RegisterGameSystems(tileRegistry, game);
+        public void PostInit(Main game, GameRegistry gameRegistry) {
+            RegisterGameSystems(gameRegistry, game);
 
-            foreach (Item item in tileRegistry.GetItems()) item.PostInit(game);
+            foreach (Item item in gameRegistry.GetItems()) item.PostInit(game);
         }
 
-        private void RegisterTiles(TileRegistry tileRegistry) {
+        private void RegisterTiles(GameRegistry gameRegistry) {
             TileEmpty = new Tile();
             TileEmpty.CollisionSolid = false;
             TileEmpty.BatchedRendering = false;
@@ -90,22 +90,22 @@ namespace AmarokGames.GridGame {
             wood.HumanName = "Wood";
             Texture2D woodTex = Resources.Load<Texture2D>("Tiles/tile-wood");
 
-            tileRegistry.RegisterTile(CoreGameModId, "empty", TileEmpty, emptyTex);
-            tileRegistry.RegisterTile(CoreGameModId, "stone", TileStone, stoneTex);
-            tileRegistry.RegisterTile(CoreGameModId, "concrete", concrete, concreteTex);
-            tileRegistry.RegisterTile(CoreGameModId, "dirt", TileDirt, dirtTex);
-            tileRegistry.RegisterTile(CoreGameModId, "grass", TileGrass, grassTex);
-            tileRegistry.RegisterTile(CoreGameModId, "gravel", gravel, gravelTex);
-            tileRegistry.RegisterTile(CoreGameModId, "sand", sand, sandTex);
-            tileRegistry.RegisterTile(CoreGameModId, "wood", wood, woodTex);
+            gameRegistry.RegisterTile(CoreGameModId, "empty", TileEmpty, emptyTex);
+            gameRegistry.RegisterTile(CoreGameModId, "stone", TileStone, stoneTex);
+            gameRegistry.RegisterTile(CoreGameModId, "concrete", concrete, concreteTex);
+            gameRegistry.RegisterTile(CoreGameModId, "dirt", TileDirt, dirtTex);
+            gameRegistry.RegisterTile(CoreGameModId, "grass", TileGrass, grassTex);
+            gameRegistry.RegisterTile(CoreGameModId, "gravel", gravel, gravelTex);
+            gameRegistry.RegisterTile(CoreGameModId, "sand", sand, sandTex);
+            gameRegistry.RegisterTile(CoreGameModId, "wood", wood, woodTex);
 
             ItemPickaxe = new ItemPickaxe();
             ItemPickaxe.HumanName = "Pickaxe";
             Texture2D pickaxeTex = Resources.Load<Texture2D>("Items/item-pickaxe");
-            tileRegistry.RegisterItem(CoreGameModId, "pickaxe", ItemPickaxe, pickaxeTex);
+            gameRegistry.RegisterItem(CoreGameModId, "pickaxe", ItemPickaxe, pickaxeTex);
         }
 
-        private void RegisterGameSystems(TileRegistry tileRegistry, Main game) {
+        private void RegisterGameSystems(GameRegistry gameRegistry, Main game) {
             {
                 // Solid Renderer
                 Shader shader = Shader.Find("Sprites/Default");
@@ -127,7 +127,7 @@ namespace AmarokGames.GridGame {
 
             {
                 // Tile Renderer
-                Texture2D textureAtlas = tileRegistry.GetAtlas().GetTexture();
+                Texture2D textureAtlas = gameRegistry.GetAtlas().GetTexture();
 
                 Shader foregroundShader = Shader.Find("Unlit/Transparent Cutout");
                 Material foregroundMaterial = new Material(foregroundShader);
@@ -139,15 +139,15 @@ namespace AmarokGames.GridGame {
                 backgroundMaterial.mainTexture = textureAtlas;
                 backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
 
-                int tileCount = tileRegistry.GetTileCount();
+                int tileCount = gameRegistry.GetTileCount();
                 TileRenderData[] tileData = new TileRenderData[tileCount];
                 for (int i = 0; i < tileCount; ++i) {
-                    Tile tile = tileRegistry.GetTileById(i);
+                    Tile tile = gameRegistry.GetTileById(i);
 
                     TileRenderData renderData = new TileRenderData();
                     renderData.draw = tile.BatchedRendering;
                     renderData.zLayer = (ushort)i;
-                    renderData.variants = TileRegistry.GetTileVariants(tile.SpriteUV);
+                    renderData.variants = GameRegistry.GetTileVariants(tile.SpriteUV);
 
                     tileData[i] = renderData;
                 }
@@ -158,21 +158,21 @@ namespace AmarokGames.GridGame {
 
             game.AddSystem(GridCollisionSystem.Create(SolidLayerBool));
 
-            WorldManagementSystem worldMgr = WorldManagementSystem.Create(tileRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
+            WorldManagementSystem worldMgr = WorldManagementSystem.Create(gameRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
             game.AddSystem(worldMgr);
 
             ItemStack[] playerStartEq = new ItemStack[] { new ItemStack(ItemPickaxe, 1, 0) };
-            PlayerSystem playerSys = PlayerSystem.Create(game, tileRegistry, playerStartEq);
+            PlayerSystem playerSys = PlayerSystem.Create(game, gameRegistry, playerStartEq);
             game.AddSystem(playerSys);
 
-            //GridEditorSystem gridEditor = GridEditorSystem.Create(tileRegistry, worldMgr, playerSys.LocalPlayer);
+            //GridEditorSystem gridEditor = GridEditorSystem.Create(gameRegistry, worldMgr, playerSys.LocalPlayer);
             //gameSystems.Add(gridEditor);
 
             PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys);
             game.AddSystem(inventoryUI);
         }
 
-        public WorldGenerator GetWorldGenerator(TileRegistry tileReg) {
+        public WorldGenerator GetWorldGenerator(GameRegistry tileReg) {
             WorldGenerator worldGen = new WorldGenerator(SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt, TerrainGenDebugLayerFloat, 
                 tileReg.GetTileId(TileEmpty), tileReg.GetTileId(TileStone), tileReg.GetTileId(TileDirt), tileReg.GetTileId(TileGrass)
                 );

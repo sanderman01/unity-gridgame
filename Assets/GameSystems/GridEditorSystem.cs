@@ -8,15 +8,15 @@ using UnityEngine;
 namespace AmarokGames.GridGame {
     class GridEditorSystem : GameSystemBase, IGameSystem {
 
-        private TileRegistry tileRegistry;
+        private GameRegistry gameRegistry;
         private WorldManagementSystem worldMgr;
         private uint tileSelection = 1;
 
         private Player localPlayer;
 
-        public static GridEditorSystem Create(TileRegistry tileRegistry, WorldManagementSystem worldMgr, Player localPlayer) {
+        public static GridEditorSystem Create(GameRegistry gameRegistry, WorldManagementSystem worldMgr, Player localPlayer) {
             GridEditorSystem sys = GridEditorSystem.Create<GridEditorSystem>();
-            sys.tileRegistry = tileRegistry;
+            sys.gameRegistry = gameRegistry;
             sys.worldMgr = worldMgr;
             sys.localPlayer = localPlayer;
             return sys;
