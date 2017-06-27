@@ -129,7 +129,7 @@ namespace AmarokGames.GridGame {
 
             // find the first grid that overlaps with this world position.
             foreach (Grid2D grid in world.Grids) {
-                Bounds bounds = grid.GetBounds();
+                Rect bounds = grid.GetBounds2D();
                 if (bounds.Contains(worldPos)) {
                     // Found a valid grid
                     Vector2 localPos = grid.gameObject.transform.worldToLocalMatrix * worldPos;

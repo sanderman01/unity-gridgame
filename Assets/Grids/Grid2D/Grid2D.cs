@@ -160,16 +160,6 @@ namespace AmarokGames.Grids {
         /// <summary>
         /// Returns the axis aligned boundary containing all the currently loaded chunks in this grid.
         /// </summary>
-        [Obsolete]
-        public Bounds GetBounds() {
-            Bounds gridBounds = new Bounds();
-            foreach(Grid2DChunk chunk in chunkObjects.Values) {
-                Rect chunkBounds = chunk.Bounds2D;
-                gridBounds.Encapsulate(new Bounds(chunkBounds.center, chunkBounds.size));
-            }
-            return gridBounds;
-        }
-
         public Rect GetBounds2D() {
             Rect gridBounds = new Rect();
             foreach (Grid2DChunk chunk in chunkObjects.Values) {
