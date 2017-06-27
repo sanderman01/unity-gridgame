@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using UnityEngine.Assertions;
 
 namespace AmarokGames.GridGame {
 
@@ -20,7 +21,6 @@ namespace AmarokGames.GridGame {
         public World World;
 
         private List<IGameSystem> gameSystems = new List<IGameSystem>();
-        private Dictionary<Type, List<IGameSystem>> gameSystemsByType = new Dictionary<Type, List<IGameSystem>>();
 
         private LayerConfig layers;
 
@@ -73,23 +73,14 @@ namespace AmarokGames.GridGame {
             }
         }
 
-        public IEnumerable<IGameSystem> GetSystems() {
-            return gameSystems;
-        }
-
-        public IGameSystem GetSystem(Type type) {
-            return gameSystemsByType[type].First();
+        public T GetSystem<T>() where T : class, IGameSystem {
+            T result = gameSystems.First(x => x is T) as T;
+            Assert.IsNotNull(result);
+            return result;
         }
 
         public void AddSystem(IGameSystem system) {
             gameSystems.Add(system);
-            Type type = system.GetType();
-            List<IGameSystem> list;
-            if(!gameSystemsByType.TryGetValue(type, out list)) {
-                list = new List<IGameSystem>();
-                gameSystemsByType.Add(type, list);
-            }
-            list.Add(system);
         }
     }
 }

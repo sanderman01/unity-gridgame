@@ -12,7 +12,7 @@ namespace AmarokGames.GridGame.Items {
         public int TileDamage { get; set; }
 
         public override void PostInit(Main game) {
-            this.worldMgr = (WorldManagementSystem)game.GetSystem(typeof(WorldManagementSystem));
+            this.worldMgr = game.GetSystem<WorldManagementSystem>();
         }
 
         public override void MouseDown(Player player, ItemStack stack, int mouseButton, Vector2 screenPos, Vector2 worldPos) {
