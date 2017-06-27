@@ -63,6 +63,7 @@ namespace AmarokGames.GridGame {
             const int tickRate = 20;
             const float targetTickTime = 1f / tickRate;
             if (Time.time - lastTick > targetTickTime) {
+                lastTick = Time.time;
                 foreach (IGameSystem system in gameSystems) {
                     if (system.Enabled) {
                         UnityEngine.Profiling.Profiler.BeginSample(system.GetType().Name + ".TickWorld");
