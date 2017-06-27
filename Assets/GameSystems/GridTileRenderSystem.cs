@@ -16,11 +16,20 @@ namespace AmarokGames.Grids {
     }
 
     public class GridTileRenderSystem : GameSystemBase, IGameSystem {
-        [SerializeField]
-        private Material material;
 
         [SerializeField]
-        private TileRenderData[] tileData;
+        public Material material;
+        public Material Material {
+            get { return this.material; }
+            set { this.material = value; }
+        }
+
+        [SerializeField]
+        public TileRenderData[] tileData;
+        public TileRenderData[] TileData {
+            get { return this.tileData; }
+            set { this.tileData = value; }
+        }
 
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector2> uvs = new List<Vector2>();
@@ -49,13 +58,32 @@ namespace AmarokGames.Grids {
             chunkMeshes.Clear();
         }
 
-        public static GridTileRenderSystem Create(TileRenderData[] tileData, Material material, LayerId layerId, float zPos) {
+        public static GridTileRenderSystem Create(LayerId layerId, float zPos) {
             GridTileRenderSystem sys = Create<GridTileRenderSystem>();
-            sys.tileData = tileData;
-            sys.material = material;
             sys.layerId = layerId;
             sys.zOffsetGlobal = zPos;
             return sys;
+        }
+
+        public static TileRenderData[] CreateTileRenderData(GameRegistry gameRegistry) {
+            int tileCount = gameRegistry.GetTileCount();
+            TileRenderData[] tileData = new TileRenderData[tileCount];
+            for (int i = 0; i < tileCount; ++i) {
+                Tile tile = gameRegistry.GetTileById(i);
+
+                TileRenderData renderData = new TileRenderData();
+                renderData.draw = tile.BatchedRendering;
+                renderData.zLayer = (ushort)i;
+                renderData.variants = GameRegistry.GetTileVariants(tile.SpriteUV);
+
+                tileData[i] = renderData;
+            }
+            return tileData;
+        }
+
+        public void PostInit(TileRenderData[] renderData, Material material) {
+            this.TileData = renderData;
+            this.Material = material;
         }
 
         public override void TickWorld(World world, int tickRate) {

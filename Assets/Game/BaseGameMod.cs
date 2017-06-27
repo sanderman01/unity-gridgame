@@ -18,6 +18,10 @@ namespace AmarokGames.GridGame {
         public LayerId TileBackgroundLayerUInt { get; private set; }
         public LayerId TerrainGenDebugLayerFloat { get; private set; }
 
+        public GridTileRenderSystem TileRendererForeground { get; private set; }
+        public GridTileRenderSystem TileRendererBackground { get; private set; }
+        public PlayerSystem PlayerSystem { get; private set; }
+
         public Tile TileEmpty { get; private set; }
         public Tile TileStone { get; private set; }
         public Tile TileDirt { get; private set; }
@@ -25,23 +29,60 @@ namespace AmarokGames.GridGame {
 
         public Item ItemPickaxe { get; private set; }
 
-        public void Init(Main game, ref LayerConfig layers, GameRegistry gameRegistry) {
+        public void PreInit(Main game, GameRegistry gameRegistry) {
+            RegisterSystems(game, gameRegistry);
+            RegisterContent(game, gameRegistry);
+        }
 
+        private void RegisterSystems(Main game, GameRegistry gameRegistry) {
+            LayerConfig layers = game.Layers;
             SolidLayerBool = layers.AddLayer("solid", BufferType.Boolean);
             TileForegroundLayerUInt = layers.AddLayer("tileforeground", BufferType.UnsignedInt32);
             TileBackgroundLayerUInt = layers.AddLayer("tilebackground", BufferType.UnsignedInt32);
             TerrainGenDebugLayerFloat = layers.AddLayer("terrainGenDebugLayer", BufferType.Float);
 
-            RegisterTiles(gameRegistry);
+            {
+                // Solid Renderer
+                Shader shader = Shader.Find("Sprites/Default");
+                Material mat = new Material(shader);
+                mat.color = new Color(1, 1, 1, 0.5f);
+                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, SolidLayerBool);
+                game.AddSystem(solidRenderer);
+                solidRenderer.Enabled = false;
+            }
+
+            {
+                Shader shader = Shader.Find("Sprites/Default");
+                Material mat = new Material(shader);
+                mat.color = new Color(1, 1, 1, 0.5f);
+                BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, TerrainGenDebugLayerFloat);
+                game.AddSystem(sys);
+                sys.Enabled = false;
+            }
+
+            {
+                TileRendererForeground = GridTileRenderSystem.Create(TileForegroundLayerUInt, 0);
+                TileRendererBackground = GridTileRenderSystem.Create(TileBackgroundLayerUInt, 1);
+                game.AddSystem(TileRendererForeground);
+                game.AddSystem(TileRendererBackground);
+            }
+
+            game.AddSystem(GridCollisionSystem.Create(SolidLayerBool));
+
+            WorldManagementSystem worldMgr = WorldManagementSystem.Create(gameRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
+            game.AddSystem(worldMgr);
+
+            PlayerSystem = PlayerSystem.Create(game, gameRegistry);
+            game.AddSystem(PlayerSystem);
+
+            //GridEditorSystem gridEditor = GridEditorSystem.Create(gameRegistry, worldMgr, playerSys.LocalPlayer);
+            //gameSystems.Add(gridEditor);
+
+            PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(PlayerSystem);
+            game.AddSystem(inventoryUI);
         }
 
-        public void PostInit(Main game, GameRegistry gameRegistry) {
-            RegisterGameSystems(gameRegistry, game);
-
-            foreach (Item item in gameRegistry.GetItems()) item.PostInit(game);
-        }
-
-        private void RegisterTiles(GameRegistry gameRegistry) {
+        private void RegisterContent(Main game, GameRegistry gameRegistry) {
             TileEmpty = new Tile();
             TileEmpty.CollisionSolid = false;
             TileEmpty.BatchedRendering = false;
@@ -105,71 +146,33 @@ namespace AmarokGames.GridGame {
             gameRegistry.RegisterItem(CoreGameModId, "pickaxe", ItemPickaxe, pickaxeTex);
         }
 
-        private void RegisterGameSystems(GameRegistry gameRegistry, Main game) {
-            {
-                // Solid Renderer
-                Shader shader = Shader.Find("Sprites/Default");
-                Material mat = new Material(shader);
-                mat.color = new Color(1, 1, 1, 0.5f);
-                GridSolidRendererSystem solidRenderer = GridSolidRendererSystem.Create(mat, SolidLayerBool);
-                game.AddSystem(solidRenderer);
-                solidRenderer.Enabled = false;
-            }
+        public void Init(Main game, GameRegistry gameRegistry) {
+        }
 
-            {
-                Shader shader = Shader.Find("Sprites/Default");
-                Material mat = new Material(shader);
-                mat.color = new Color(1, 1, 1, 0.5f);
-                BufferVisualiserFloat sys = BufferVisualiserFloat.Create(mat, TerrainGenDebugLayerFloat);
-                game.AddSystem(sys);
-                sys.Enabled = false;
-            }
+        public void PostInit(Main game, GameRegistry gameRegistry) {
 
-            {
-                // Tile Renderer
-                Texture2D textureAtlas = gameRegistry.GetAtlas().GetTexture();
+            // Tile Renderer
+            Texture2D textureAtlas = gameRegistry.GetAtlas().GetTexture();
 
-                Shader foregroundShader = Shader.Find("Unlit/Transparent Cutout");
-                Material foregroundMaterial = new Material(foregroundShader);
-                foregroundMaterial.mainTexture = textureAtlas;
-                foregroundMaterial.color = new Color(1, 1, 1, 1);
+            Shader foregroundShader = Shader.Find("Unlit/Transparent Cutout");
+            Material foregroundMaterial = new Material(foregroundShader);
+            foregroundMaterial.mainTexture = textureAtlas;
+            foregroundMaterial.color = new Color(1, 1, 1, 1);
 
-                Shader backgroundShader = Shader.Find("Sprites/Default");
-                Material backgroundMaterial = new Material(backgroundShader);
-                backgroundMaterial.mainTexture = textureAtlas;
-                backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
+            Shader backgroundShader = Shader.Find("Sprites/Default");
+            Material backgroundMaterial = new Material(backgroundShader);
+            backgroundMaterial.mainTexture = textureAtlas;
+            backgroundMaterial.color = new Color(0.5f, 0.5f, 0.5f, 1);
 
-                int tileCount = gameRegistry.GetTileCount();
-                TileRenderData[] tileData = new TileRenderData[tileCount];
-                for (int i = 0; i < tileCount; ++i) {
-                    Tile tile = gameRegistry.GetTileById(i);
+            TileRenderData[] tileRenderData = GridTileRenderSystem.CreateTileRenderData(gameRegistry);
+            TileRendererForeground.PostInit(tileRenderData, foregroundMaterial);
+            TileRendererBackground.PostInit(tileRenderData, backgroundMaterial);
 
-                    TileRenderData renderData = new TileRenderData();
-                    renderData.draw = tile.BatchedRendering;
-                    renderData.zLayer = (ushort)i;
-                    renderData.variants = GameRegistry.GetTileVariants(tile.SpriteUV);
+            // Player starting inventory
+            ItemStack[] playerStartEquipment = new ItemStack[] { new ItemStack(ItemPickaxe, 1, 0) };
+            PlayerSystem.PostInit(playerStartEquipment);
 
-                    tileData[i] = renderData;
-                }
-
-                game.AddSystem(GridTileRenderSystem.Create(tileData, foregroundMaterial, TileForegroundLayerUInt, 0));
-                game.AddSystem(GridTileRenderSystem.Create(tileData, backgroundMaterial, TileBackgroundLayerUInt, 1));
-            }
-
-            game.AddSystem(GridCollisionSystem.Create(SolidLayerBool));
-
-            WorldManagementSystem worldMgr = WorldManagementSystem.Create(gameRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
-            game.AddSystem(worldMgr);
-
-            ItemStack[] playerStartEq = new ItemStack[] { new ItemStack(ItemPickaxe, 1, 0) };
-            PlayerSystem playerSys = PlayerSystem.Create(game, gameRegistry, playerStartEq);
-            game.AddSystem(playerSys);
-
-            //GridEditorSystem gridEditor = GridEditorSystem.Create(gameRegistry, worldMgr, playerSys.LocalPlayer);
-            //gameSystems.Add(gridEditor);
-
-            PlayerInventoryUISystem inventoryUI = PlayerInventoryUISystem.Create(playerSys);
-            game.AddSystem(inventoryUI);
+            foreach (Item item in gameRegistry.GetItems()) item.PostInit(game);
         }
 
         public WorldGenerator GetWorldGenerator(GameRegistry tileReg) {
