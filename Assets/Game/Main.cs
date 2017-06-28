@@ -20,6 +20,7 @@ namespace AmarokGames.GridGame {
         private World world;
         public World World;
 
+        private List<IGameMod> mods = new List<IGameMod>();
         private List<IGameSystem> gameSystems = new List<IGameSystem>();
 
         public LayerConfig Layers { get; private set; }
@@ -34,12 +35,18 @@ namespace AmarokGames.GridGame {
             gameRegistry = new GameRegistry();
 
             baseGameMod = new BaseGameMod();
-            baseGameMod.PreInit(this, gameRegistry);
-            gameRegistry.Finalise();
-            baseGameMod.Init(this, gameRegistry);
-            baseGameMod.PostInit(this, gameRegistry);
+            mods.Add(baseGameMod);
+
+            InitializeMods(mods, gameRegistry);
 
             CreateWorld(0);
+        }
+
+        private void InitializeMods(IEnumerable<IGameMod> mods, GameRegistry gameRegistry) {
+            foreach (IGameMod mod in mods) { mod.PreInit(this, gameRegistry); }
+            gameRegistry.Finalise();
+            foreach (IGameMod mod in mods) { mod.Init(this, gameRegistry); }
+            foreach (IGameMod mod in mods) { mod.PostInit(this, gameRegistry); }
         }
 
         private void CreateWorld(int seed) {
