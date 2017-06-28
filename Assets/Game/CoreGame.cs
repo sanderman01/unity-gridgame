@@ -9,7 +9,7 @@ using AmarokGames.GridGame.Items;
 
 namespace AmarokGames.GridGame {
 
-    public class BaseGameMod : IGameMod {
+    public class CoreGame : IGameMod {
 
         public const string CoreGameModId = "CoreGame";
 

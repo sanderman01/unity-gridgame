@@ -25,7 +25,7 @@ namespace AmarokGames.GridGame {
 
         public LayerConfig Layers { get; private set; }
 
-        BaseGameMod baseGameMod;
+        CoreGame coreGame;
 
         private float lastTick;
 
@@ -34,8 +34,8 @@ namespace AmarokGames.GridGame {
             Layers = new LayerConfig();
             gameRegistry = new GameRegistry();
 
-            baseGameMod = new BaseGameMod();
-            mods.Add(baseGameMod);
+            coreGame = new CoreGame();
+            mods.Add(coreGame);
 
             InitializeMods(mods, gameRegistry);
 
@@ -50,7 +50,7 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateWorld(int seed) {
-            WorldGenerator worldGen = baseGameMod.GetWorldGenerator(gameRegistry);
+            WorldGenerator worldGen = coreGame.GetWorldGenerator(gameRegistry);
             world = World.CreateWorld("world", 0, worldSize, worldChunkSize, Layers, worldGen);
             world.WorldGenerator.Init(world);
 
