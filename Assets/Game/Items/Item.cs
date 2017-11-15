@@ -12,8 +12,8 @@ namespace AmarokGames.GridGame.Items {
         public Rect[] IconUV;
         public Texture2D IconTexture;
 
-        public virtual SimpleSprite GetIcon(uint quantity, uint meta) {
-            return new SimpleSprite(IconUV[meta], IconTexture);
+        public virtual Sprite GetIcon(uint quantity, uint meta) {
+            return Sprite.Create(IconTexture, IconUV[meta], Vector2.zero);
         }
 
         public virtual void PostInit(Main game) { }

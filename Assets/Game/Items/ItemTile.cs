@@ -1,5 +1,7 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
+using UnityEngine;
+
 namespace AmarokGames.GridGame.Items {
 
     public class ItemTile : Item {
@@ -11,7 +13,7 @@ namespace AmarokGames.GridGame.Items {
             this.HumanName = tile.HumanName;
         }
 
-        public override SimpleSprite GetIcon(uint quantity, uint meta) {
+        public override Sprite GetIcon(uint quantity, uint meta) {
             return base.GetIcon(quantity, meta);
         }
     }

@@ -188,7 +188,7 @@ namespace AmarokGames.GridGame {
 
         private static void DrawItemStack(Rect position, ItemStack stack) {
             if (stack != ItemStack.Empty) {
-                GUI.DrawTextureWithTexCoords(position, stack.Icon.texture, stack.Icon.uv);
+                GUI.DrawTextureWithTexCoords(position, stack.Icon.texture, stack.Icon.rect);
                 Rect labelPos = position;
                 GUI.Label(labelPos, stack.QuantityString);
             }

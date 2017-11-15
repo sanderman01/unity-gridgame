@@ -24,7 +24,7 @@ namespace AmarokGames.GridGame.Items {
         public uint Meta { get; set; }
         ///public TagData Tags { get; set; }
 
-        public SimpleSprite Icon { get {
+        public Sprite Icon { get {
                 return Item.GetIcon(Quantity, Meta);
             }
         }

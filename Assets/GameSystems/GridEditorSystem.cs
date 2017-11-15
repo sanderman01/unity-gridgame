@@ -58,8 +58,8 @@ namespace AmarokGames.GridGame {
                 iconPosition.x += (iconSize.x + margin) * (i - 1);
                 ItemStack stack = inv[i];
                 if(stack != null) {
-                    SimpleSprite icon = stack.Icon;
-                    bool click = IconButton(iconPosition, icon.texture, icon.uv);
+                    Sprite icon = stack.Icon;
+                    bool click = IconButton(iconPosition, icon.texture, icon.rect);
                     if (click) {
                         Debug.Log("Selected tile: " + i);
                         tileSelection = (uint)i;
