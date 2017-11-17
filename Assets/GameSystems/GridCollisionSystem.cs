@@ -5,6 +5,7 @@ using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Profiling;
 
 namespace AmarokGames.Grids {
 
@@ -49,6 +50,8 @@ namespace AmarokGames.Grids {
         }
 
         private void UpdateGrid(World world, Grid2D grid) {
+            Profiler.BeginSample("UpdateGrid");
+
             // For each chunk
             // Check that the chunk is still up to date
             // If not, then regenerate the colliders for this chunk
@@ -92,10 +95,12 @@ namespace AmarokGames.Grids {
                     }
                 }
             }
+            Profiler.EndSample();
         }
 
         private void UpdateColliders(int worldId, Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
 
+            Profiler.BeginSample("UpdateColliders");
             GameObject colliderGameObject = chunkCollidersEntry.chunkColliderObject;
             if(colliderGameObject != null) {
                 // Remove any existing colliders
@@ -172,6 +177,7 @@ namespace AmarokGames.Grids {
                 // Clean lingering entries in our bookkeeping.
                 chunksColliders.Remove(new ChunkKey(worldId, grid.GridId, chunkCoord));
             }
+            Profiler.EndSample();
         }
     }
 }

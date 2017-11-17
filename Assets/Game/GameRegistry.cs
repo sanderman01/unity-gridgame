@@ -127,9 +127,15 @@ namespace AmarokGames.GridGame {
 
                 // Also set the item icon uv.
                 ItemTile item = tileToItem[tile];
-                item.IconTexture = atlasTex;
                 TileVariant[] tileVariants = GetTileVariants(tile.SpriteUV);
-                item.IconUV = GetTileVariantIcons(tileVariants);
+                Rect[] uvs = GetTileVariantIcons(tileVariants);
+
+                Sprite[] icons = new Sprite[tileVariants.Length];
+                for(int it = 0; it < icons.Length; it++)
+                {
+                    icons[it] = Sprite.Create(atlasTex, uvs[it], Vector2.zero);
+                }
+                item.Icons = icons;
             }
 
             itemAtlas.Finalise();
@@ -140,8 +146,7 @@ namespace AmarokGames.GridGame {
             foreach (Item item in itemToAtlasIndex.Keys) {
                 int atlasIndex = itemToAtlasIndex[item];
                 Rect itemSprite = itemAtlas.GetSprite(atlasIndex);
-                item.IconUV = new Rect[] { itemSprite };
-                item.IconTexture = itemAtlasTex;
+                item.Icons = new Sprite[] { Sprite.Create(itemAtlasTex, itemSprite, Vector2.zero) };
             }
         }
 

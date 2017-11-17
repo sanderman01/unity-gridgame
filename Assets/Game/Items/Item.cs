@@ -9,11 +9,10 @@ namespace AmarokGames.GridGame.Items {
 
         public virtual string HumanName { get; set; }
         public uint MaxQuantity { get; set; }
-        public Rect[] IconUV;
-        public Texture2D IconTexture;
+        public Sprite[] Icons;
 
         public virtual Sprite GetIcon(uint quantity, uint meta) {
-            return Sprite.Create(IconTexture, IconUV[meta], Vector2.zero);
+            return Icons[0];
         }
 
         public virtual void PostInit(Main game) { }
@@ -32,12 +31,12 @@ namespace AmarokGames.GridGame.Items {
 
             Rect position = new Rect(0, -50, 50, 50);
             GUI.Box(position, "");
-            GUI.DrawTextureWithTexCoords(position, IconTexture, IconUV[0]);
+            GUI.DrawTextureWithTexCoords(position, Icons[0].texture, Icons[0].rect);
 
             Matrix4x4 m = Matrix4x4.TRS(screenPos, Quaternion.identity, Vector3.one);
             Matrix4x4 oldM = GUI.matrix;
             GUI.matrix = m;
-            GUI.DrawTextureWithTexCoords(position, IconTexture, IconUV[0]);
+            GUI.DrawTextureWithTexCoords(position, Icons[0].texture, Icons[0].rect);
             GUI.matrix = oldM;
         }
     }
