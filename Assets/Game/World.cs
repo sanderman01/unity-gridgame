@@ -55,7 +55,7 @@ namespace AmarokGames.GridGame {
             gridGameObject.transform.SetParent(this.transform, false);
             Grid2D grid = gridGameObject.AddComponent<Grid2D>();
             Grids.Add(grid);
-            grid.Setup(currentGridId, ChunkSize.x, ChunkSize.y, Layers, gridType);
+            grid.Setup(currentGridId, Layers, gridType);
             currentGridId++;
             return grid;
         }

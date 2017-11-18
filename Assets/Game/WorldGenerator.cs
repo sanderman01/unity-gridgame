@@ -48,12 +48,10 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateTerrainChunks(World world, Grid2D grid) {
-            int chunkHeight = world.ChunkSize.y;
-            int chunkWidth = world.ChunkSize.x;
 
             // create chunks
-            for (int y = 0; y < world.Size.y / chunkHeight; ++y) {
-                for (int x = 0; x < world.Size.x / chunkWidth; ++x) {
+            for (int y = 0; y < world.Size.y / Grid2D.ChunkHeight; ++y) {
+                for (int x = 0; x < world.Size.x / Grid2D.ChunkWidth; ++x) {
                     Int2 chunkCoord = new Int2(x, y);
                     CreateTerrainChunk(world, grid, chunkCoord);
                 }
@@ -61,8 +59,6 @@ namespace AmarokGames.GridGame {
         }
 
         private void CreateTerrainChunk(World world, Grid2D grid, Int2 chunkCoord) {
-            int chunkHeight = world.ChunkSize.y;
-            int chunkWidth = world.ChunkSize.x;
 
             FastNoise noise = new FastNoise(world.Seed);
 
@@ -79,7 +75,7 @@ namespace AmarokGames.GridGame {
             // Generate base terrain
             for (int i = 0; i < solidBuffer.Length; ++i) {
                 // Calculate value based on gridCoord
-                Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
+                Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord);
                 uint foregroundTileValue;
                 uint backgroundTileValue;
                 GenerateTile(noise, gridCoord, debugBuffer, i, out foregroundTileValue, out backgroundTileValue);
@@ -93,27 +89,27 @@ namespace AmarokGames.GridGame {
 
             Random.InitState(world.Seed);
 
-            GenerateGrass(chunkCoord, chunkHeight, chunkWidth, solidBuffer, foregroundBuffer, backgroundBuffer);
+            GenerateGrass(chunkCoord, solidBuffer, foregroundBuffer, backgroundBuffer);
 
         }
 
         /// <summary>
         /// Iterates from top to bottom in every column until it finds the first solid tile, then it starts replacing tiles with grass.
         /// </summary>
-        private void GenerateGrass(Int2 chunkCoord, int chunkHeight, int chunkWidth, BitBuffer solidBuffer, BufferUnsignedInt32 foregroundBuffer, BufferUnsignedInt32 backgroundBuffer) {
+        private void GenerateGrass(Int2 chunkCoord, BitBuffer solidBuffer, BufferUnsignedInt32 foregroundBuffer, BufferUnsignedInt32 backgroundBuffer) {
             // Generate grass and dirt
             if (chunkCoord.y == 1 || chunkCoord.y == 2) {
                 // Iterate over columns in the chunk
-                for (int x = 0; x < chunkWidth; x++) {
+                for (int x = 0; x < Grid2D.ChunkWidth; x++) {
                     // Iterate from top to bottom
                     int grassTilesBudget = 0;
                     int dirtTilesBudget = 0;
-                    for (int y = chunkHeight - 1; y >= 0; y--) {
+                    for (int y = Grid2D.ChunkHeight - 1; y >= 0; y--) {
                         Int2 localCoord = new Int2(x, y);
-                        int bufferIndex = Grid2D.GetCellIndex(localCoord, chunkWidth, chunkHeight);
+                        int bufferIndex = Grid2D.GetGridCellIndex(localCoord);
                         bool solidTile = solidBuffer.GetValue(bufferIndex);
 
-                        if (y == chunkHeight - 1 && !solidTile) {
+                        if (y == Grid2D.ChunkHeight - 1 && !solidTile) {
                             grassTilesBudget = Random.Range(1, 3);
                             dirtTilesBudget = Random.Range(10, 20);
                         }

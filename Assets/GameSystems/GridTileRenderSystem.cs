@@ -94,8 +94,6 @@ namespace AmarokGames.Grids {
         }
 
         private void UpdateWorld(World world, float deltaTime, Grid2D grid) {
-            int chunkWidth = grid.ChunkWidth;
-            int chunkHeight = grid.ChunkHeight;
 
             var chunks = grid.GetAllChunks();
             Rect bounds = Camera.main.OrthoBounds2D();
@@ -200,8 +198,8 @@ namespace AmarokGames.Grids {
         }
 
         private static void BuildChunkGeometry(Grid2D grid, LayerId layerId, ChunkData chunk, Int2 chunkCoord, TileRenderData[] tileRenderData, Mesh mesh, List<Vector3> vertices, List<Vector2> uvs, List<Vector3> normals, List<int> triangles, float zOffsetGlobal) {
-            int chunkWidth = grid.ChunkWidth;
-            int chunkHeight = grid.ChunkHeight;
+            const int chunkWidth = Grid2D.ChunkWidth;
+            const int chunkHeight = Grid2D.ChunkHeight;
             int vertexCount = vertices.Count;
             const float zOffset = -0.01f;
 
@@ -214,7 +212,7 @@ namespace AmarokGames.Grids {
             BufferUnsignedInt32 mainbuf = (BufferUnsignedInt32)chunk.GetBuffer(layerId);
             for(int y = 0; y < chunkHeight; y++) {
                 for(int x = 0; x < chunkWidth; x++) {
-                    int cellindex = Grid2D.GetCellIndex(new Int2(x, y), chunkWidth);
+                    int cellindex = Grid2D.GetChunkCellIndex(new Int2(x, y), chunkWidth);
                     b[y + 1, x + 1] = mainbuf.GetValue(cellindex);
                 }
             }

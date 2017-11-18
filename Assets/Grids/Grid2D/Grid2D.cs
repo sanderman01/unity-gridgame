@@ -13,8 +13,8 @@ namespace AmarokGames.Grids {
         public enum GridType { Static = 0, Dynamic = 1 }
 
         public int GridId { get { return gridId; } }
-        public int ChunkWidth { get { return chunkWidth; } }
-        public int ChunkHeight { get { return chunkHeight; } }
+        public const int ChunkWidth = 64;
+        public const int ChunkHeight = 64;
         public GridType Type { get { return gridType; } }
 
 
@@ -33,8 +33,6 @@ namespace AmarokGames.Grids {
         private List<Int2> recentlyRemovedChunks = new List<Int2>();
 
         private int gridId;
-        private int chunkWidth;
-        private int chunkHeight;
         private GridType gridType;
         private LayerConfig layers;
         private Dictionary<Int2, Grid2DChunk> chunkObjects = new Dictionary<Int2, Grid2DChunk>();
@@ -53,10 +51,8 @@ namespace AmarokGames.Grids {
         /// Create a new grid with the specified dimensions and layers. 
         /// Make sure to setup correctly setup the LayerConfig before creating any grids, since this cannot be changed after construction.
         /// </summary>
-        public void Setup(int gridId, int chunkWidth, int chunkHeight, LayerConfig layers, GridType type) {
+        public void Setup(int gridId, LayerConfig layers, GridType type) {
             this.gridId = gridId;
-            this.chunkWidth = chunkWidth;
-            this.chunkHeight = chunkHeight;
             this.layers = layers;
             this.gridType = type;
 
@@ -84,7 +80,7 @@ namespace AmarokGames.Grids {
             }
 
             // Create chunk data object
-            ChunkData chunk = new ChunkData(chunkWidth * chunkHeight, layers);
+            ChunkData chunk = new ChunkData(ChunkWidth * ChunkHeight, layers);
 
             // Create and position chunk GameObject
             string name = string.Format("chunk {0}", chunkCoord);
@@ -106,9 +102,9 @@ namespace AmarokGames.Grids {
         /// Returns the chunk coordinate associated with the specified grid coordinate. 
         /// The chunk coordinate and the grid coordinate are equal for the bottom-left cell in a chunk.
         /// </summary>
-        public static Int2 GetChunkCoord(Int2 gridCoord, int chunkWidth, int chunkHeight) {
-            int x = gridCoord.x / chunkWidth;
-            int y = gridCoord.y / chunkHeight;
+        public static Int2 GetChunkCoord(Int2 gridCoord) {
+            int x = gridCoord.x / ChunkWidth;
+            int y = gridCoord.y / ChunkHeight;
 
             // in case of negative numbers, we need to subtract by one chunk to get the correct value.
             // eg. for cell (-1,-1) we should get chunk (-64, -64) instead of chunk (0,0)
@@ -123,16 +119,16 @@ namespace AmarokGames.Grids {
         /// Returns the grid coordinate associated with the specified chunk coordinate. 
         /// This grid coordinate corresponds to the bottom-left corner of the chunk.
         /// </summary>
-        public static Int2 GetGridCoord(Int2 chunkCoord, int chunkWidth, int chunkHeight) {
-            return new Int2(chunkCoord.x * chunkWidth, chunkCoord.y * chunkHeight);
+        public static Int2 GetGridCoord(Int2 chunkCoord) {
+            return new Int2(chunkCoord.x * ChunkWidth, chunkCoord.y * ChunkHeight);
         }
 
         /// <summary>
         /// Returns the index within a chunk buffer for this grid-local coordinate.
         /// </summary>
-        public static int GetCellIndex(Int2 gridCoord, int chunkWidth, int chunkHeight) {
-            Int2 localCoord = new Int2(Modulo(gridCoord.x, chunkWidth), Modulo(gridCoord.y, chunkHeight));
-            return GetCellIndex(localCoord, chunkWidth);
+        public static int GetGridCellIndex(Int2 gridCoord) {
+            Int2 localCoord = new Int2(Modulo(gridCoord.x, ChunkWidth), Modulo(gridCoord.y, ChunkHeight));
+            return GetChunkCellIndex(localCoord, ChunkWidth);
         }
 
         private static int Modulo(int x, int n) {
@@ -144,16 +140,16 @@ namespace AmarokGames.Grids {
         /// <summary>
         /// Returns the index within a chunk buffer for this chunk-local coordinate.
         /// </summary>
-        public static int GetCellIndex(Int2 localCoord, int chunkWidth) {
+        public static int GetChunkCellIndex(Int2 localCoord, int chunkWidth) {
             return localCoord.y * chunkWidth + localCoord.x;
         }
 
         /// <summary>
         /// Get grid coordinate of the cell in chunk local space.
         /// </summary>
-        public static Int2 GetLocalGridCoordFromCellIndex(int index, int chunkWidth) {
-            int x = index % chunkWidth;
-            int y = index / chunkWidth;
+        public static Int2 GetLocalGridCoordFromCellIndex(int index) {
+            int x = index % ChunkWidth;
+            int y = index / ChunkWidth;
             return new Int2(x, y);
         }
 
@@ -175,9 +171,9 @@ namespace AmarokGames.Grids {
         /// <summary>
         /// Get grid coordinate of the cell in grid space.
         /// </summary>
-        public static Int2 GetGridCoordFromCellIndex(int index, Int2 chunkCoord, int chunkWidth, int chunkHeight) {
-            Int2 localCoord = GetLocalGridCoordFromCellIndex(index, chunkWidth);
-            Int2 chunkGridCoord = GetGridCoord(chunkCoord, chunkWidth, chunkHeight);
+        public static Int2 GetGridCoordFromCellIndex(int index, Int2 chunkCoord) {
+            Int2 localCoord = GetLocalGridCoordFromCellIndex(index);
+            Int2 chunkGridCoord = GetGridCoord(chunkCoord);
             return chunkGridCoord + localCoord;
         }
 
@@ -219,8 +215,8 @@ namespace AmarokGames.Grids {
 
         public static IEnumerable<Int2> GetChunks(Int2 minGridCoord, Int2 maxGridCoord, int chunkWidth, int chunkHeight) {
             // round down to chunk boundaries.
-            Int2 minChunk = GetChunkCoord(minGridCoord, chunkWidth, chunkHeight);
-            Int2 maxChunk = GetChunkCoord(maxGridCoord, chunkWidth, chunkHeight);
+            Int2 minChunk = GetChunkCoord(minGridCoord);
+            Int2 maxChunk = GetChunkCoord(maxGridCoord);
 
             List<Int2> result = new List<Int2>();
             for (int y = minChunk.y; y <= maxChunk.y; ++y) {
@@ -257,10 +253,10 @@ namespace AmarokGames.Grids {
         //}
 
         public uint GetUnsignedInt(Int2 gridCoord, LayerId layerId) {
-            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            Int2 chunkCoord = GetChunkCoord(gridCoord);
             ChunkData chunk;
             if (TryGetChunkData(chunkCoord, out chunk)) {
-                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                int index = GetGridCellIndex(gridCoord);
                 BufferUnsignedInt32 buffer = (BufferUnsignedInt32)chunk.GetBuffer(layerId);
                 return buffer.GetValue(index);
             } else {
@@ -269,10 +265,10 @@ namespace AmarokGames.Grids {
         }
 
         public void SetCellValue<T>(Int2 gridCoord, LayerId layerId, T value) {
-            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            Int2 chunkCoord = GetChunkCoord(gridCoord);
             ChunkData chunk;
             if (TryGetChunkData(chunkCoord, out chunk)) {
-                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                int index = GetGridCellIndex(gridCoord);
                 IDataBuffer buffer = chunk.GetBuffer(layerId);
 
                 // set the new cell value
@@ -286,10 +282,10 @@ namespace AmarokGames.Grids {
         }
 
         public object GetCellValue(Int2 gridCoord, LayerId layerId) {
-            Int2 chunkCoord = GetChunkCoord(gridCoord, chunkWidth, chunkHeight);
+            Int2 chunkCoord = GetChunkCoord(gridCoord);
             ChunkData chunk;
             if (TryGetChunkData(chunkCoord, out chunk)) {
-                int index = GetCellIndex(gridCoord, chunkWidth, chunkHeight);
+                int index = GetGridCellIndex(gridCoord);
                 IDataBuffer buffer = chunk.GetBuffer(layerId);
                 return buffer.GetValue(index);
             } else {
@@ -337,8 +333,8 @@ namespace AmarokGames.Grids {
         private void DrawChunkBoundsGizmo(Int2 chunkCoord) {
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.color = Color.white;
-            Vector2 center = new Vector2(chunkCoord.x * chunkWidth + chunkWidth / 2, chunkCoord.y * chunkHeight + chunkHeight / 2);
-            Vector2 size = new Vector2(chunkWidth, chunkHeight);
+            Vector2 center = new Vector2(chunkCoord.x * ChunkWidth + ChunkWidth / 2, chunkCoord.y * ChunkHeight + ChunkHeight / 2);
+            Vector2 size = new Vector2(ChunkWidth, ChunkHeight);
             Gizmos.DrawWireCube(center, size);
         }
 

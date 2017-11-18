@@ -70,13 +70,13 @@ namespace AmarokGames.GridGame {
 
                         FloatBuffer buffer = (FloatBuffer)grid.TryGetBuffer(chunkCoord, layer);
 
-                        for (int i = 0; i < grid.ChunkHeight * grid.ChunkWidth; i++) {
+                        for (int i = 0; i < Grid2D.ChunkHeight * Grid2D.ChunkWidth; i++) {
 
                             float value = buffer.GetValue(i);
                             value = Mathf.InverseLerp(0, 2, value);
                             Vector3 offset = 0.5f * Vector3.one;
 
-                            Int2 localGridCoord = Grid2D.GetLocalGridCoordFromCellIndex(i, grid.ChunkWidth);
+                            Int2 localGridCoord = Grid2D.GetLocalGridCoordFromCellIndex(i);
                             Vector3 pos = new Vector3(localGridCoord.x, localGridCoord.y, 0) + offset;
                             Matrix4x4 tr = Matrix4x4.TRS(pos, Quaternion.identity, Vector3.one * value);
                             Matrix4x4 m = chunk.transform.localToWorldMatrix * tr;

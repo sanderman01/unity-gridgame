@@ -114,11 +114,11 @@ namespace AmarokGames.Grids {
 
                 bool makingRect;
                 Rect currentRect = new Rect();
-                for(int y = 0; y < grid.ChunkHeight; ++y) {
+                for(int y = 0; y < Grid2D.ChunkHeight; ++y) {
                     makingRect = false;
-                    for(int x = 0; x < grid.ChunkWidth; ++x) {
+                    for(int x = 0; x < Grid2D.ChunkWidth; ++x) {
                         Int2 localCoord = new Int2(x, y);
-                        int cellIndex = Grid2D.GetCellIndex(localCoord, grid.ChunkWidth);
+                        int cellIndex = Grid2D.GetChunkCellIndex(localCoord, Grid2D.ChunkWidth);
                         bool solid = solidBuffer.GetValue(cellIndex);
 
                         if(solid && !makingRect) {
@@ -138,7 +138,7 @@ namespace AmarokGames.Grids {
                     if(makingRect) {
                         // finish the current rect
                         makingRect = false;
-                        currentRect.xMax = grid.ChunkWidth;
+                        currentRect.xMax = Grid2D.ChunkWidth;
                         rects.Add(currentRect);
                     }
                 }

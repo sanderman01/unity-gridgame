@@ -46,8 +46,6 @@ namespace AmarokGames.Grids {
 
         public override void UpdateWorld(World world, float deltaTime) {
             Grid2D grid = world.Grids[0]; // TODO Fix GridSolidRenderSystem for handling multiple grids.
-            int chunkWidth = grid.ChunkWidth;
-            int chunkHeight = grid.ChunkHeight;
             IEnumerable<Int2> chunks = grid.GetAllChunks();
             Rect bounds = Camera.main.OrthoBounds2D();
 
@@ -59,7 +57,7 @@ namespace AmarokGames.Grids {
                 Grid2DChunk chunk;
                 if (grid.TryGetChunkObject(chunkCoord, out chunk) && bounds.Overlaps(chunk.Bounds2D)) {
                     BitBuffer buffer = (BitBuffer)chunk.Data.GetBuffer(solidLayer);
-                    BuildChunkGeometry(chunkCoord, buffer, mesh, chunkWidth, chunkHeight, vertices, normals, triangles);
+                    BuildChunkGeometry(chunkCoord, buffer, mesh, vertices, normals, triangles);
                 }
             }
 
@@ -72,14 +70,14 @@ namespace AmarokGames.Grids {
             mesh.UploadMeshData(false);
         }
 
-        private static void BuildChunkGeometry(Int2 chunkCoord, BitBuffer buffer, Mesh mesh, int chunkWidth, int chunkHeight, List<Vector3> vertices, List<Vector3> normals, List<int> triangles) {
+        private static void BuildChunkGeometry(Int2 chunkCoord, BitBuffer buffer, Mesh mesh, List<Vector3> vertices, List<Vector3> normals, List<int> triangles) {
             int vertexCount = vertices.Count;
 
             for (int i = 0; i < buffer.Length; ++i) {
                 // generate vertices
                 bool value = buffer.GetValue(i);
                 if (value) {
-                    Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord, chunkWidth, chunkHeight);
+                    Int2 gridCoord = Grid2D.GetGridCoordFromCellIndex(i, chunkCoord);
                     Vector3 vertexPos = gridCoord;
                     // add quad
                     AddQuad(vertexPos, ref vertexCount, vertices, normals, triangles);
