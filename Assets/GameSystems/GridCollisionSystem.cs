@@ -23,6 +23,8 @@ namespace AmarokGames.Grids {
         private LayerId solidLayer;
         private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
 
+        private QuadTreeColliderGenerator colliderGenerator = new QuadTreeColliderGenerator();
+
         protected override void Enable() {
         }
 
@@ -112,7 +114,7 @@ namespace AmarokGames.Grids {
                 chunkCollidersEntry.colliders.Clear();
 
                 // Calculate desired collider rectangles.
-                List<Rect> rects = QuadTreeColliderGen.GenerateColliders(solidBuffer);
+                List<Rect> rects = colliderGenerator.GenerateColliderRects(solidBuffer);
 
                 // Get the game object, and create all the required box colliders.
                 foreach (Rect rect in rects)
@@ -141,7 +143,7 @@ namespace AmarokGames.Grids {
     /// </summary>
     public class RowScanColliderGen
     {
-        private static List<Rect> GenerateColliders(BitBuffer solidBuffer)
+        public static List<Rect> GenerateColliders(BitBuffer solidBuffer)
         {
             Profiler.BeginSample("GenerateColliders");
             List<Rect> rects = new List<Rect>();
@@ -208,11 +210,14 @@ namespace AmarokGames.Grids {
     }
 
     /// <summary>
-    /// Calculates collider rectangles from a tile BitBuffer, using a Region-QuadTree approach.
+    /// Calculates collider rectangles from a tile BitBuffer using a RegionQuadTree approach.
     /// </summary>
-    public class QuadTreeColliderGen
+    public class QuadTreeColliderGenerator
     {
-        public class TreeNode
+        private List<Rect> rects = new List<Rect>(4096);
+        private TreeNode[] nodes = new TreeNode[5461];
+
+        public struct TreeNode
         {
             public enum NodeValue { Empty, Solid, Partial }
 
@@ -220,76 +225,92 @@ namespace AmarokGames.Grids {
             public int minX;
             public int minY;
             public int width;
-            public TreeNode[] children;
-
-            public TreeNode(NodeValue value, int minX, int minY, int width, TreeNode[] children)
-            {
-                this.value = value;
-                this.minX = minX;
-                this.minY = minY;
-                this.width = width;
-                this.children = children;
-            }
+            public int childA;
+            public int childB;
+            public int childC;
+            public int childD;
         }
 
-        public static List<Rect> GenerateColliders(BitBuffer solidBuffer)
+        public List<Rect> GenerateColliderRects(BitBuffer solidBuffer)
         {
             Profiler.BeginSample("QuadTreeColliderGen.GenerateColliders");
-            List<Rect> rects = new List<Rect>();
-            TreeNode tree = CreateTree(solidBuffer, 0, 0, Grid2D.ChunkWidth);
-            RenderTree(tree, rects);
+            rects.Clear();
+            int nodeCount = 0;
+            CreateTree(nodes, ref nodeCount, solidBuffer, 0, 0, Grid2D.ChunkWidth);
+            RenderTree(0, nodes, rects);
             Profiler.EndSample();
             return rects;
         }
 
-        private static TreeNode CreateTree(BitBuffer solidTileBuffer, int minX, int minY, int width)
+        /// <summary>
+        /// Creates a tree of nodes inside the specified array. Nodes reference their children by index into the array.
+        /// </summary>
+        private static int CreateTree(TreeNode[] nodes, ref int nodeCount, BitBuffer solidTileBuffer, int minX, int minY, int width)
         {
+            int nodeIndex = nodeCount;
+            nodeCount++;
+
             if (width == 1)
             {
                 // Base case.
                 int index = Grid2D.GetChunkCellIndex(new Int2(minX, minY), Grid2D.ChunkWidth);
                 bool solid = solidTileBuffer.GetValue(index);
                 TreeNode.NodeValue value = solid ? TreeNode.NodeValue.Solid : TreeNode.NodeValue.Empty;
-                return new TreeNode(value, minX, minY, width, null);
+
+                nodes[nodeIndex].value = value;
+                nodes[nodeIndex].minX = minX;
+                nodes[nodeIndex].minY = minY;
+                nodes[nodeIndex].width = width;
+                
+                return nodeIndex;
             }
             else
             {
                 // Recursive case.
                 int childWidth = width / 2;
-                TreeNode[] children = new TreeNode[4]
-                {
-                        CreateTree(solidTileBuffer, minX, minY, childWidth),
-                        CreateTree(solidTileBuffer, minX + childWidth, minY, childWidth),
-                        CreateTree(solidTileBuffer, minX, minY + childWidth, childWidth),
-                        CreateTree(solidTileBuffer, minX + childWidth, minY + childWidth, childWidth)
-                };
+                int childA = nodes[nodeIndex].childA = CreateTree(nodes, ref nodeCount, solidTileBuffer, minX, minY, childWidth);
+                int childB = nodes[nodeIndex].childB = CreateTree(nodes, ref nodeCount, solidTileBuffer, minX + childWidth, minY, childWidth);
+                int childC = nodes[nodeIndex].childC = CreateTree(nodes, ref nodeCount, solidTileBuffer, minX, minY + childWidth, childWidth);
+                int childD = nodes[nodeIndex].childD = CreateTree(nodes, ref nodeCount, solidTileBuffer, minX + childWidth, minY + childWidth, childWidth);
 
-                TreeNode.NodeValue value;
-                if (Array.TrueForAll(children, item => item.value == TreeNode.NodeValue.Solid))
+                if (nodes[childA].value == TreeNode.NodeValue.Solid && nodes[childB].value == TreeNode.NodeValue.Solid
+                    && nodes[childC].value == TreeNode.NodeValue.Solid && nodes[childD].value == TreeNode.NodeValue.Solid)
                 {
-                    value = TreeNode.NodeValue.Solid;
+                    nodes[nodeIndex].value = TreeNode.NodeValue.Solid;
+                    nodes[nodeIndex].minX = minX;
+                    nodes[nodeIndex].minY = minY;
+                    nodes[nodeIndex].width = width;
+                    return nodeIndex;
                 }
-                else if (Array.TrueForAll(children, item => item.value == TreeNode.NodeValue.Empty))
+                else if (nodes[childA].value == TreeNode.NodeValue.Empty && nodes[childB].value == TreeNode.NodeValue.Empty
+                    && nodes[childC].value == TreeNode.NodeValue.Empty && nodes[childD].value == TreeNode.NodeValue.Empty)
                 {
-                    value = TreeNode.NodeValue.Empty;
+                    nodes[nodeIndex].value = TreeNode.NodeValue.Empty;
+                    return nodeIndex;
                 }
                 else
                 {
-                    value = TreeNode.NodeValue.Partial;
+                    nodes[nodeIndex].value = TreeNode.NodeValue.Partial;
+                    nodes[nodeIndex].minX = minX;
+                    nodes[nodeIndex].minY = minY;
+                    nodes[nodeIndex].width = width;
+                    return nodeIndex;
                 }
-                return new TreeNode(value, minX, minY, width, children);
             }
         }
 
-        private static void RenderTree(TreeNode tree, List<Rect> results)
+        private static void RenderTree(int nodeIndex, TreeNode[] nodes, List<Rect> results)
         {
-            switch (tree.value)
+            switch (nodes[nodeIndex].value)
             {
                 case TreeNode.NodeValue.Solid:
-                    results.Add(new Rect(tree.minX, tree.minY, tree.width, tree.width));
+                    results.Add(new Rect(nodes[nodeIndex].minX, nodes[nodeIndex].minY, nodes[nodeIndex].width, nodes[nodeIndex].width));
                     break;
                 case TreeNode.NodeValue.Partial:
-                    foreach (TreeNode node in tree.children) RenderTree(node, results);
+                    RenderTree(nodes[nodeIndex].childA, nodes, results);
+                    RenderTree(nodes[nodeIndex].childB, nodes, results);
+                    RenderTree(nodes[nodeIndex].childC, nodes, results);
+                    RenderTree(nodes[nodeIndex].childD, nodes, results);
                     break;
                 default:
                     break;
