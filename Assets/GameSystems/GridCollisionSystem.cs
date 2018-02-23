@@ -1,4 +1,4 @@
-﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+﻿// Copyright(C) 2018, Alexander Verbeek
 
 using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
@@ -250,8 +250,13 @@ namespace AmarokGames.Grids {
                 NodeType childC = RenderTree(results, solidTileBuffer, minX, minY + childWidth, childWidth);
                 NodeType childD = RenderTree(results, solidTileBuffer, minX + childWidth, minY + childWidth, childWidth);
 
-                if (childA == NodeType.Solid && childB == NodeType.Solid
-                    && childC == NodeType.Solid && childD == NodeType.Solid)
+                // Determine which sub-sections are solid.
+                bool ab = childA == NodeType.Solid && childB == NodeType.Solid;
+                bool cd = childC == NodeType.Solid && childD == NodeType.Solid;
+                bool ac = childA == NodeType.Solid && childC == NodeType.Solid;
+                bool bd = childB == NodeType.Solid && childD == NodeType.Solid;
+
+                if (ab && cd)
                 {
                     return NodeType.Solid;
                 }
@@ -262,6 +267,27 @@ namespace AmarokGames.Grids {
                 }
                 else
                 {
+                    if (ab)
+                    {
+                        results.Add(new Rect(minX, minY, childWidth + childWidth, childWidth));
+                        childA = childB = NodeType.Empty;
+                    }
+                    else if (cd)
+                    {
+                        results.Add(new Rect(minX, minY + childWidth, childWidth + childWidth, childWidth));
+                        childC = childD = NodeType.Empty;
+                    }
+                    else if (ac)
+                    {
+                        results.Add(new Rect(minX, minY, childWidth, childWidth + childWidth));
+                        childA = childC = NodeType.Empty;
+                    }
+                    else if (bd)
+                    {
+                        results.Add(new Rect(minX + childWidth, minY, childWidth, childWidth + childWidth));
+                        childB = childD = NodeType.Empty;
+                    }
+
                     if (childA == NodeType.Solid) results.Add(new Rect(minX, minY, childWidth, childWidth));
                     if (childB == NodeType.Solid) results.Add(new Rect(minX + childWidth, minY, childWidth, childWidth));
                     if (childC == NodeType.Solid) results.Add(new Rect(minX, minY + childWidth, childWidth, childWidth));
