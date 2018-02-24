@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using AmarokGames.GridGame.Items;
+using GridGame;
 
 namespace AmarokGames.GridGame {
 
     public class GameRegistry {
 
-        DynamicTextureAtlas atlas;
+        DynamicTextureAtlas tileAtlas;
         DynamicTextureAtlas itemAtlas;
 
         List<Tile> tilesByIndex;
@@ -43,7 +44,7 @@ namespace AmarokGames.GridGame {
             tileToItem = new Dictionary<Tile, ItemTile>();
             itemToTile = new Dictionary<ItemTile, Tile>();
 
-            atlas = new DynamicTextureAtlas();
+            tileAtlas = new DynamicTextureAtlas();
             itemAtlas = new DynamicTextureAtlas();
 
             itemToAtlasIndex = new Dictionary<Item, int>();
@@ -68,7 +69,7 @@ namespace AmarokGames.GridGame {
             tilesByName.Add(registeredName, tile);
             tileToIdName.Add(tile, registeredName);
 
-            int tileAtlasIndex = atlas.AddTexture(texture);
+            int tileAtlasIndex = tileAtlas.AddSprite(texture);
             Debug.Assert(tileIndex == tileAtlasIndex);
 
             // Create default item for block and register it.
@@ -106,7 +107,7 @@ namespace AmarokGames.GridGame {
             itemsByName.Add(registeredName, item);
             itemToIdName.Add(item, registeredName);
 
-            int tileAtlasIndex = itemAtlas.AddTexture(iconTexture);
+            int tileAtlasIndex = itemAtlas.AddSprite(iconTexture);
             itemToAtlasIndex.Add(item, tileAtlasIndex);
 
             return itemIndex;
@@ -116,14 +117,14 @@ namespace AmarokGames.GridGame {
         /// No more tiles should be registered past this point.
         /// </summary>
         public void Finalise() {
-            atlas.Finalise();
-            Texture2D atlasTex = atlas.GetTexture();
+            tileAtlas.Finalise();
+            Texture2D atlasTex = tileAtlas.GetTexture();
             atlasTex.filterMode = FilterMode.Point;
 
             // For every tile, set the spriteUV.
             for (int i = 0; i < tilesByIndex.Count; ++i) {
                 Tile tile = tilesByIndex[i];
-                tile.SpriteUV = atlas.GetSprite(i);
+                tile.SpriteUV = tileAtlas.GetSpriteUVRect(i);
 
                 // Also set the item icon uv.
                 ItemTile item = tileToItem[tile];
@@ -145,13 +146,13 @@ namespace AmarokGames.GridGame {
             // For every item that uses the itemAtlas, set the spriteUV
             foreach (Item item in itemToAtlasIndex.Keys) {
                 int atlasIndex = itemToAtlasIndex[item];
-                Rect itemSprite = itemAtlas.GetSprite(atlasIndex);
+                Rect itemSprite = itemAtlas.GetSpriteUVRect(atlasIndex);
                 item.Icons = new Sprite[] { Sprite.Create(itemAtlasTex, itemSprite, Vector2.zero) };
             }
         }
 
         public DynamicTextureAtlas GetAtlas() {
-            return atlas;
+            return tileAtlas;
         }
 
         public Tile GetTileById(int tileId) {
