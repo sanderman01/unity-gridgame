@@ -4,54 +4,62 @@ using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using UnityEngine.Profiling;
 
-namespace AmarokGames.Grids {
-
+namespace AmarokGames.Grids
+{
     /// <summary>
-    /// Manages chunk collision components.
+    /// Manages chunk collider components.
     /// </summary>
-    public class GridCollisionSystem : GameSystemBase, IGameSystem {
-
-        private class ChunkCollidersEntry {
+    public class GridColliderSystem : GameSystemBase, IGameSystem
+    {
+        private class ChunkCollidersEntry
+        {
             public int LastModified;
             public GameObject chunkColliderObject;
             public List<BoxCollider2D> colliders = new List<BoxCollider2D>();
         }
 
-        private LayerId solidLayer;
-        private Dictionary<ChunkKey, ChunkCollidersEntry> chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
+        private LayerId _solidLayer;
+        private Dictionary<ChunkKey, ChunkCollidersEntry> _chunksColliders = new Dictionary<ChunkKey, ChunkCollidersEntry>();
 
-        private QuadTreeColliderGenerator colliderGenerator = new QuadTreeColliderGenerator();
+        private ColliderGeneratorQT _colliderGenerator = new ColliderGeneratorQT();
 
-        protected override void Enable() {
+        protected override void Enable()
+        {
         }
 
-        protected override void Disable() {
-            foreach(ChunkCollidersEntry entry in chunksColliders.Values) {
+        protected override void Disable()
+        {
+            foreach (ChunkCollidersEntry entry in _chunksColliders.Values)
+            {
                 UnityEngine.Object.Destroy(entry.chunkColliderObject);
                 entry.colliders.Clear();
             }
-            chunksColliders.Clear();
+            _chunksColliders.Clear();
         }
 
-        public static GridCollisionSystem Create(LayerId layerId) {
-            GridCollisionSystem sys = Create<GridCollisionSystem>();
-            sys.solidLayer = layerId;
+        public static GridColliderSystem Create(LayerId layerId)
+        {
+            GridColliderSystem sys = Create<GridColliderSystem>();
+            sys._solidLayer = layerId;
             return sys;
         }
 
-        public override void TickWorld(World world, int tickRate) {
+        public override void TickWorld(World world, int tickRate)
+        {
         }
 
-        public override void UpdateWorld(World world, float deltaTime) {
-            foreach(Grid2D grid in world.Grids) {
+        public override void UpdateWorld(World world, float deltaTime)
+        {
+            foreach (Grid2D grid in world.Grids)
+            {
                 UpdateGrid(world, grid);
             }
         }
 
-        private void UpdateGrid(World world, Grid2D grid) {
+        private void UpdateGrid(World world, Grid2D grid)
+        {
             Profiler.BeginSample("UpdateGrid");
 
             // For each chunk
@@ -63,35 +71,43 @@ namespace AmarokGames.Grids {
             // If the chunk did not yet exist, then we should create a component to hold the collision stuff
 
             // For every chunk in the grid
-            foreach(Int2 chunkCoord in grid.GetAllChunks()) {
+            foreach (Int2 chunkCoord in grid.GetAllChunks())
+            {
 
                 // Get the solid buffer. This buffer tracks whether cells contain solid tiles or not.
                 ChunkData data = null;
-                if(grid.TryGetChunkData(chunkCoord, out data)) {
-                    BitBuffer solidBuffer = (BitBuffer)data.GetBuffer(solidLayer);
+                if (grid.TryGetChunkData(chunkCoord, out data))
+                {
+                    BitBuffer solidBuffer = (BitBuffer)data.GetBuffer(_solidLayer);
 
                     ChunkCollidersEntry chunkColliders;
-                    if(chunksColliders.TryGetValue(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), out chunkColliders)) {
+                    if (_chunksColliders.TryGetValue(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), out chunkColliders))
+                    {
                         // We found existing colliders for this chunk
 
                         // Check if we need to update them or if they are still up-to-date.
-                        if (solidBuffer.LastModified > chunkColliders.LastModified) {
-                            UpdateColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
+                        if (solidBuffer.LastModified > chunkColliders.LastModified)
+                        {
+                            UpdateChunkColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
                             chunkColliders.LastModified = Time.frameCount;
                         }
                     }
-                    else {
+                    else
+                    {
                         // We did not find any existing colliders for this chunk.
                         // Create a gameObject to hold the colliders, and add an entry to the bookkeeping.
                         Grid2DChunk chunk = null;
-                        if(grid.TryGetChunkObject(chunkCoord, out chunk)) {
+                        if (grid.TryGetChunkObject(chunkCoord, out chunk))
+                        {
                             chunkColliders = new ChunkCollidersEntry();
                             chunkColliders.chunkColliderObject = new GameObject(string.Format("chunk {0} colliders", chunkCoord));
                             chunkColliders.chunkColliderObject.transform.SetParent(chunk.gameObject.transform, false);
 
-                            chunksColliders.Add(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), chunkColliders);
-                            UpdateColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
-                        } else {
+                            _chunksColliders.Add(new ChunkKey(world.WorldId, grid.GridId, chunkCoord), chunkColliders);
+                            UpdateChunkColliders(world.WorldId, grid, chunkCoord, solidBuffer, chunkColliders);
+                        }
+                        else
+                        {
                             // No chunk gameobject exists? Wha?
                         }
                     }
@@ -100,11 +116,12 @@ namespace AmarokGames.Grids {
             Profiler.EndSample();
         }
 
-        private void UpdateColliders(int worldId, Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry) {
+        private void UpdateChunkColliders(int worldId, Grid2D grid, Int2 chunkCoord, BitBuffer solidBuffer, ChunkCollidersEntry chunkCollidersEntry)
+        {
 
-            Profiler.BeginSample("UpdateColliders");
+            Profiler.BeginSample("UpdateChunkColliders");
             GameObject colliderGameObject = chunkCollidersEntry.chunkColliderObject;
-            if(colliderGameObject != null)
+            if (colliderGameObject != null)
             {
                 // Remove any existing colliders
                 foreach (BoxCollider2D collider in chunkCollidersEntry.colliders)
@@ -114,7 +131,7 @@ namespace AmarokGames.Grids {
                 chunkCollidersEntry.colliders.Clear();
 
                 // Calculate desired collider rectangles.
-                List<Rect> rects = colliderGenerator.GenerateColliderRects(solidBuffer);
+                List<Rect> rects = _colliderGenerator.GetRects(solidBuffer);
 
                 // Get the game object, and create all the required box colliders.
                 foreach (Rect rect in rects)
@@ -127,105 +144,37 @@ namespace AmarokGames.Grids {
                 }
 
             }
-            else {
+            else
+            {
                 // The chunk did not exist for some reason
                 // Clean lingering entries in our bookkeeping.
-                chunksColliders.Remove(new ChunkKey(worldId, grid.GridId, chunkCoord));
+                _chunksColliders.Remove(new ChunkKey(worldId, grid.GridId, chunkCoord));
             }
             Profiler.EndSample();
-        }
-
-
-    }
-
-    /// <summary>
-    /// This generates collider rectangles by scanning along rows in an attempt to merge collider rectangles.
-    /// </summary>
-    public class RowScanColliderGen
-    {
-        public static List<Rect> GenerateColliders(BitBuffer solidBuffer)
-        {
-            Profiler.BeginSample("GenerateColliders");
-            List<Rect> rects = new List<Rect>();
-            bool makingRect;
-            Rect currentRect = new Rect();
-            for (int y = 0; y < Grid2D.ChunkHeight; ++y)
-            {
-                makingRect = false;
-                for (int x = 0; x < Grid2D.ChunkWidth; ++x)
-                {
-                    Int2 localCoord = new Int2(x, y);
-                    int cellIndex = Grid2D.GetChunkCellIndex(localCoord, Grid2D.ChunkWidth);
-                    bool solid = solidBuffer.GetValue(cellIndex);
-
-                    if (solid && !makingRect)
-                    {
-                        // Start a new rect
-                        makingRect = true;
-                        currentRect.yMin = y;
-                        currentRect.yMax = y + 1;
-                        currentRect.xMin = x;
-                    }
-                    else if (!solid && makingRect)
-                    {
-                        // finish the current rect
-                        makingRect = false;
-                        currentRect.xMax = x;
-                        rects.Add(currentRect);
-                    }
-                }
-
-                if (makingRect)
-                {
-                    // finish the current rect
-                    makingRect = false;
-                    currentRect.xMax = Grid2D.ChunkWidth;
-                    rects.Add(currentRect);
-                }
-            }
-
-            for (int i = rects.Count - 1; i > 0; --i)
-            {
-                Rect a = rects[i];
-                Rect b = rects[i - 1];
-                if (a.xMin == b.xMin && a.xMax == b.xMax)
-                {
-                    // Then merge them in to one larger rect
-                    Rect newRect = new Rect();
-                    newRect.xMin = a.xMin;
-                    newRect.xMax = a.xMax;
-                    newRect.yMin = b.yMin;
-                    newRect.yMax = a.yMax;
-                    // remove the old ones from the list
-                    rects.RemoveAt(i);
-                    rects.RemoveAt(i - 1);
-
-                    // put the new one in the list
-                    rects.Insert(i - 1, newRect);
-                }
-            }
-            Profiler.EndSample();
-            return rects;
         }
     }
 
     /// <summary>
     /// Calculates collider rectangles from a tile BitBuffer using a RegionQuadTree approach.
     /// </summary>
-    public class QuadTreeColliderGenerator
+    class ColliderGeneratorQT
     {
-        private List<Rect> rects = new List<Rect>(Grid2D.ChunkWidth * Grid2D.ChunkWidth);
+        private List<Rect> _rects = new List<Rect>(Grid2D.ChunkWidth * Grid2D.ChunkWidth);
 
         public enum NodeType { Empty, Solid, Partial }
 
-        public List<Rect> GenerateColliderRects(BitBuffer solidBuffer)
+        /// <summary>
+        /// Returns a list of rectangles based on the provided buffer, which can be used to create the required colliders. 
+        /// This object will remain the owner of that list and the list will be re-used on subsequent calls to this method.
+        /// </summary>
+        public List<Rect> GetRects(BitBuffer solidBuffer)
         {
-            Profiler.BeginSample("ImplicitQuadTreeColliderGen.GenerateColliders");
-            rects.Clear();
-            NodeType node = RenderTree(rects, solidBuffer, 0, 0, Grid2D.ChunkWidth);
-            if (node == NodeType.Solid) rects.Add(new Rect(0, 0, Grid2D.ChunkWidth, Grid2D.ChunkWidth));
+            Profiler.BeginSample("QuadTreeColliderGenerator.GetRects");
+            _rects.Clear();
+            NodeType node = RenderTree(_rects, solidBuffer, 0, 0, Grid2D.ChunkWidth);
+            if (node == NodeType.Solid) _rects.Add(new Rect(0, 0, Grid2D.ChunkWidth, Grid2D.ChunkWidth));
             Profiler.EndSample();
-            return rects;
+            return _rects;
         }
 
         /// <summary>

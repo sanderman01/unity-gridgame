@@ -67,7 +67,7 @@ namespace AmarokGames.GridGame {
                 game.AddSystem(TileRendererBackground);
             }
 
-            game.AddSystem(GridCollisionSystem.Create(SolidLayerBool));
+            game.AddSystem(GridColliderSystem.Create(SolidLayerBool));
 
             WorldManagementSystem worldMgr = WorldManagementSystem.Create(gameRegistry, SolidLayerBool, TileForegroundLayerUInt, TileBackgroundLayerUInt);
             game.AddSystem(worldMgr);
