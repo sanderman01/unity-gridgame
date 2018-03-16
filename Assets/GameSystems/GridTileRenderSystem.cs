@@ -1,4 +1,4 @@
-﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+﻿// Copyright(C) 2018 Amarok Games, Alexander Verbeek
 
 using AmarokGames.GridGame;
 using AmarokGames.Grids.Data;
@@ -38,8 +38,8 @@ namespace AmarokGames.Grids {
 
         private Dictionary<ChunkKey, ChunkMeshRenderer> chunkMeshes = new Dictionary<ChunkKey, ChunkMeshRenderer>();
 
-        private LayerId layerId;
-        private float zOffsetGlobal;
+        internal LayerId layerId;
+        internal float zOffsetGlobal;
 
         protected override void Enable() {
         }

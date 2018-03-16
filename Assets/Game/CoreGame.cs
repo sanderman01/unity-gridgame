@@ -1,4 +1,4 @@
-﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
+﻿// Copyright(C) 2018 Amarok Games, Alexander Verbeek
 
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using UnityEngine;
 using System;
 using AmarokGames.Grids;
 using AmarokGames.GridGame.Items;
+using GridGame;
 
 namespace AmarokGames.GridGame {
 
@@ -19,7 +20,7 @@ namespace AmarokGames.GridGame {
         public LayerId TerrainGenDebugLayerFloat { get; private set; }
 
         public GridTileRenderSystem TileRendererForeground { get; private set; }
-        public GridTileRenderSystem TileRendererBackground { get; private set; }
+        public GridTileBackgroundRenderSystem TileRendererBackground { get; private set; }
         public PlayerSystem PlayerSystem { get; private set; }
 
         public Tile TileEmpty { get; private set; }
@@ -62,7 +63,7 @@ namespace AmarokGames.GridGame {
 
             {
                 TileRendererForeground = GridTileRenderSystem.Create(TileForegroundLayerUInt, 0);
-                TileRendererBackground = GridTileRenderSystem.Create(TileBackgroundLayerUInt, 1);
+                TileRendererBackground = GridTileBackgroundRenderSystem.Create(TileBackgroundLayerUInt, 1);
                 game.AddSystem(TileRendererForeground);
                 game.AddSystem(TileRendererBackground);
             }
