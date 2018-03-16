@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace AmarokGames.GridGame.Items {
+namespace AmarokGames.GridGame {
 
     public class Item {
 

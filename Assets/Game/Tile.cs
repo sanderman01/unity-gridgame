@@ -1,6 +1,5 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using System;
 using UnityEngine;
 
 namespace AmarokGames.GridGame {

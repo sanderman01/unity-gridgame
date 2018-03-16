@@ -1,7 +1,5 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using AmarokGames.GridGame.Inventory;
-using AmarokGames.GridGame.Items;
 using System.Collections.Generic;
 using UnityEngine;
 

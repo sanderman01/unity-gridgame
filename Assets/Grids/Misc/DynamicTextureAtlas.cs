@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GridGame
+namespace AmarokGames.GridGame
 {
     /// <summary>
     /// Allows creating a texture atlas at runtime from many smaller textures.

@@ -3,11 +3,9 @@
 using AmarokGames.Grids;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using AmarokGames.GridGame.Items;
-using GridGame;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame
+{
 
     public class GameRegistry {
 

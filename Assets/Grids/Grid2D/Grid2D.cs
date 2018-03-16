@@ -4,9 +4,9 @@ using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames.Grids
+{
 
     public class Grid2D : MonoBehaviour {
 

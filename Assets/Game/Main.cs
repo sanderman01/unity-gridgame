@@ -3,12 +3,12 @@
 using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame
+{
 
     public class Main : MonoBehaviour {
         [SerializeField]

@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames {
 
     [Serializable]
     public struct Int2 : IEquatable<Int2> {

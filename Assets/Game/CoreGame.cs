@@ -1,14 +1,11 @@
 ﻿// Copyright(C) 2018 Amarok Games, Alexander Verbeek
 
-using AmarokGames.Grids.Data;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
 using AmarokGames.Grids;
-using AmarokGames.GridGame.Items;
-using GridGame;
+using AmarokGames.Grids.Data;
+using UnityEngine;
 
-namespace AmarokGames.GridGame {
+namespace AmarokGames.GridGame
+{
 
     public class CoreGame : IGameMod {
 

@@ -3,7 +3,7 @@
 using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 
-namespace GridGame
+namespace AmarokGames.GridGame
 {
     public class GridTileBackgroundRenderSystem : GridTileRenderSystem
     {

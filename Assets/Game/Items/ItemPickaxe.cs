@@ -3,7 +3,7 @@
 using AmarokGames.Grids;
 using UnityEngine;
 
-namespace AmarokGames.GridGame.Items {
+namespace AmarokGames.GridGame {
 
     public class ItemPickaxe : ItemTool {
 

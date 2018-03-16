@@ -1,8 +1,6 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using AmarokGames.GridGame.Items;
-
-namespace AmarokGames.GridGame.Inventory {
+namespace AmarokGames.GridGame {
 
     public interface IInventorySlot {
 

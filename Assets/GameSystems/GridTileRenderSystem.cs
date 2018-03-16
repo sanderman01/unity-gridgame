@@ -1,12 +1,12 @@
 ﻿// Copyright(C) 2018 Amarok Games, Alexander Verbeek
 
-using AmarokGames.GridGame;
+using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames.GridGame
+{
 
     [System.Serializable]
     public struct TileRenderData {

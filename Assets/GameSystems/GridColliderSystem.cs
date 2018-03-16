@@ -1,12 +1,12 @@
 ﻿// Copyright(C) 2018, Alexander Verbeek
 
-using AmarokGames.GridGame;
+using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace AmarokGames.Grids
+namespace AmarokGames.GridGame
 {
     /// <summary>
     /// Manages chunk collider components.

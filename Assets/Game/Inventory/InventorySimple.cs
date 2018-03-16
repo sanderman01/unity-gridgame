@@ -1,12 +1,10 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using AmarokGames.GridGame.Items;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AmarokGames.GridGame.Inventory {
+namespace AmarokGames.GridGame {
 
     public class InventorySimple : IInventory, IEnumerable<ItemStack> {
 

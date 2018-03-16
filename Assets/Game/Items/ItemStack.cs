@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace AmarokGames.GridGame.Items {
+namespace AmarokGames.GridGame {
 
     public class ItemStack {
 

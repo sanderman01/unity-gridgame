@@ -1,12 +1,11 @@
 ﻿// Copyright(C) 2017 Amarok Games, Alexander Verbeek
 
-using AmarokGames.GridGame;
+using AmarokGames.Grids;
 using AmarokGames.Grids.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-namespace AmarokGames.Grids {
+namespace AmarokGames.GridGame {
 
     public class GridSolidRendererSystem : GameSystemBase, IGameSystem {
 
