@@ -6,30 +6,30 @@ namespace AmarokGames.GridGame {
 
     public class PlayerCharacter : MonoBehaviour {
 
-        internal Player player;
-        private new Rigidbody2D rigidbody;
+        internal Player _player;
+        private Rigidbody2D _rigidbody;
 
         [SerializeField]
-        private bool grounded;
+        private bool _grounded;
         [SerializeField]
-        private bool allowJetpack = true;
+        private bool _allowJetpack = true;
 
         [SerializeField]
-        private bool showCollisionGizmos;
+        private bool _showCollisionGizmos;
 
         // Debugging aides
-        private ContactPoint2D[] points = new ContactPoint2D[0];
+        private ContactPoint2D[] _points = new ContactPoint2D[0];
 
         // Fields used for step-assist
-        private bool applyStepAssistNextFrame;
-        private float stepAssistHeight;
-        private float previousFrameHorizontalVelocity;
+        private bool _applyStepAssistNextFrame;
+        private float _stepAssistHeight;
+        private float _previousFrameHorizontalVelocity;
 
-        new private Collider2D collider;
+        new private Collider2D _collider;
 
         void Awake() {
-            rigidbody = GetComponent<Rigidbody2D>();
-            collider = GetComponent<Collider2D>();
+            _rigidbody = GetComponent<Rigidbody2D>();
+            _collider = GetComponent<Collider2D>();
         }
 
         void FixedUpdate() {
@@ -44,63 +44,63 @@ namespace AmarokGames.GridGame {
             const float groundedRaycastYOffset = -0.01f;
             const float groundedRaycastWidthOffset = -0.1f;
             const float groundedRaycastLength = 0.1f;
-            grounded = rigidbody.velocity.y >= 0 && DoGroundedRaycasts(collider.bounds, groundedRaycastYOffset, groundedRaycastWidthOffset, groundedRaycastLength);
+            _grounded = _rigidbody.velocity.y >= 0 && DoGroundedRaycasts(_collider.bounds, groundedRaycastYOffset, groundedRaycastWidthOffset, groundedRaycastLength);
 
-            if (player.Right && rigidbody.velocity.x < maxWalkingSpeed) {
+            if (_player.Right && _rigidbody.velocity.x < maxWalkingSpeed) {
                 // Move right
-                Vector2 vel = rigidbody.velocity;
+                Vector2 vel = _rigidbody.velocity;
                 vel.x += walkingAcceleration * Time.fixedDeltaTime;
-                rigidbody.velocity = vel;
+                _rigidbody.velocity = vel;
             }
 
-            if (player.Left && rigidbody.velocity.x > -maxWalkingSpeed) {
+            if (_player.Left && _rigidbody.velocity.x > -maxWalkingSpeed) {
                 // Move left
-                Vector2 vel = rigidbody.velocity;
+                Vector2 vel = _rigidbody.velocity;
                 vel.x -= walkingAcceleration * Time.fixedDeltaTime;
-                rigidbody.velocity = vel;
+                _rigidbody.velocity = vel;
             }
 
-            if (!(player.Left || player.Right)) {
-                float drag = dragAcceleration * Time.fixedDeltaTime * rigidbody.velocity.x;
-                Vector2 vel = rigidbody.velocity;
+            if (!(_player.Left || _player.Right)) {
+                float drag = dragAcceleration * Time.fixedDeltaTime * _rigidbody.velocity.x;
+                Vector2 vel = _rigidbody.velocity;
                 vel.x -= drag;
-                rigidbody.velocity = vel;
+                _rigidbody.velocity = vel;
             }
 
-            if (player.Jump && grounded) {
-                Vector2 vel = rigidbody.velocity;
+            if (_player.Jump && _grounded) {
+                Vector2 vel = _rigidbody.velocity;
                 vel.y += jumpVelocity;
-                rigidbody.velocity = vel;
-                grounded = false;
+                _rigidbody.velocity = vel;
+                _grounded = false;
             }
-            if (allowJetpack && player.Jump && !grounded) {
+            if (_allowJetpack && _player.Jump && !_grounded) {
                 // Jetpack
                 const float jetpackMaxVerticalSpeed = 10;
-                Vector3 vel = rigidbody.velocity;
+                Vector3 vel = _rigidbody.velocity;
                 if (vel.y < jetpackMaxVerticalSpeed) {
-                    vel.y = Mathf.Min(rigidbody.velocity.y + jetpackAcceleration, jetpackMaxVerticalSpeed);
-                    rigidbody.velocity = vel;
+                    vel.y = Mathf.Min(_rigidbody.velocity.y + jetpackAcceleration, jetpackMaxVerticalSpeed);
+                    _rigidbody.velocity = vel;
                 }
-            } else if (!grounded) {
+            } else if (!_grounded) {
                 // Get pulled down by gravity
-                Vector2 vel = rigidbody.velocity;
+                Vector2 vel = _rigidbody.velocity;
                 vel.y -= gravityAcceleration * Time.fixedDeltaTime;
-                rigidbody.velocity = vel;
+                _rigidbody.velocity = vel;
             }
 
-            rigidbody.MovePosition(rigidbody.position + rigidbody.velocity * Time.fixedDeltaTime);
+            _rigidbody.MovePosition(_rigidbody.position + _rigidbody.velocity * Time.fixedDeltaTime);
 
             // Apply the step-assist by moving the character to same y-value as the highest contact point.
             Vector2 position = transform.position;
-            if (applyStepAssistNextFrame && stepAssistHeight < position.y + 1.1f) {
-                position.y = stepAssistHeight;
+            if (_applyStepAssistNextFrame && _stepAssistHeight < position.y + 1.1f) {
+                position.y = _stepAssistHeight;
                 transform.position = position;
-                Vector2 vel = rigidbody.velocity;
-                vel.x = previousFrameHorizontalVelocity;
-                rigidbody.velocity = vel;
+                Vector2 vel = _rigidbody.velocity;
+                vel.x = _previousFrameHorizontalVelocity;
+                _rigidbody.velocity = vel;
             }
-            applyStepAssistNextFrame = false;
-            stepAssistHeight = transform.position.y;
+            _applyStepAssistNextFrame = false;
+            _stepAssistHeight = transform.position.y;
         }
 
         // Casts raycasts downwards based on the specified bounding box to determine if the character owning the bounding box is grounded.
@@ -118,12 +118,12 @@ namespace AmarokGames.GridGame {
 
         void OnCollisionEnter2D(Collision2D collision) {
             HandleCollision(collision);
-            if (showCollisionGizmos) points = collision.contacts;
+            if (_showCollisionGizmos) _points = collision.contacts;
         }
 
         void OnCollisionStay2D(Collision2D collision) {
             HandleCollision(collision);
-            if (showCollisionGizmos) points = collision.contacts;
+            if (_showCollisionGizmos) _points = collision.contacts;
         }
 
         void OnCollisionExit2D(Collision2D collision) {
@@ -131,22 +131,22 @@ namespace AmarokGames.GridGame {
 
 
         void HandleCollision(Collision2D collision) {
-            Vector3 oldVelocity = rigidbody.velocity;
+            Vector3 oldVelocity = _rigidbody.velocity;
             Collider2D[] overlapping = new Collider2D[1];
             if (collision.collider.OverlapCollider(new ContactFilter2D(), overlapping) > 0) {
                 Vector3 collisionNormal = collision.contacts[0].normal;
                 float separation = collision.contacts[0].separation;
 
                 // Kill rigidbody.velocity in the direction of the collision.
-                if (Vector2.Dot(collisionNormal, rigidbody.velocity) < 0)
-                    rigidbody.velocity = Vector3.ProjectOnPlane(rigidbody.velocity, collisionNormal);
+                if (Vector2.Dot(collisionNormal, _rigidbody.velocity) < 0)
+                    _rigidbody.velocity = Vector3.ProjectOnPlane(_rigidbody.velocity, collisionNormal);
 
                 // Reduce overlap
                 if (separation < -0.1f) {
                     transform.Translate(0.9f * -separation * collisionNormal);
                     Vector3 oldPosition = transform.position;
                     if (Mathf.Abs(collision.contacts[0].point.y - oldPosition.y) < 0.1f)
-                        grounded = true;
+                        _grounded = true;
                 }
             }
 
@@ -158,18 +158,18 @@ namespace AmarokGames.GridGame {
                 float angleLeft = Vector2.Angle(p.normal, -Vector2.right);
                 bool verticalWall = Mathf.Abs(angleRight) < thresholdAngle || Mathf.Abs(angleLeft) < thresholdAngle;
 
-                if (verticalWall && grounded) {
+                if (verticalWall && _grounded) {
                     // Schedule step-assist
                     // Do a 1-tile jump, because this way we don't need to worry about ceilings
-                    applyStepAssistNextFrame = true;
-                    stepAssistHeight = Mathf.Max(stepAssistHeight, p.point.y);
-                    previousFrameHorizontalVelocity = oldVelocity.x;
+                    _applyStepAssistNextFrame = true;
+                    _stepAssistHeight = Mathf.Max(_stepAssistHeight, p.point.y);
+                    _previousFrameHorizontalVelocity = oldVelocity.x;
                 }
             }
         }
 
         void OnDrawGizmos() {
-            if (showCollisionGizmos) DrawGizmosContactPoints(points);
+            if (_showCollisionGizmos) DrawGizmosContactPoints(_points);
         }
 
         void DrawGizmosContactPoints(ContactPoint2D[] points) {

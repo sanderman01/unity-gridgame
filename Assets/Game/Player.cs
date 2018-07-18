@@ -41,11 +41,11 @@ namespace AmarokGames.GridGame {
 
         public void Possess(PlayerCharacter playerCharacter) {
             if (this.playerCharacter != null) {
-                this.playerCharacter.player = null;
+                this.playerCharacter._player = null;
             }
 
             if (playerCharacter != null) {
-                playerCharacter.player = this;
+                playerCharacter._player = this;
             }
             this.playerCharacter = playerCharacter;
         }
