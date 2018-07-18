@@ -39,7 +39,12 @@ namespace AmarokGames.GridGame {
             const float gravityAcceleration = 50;
             const float jetpackAcceleration = 50f;
             const float dragAcceleration = 10f;
-            const float jumpVelocity = 10f;
+            const float jumpVelocity = 20f;
+
+            const float groundedRaycastYOffset = -0.01f;
+            const float groundedRaycastWidthOffset = -0.1f;
+            const float groundedRaycastLength = 0.1f;
+            grounded = rigidbody.velocity.y >= 0 && DoGroundedRaycasts(collider.bounds, groundedRaycastYOffset, groundedRaycastWidthOffset, groundedRaycastLength);
 
             if (player.Right && rigidbody.velocity.x < maxWalkingSpeed) {
                 // Move right
@@ -96,21 +101,19 @@ namespace AmarokGames.GridGame {
             }
             applyStepAssistNextFrame = false;
             stepAssistHeight = transform.position.y;
-
-            DoGroundedRaycasts();
         }
 
-        private void DoGroundedRaycasts() {
-            Bounds bounds = collider.bounds;
-            Vector2 bottomLeft = new Vector2(bounds.min.x - 0.1f, bounds.min.y - 0.01f);
-            Vector2 bottomRight = new Vector2(bounds.max.x + 0.1f, bounds.min.y - 0.01f);
+        // Casts raycasts downwards based on the specified bounding box to determine if the character owning the bounding box is grounded.
+        private bool DoGroundedRaycasts(Bounds bounds, float yOffset, float widthOffset, float raycastLength)
+        {
+            Vector2 bottomLeft = new Vector2(bounds.min.x - widthOffset, bounds.min.y + yOffset);
+            Vector2 bottomRight = new Vector2(bounds.max.x + widthOffset, bounds.min.y + yOffset);
             Vector2 rayCastDir = Vector2.down;
-            float raycastLength = 0.1f;
-
             bool leftHit = Physics2D.Raycast(bottomLeft, rayCastDir, raycastLength);
             bool rightHit = Physics2D.Raycast(bottomRight, rayCastDir, raycastLength);
 
-            grounded = leftHit || rightHit;
+            bool grounded = leftHit || rightHit;
+            return grounded;
         }
 
         void OnCollisionEnter2D(Collision2D collision) {
